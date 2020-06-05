@@ -61,15 +61,15 @@ O shift é feito usando 3 sinais para definir qual tipo de shift deve ser feito:
 - t: tipo de shift, define se é um shift(0) comum ou uma rotação(1)
 - d: direção do shift, define se é um shift para direita ou para esquerda
 - b: define se deve preencher com 0 ou com 1
+
 |shift(t,d,b) rx ry|opcode|t d b|x|operando|valor do shift|ação|
-|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|
 |**shiftr0 rx ry**|1011|000|x|ry|rx|rx <- rx << ry preenchendo com 0|
 |**shiftl0 rx ry**|1011|010|x|ry|rx|rx <- rx << ry preenchendo com 0|
 |**shiftr1 rx ry**|1011|001|x|ry|rx|rx <- rx << ry preenchendo com 1|
 |**shiftl0 rx ry**|1011|011|x|ry|rx|rx <- rx << ry preenchendo com 0|
 |**rotr rx ry**   |1011|10x|x|ry|rx|rx <- rx << ry preenchendo com 1|
 |**rotl rx ry**   |1011|11x|x|ry|rx|rx <- rx << ry preenchendo com 0|
-shift(t,dir,b) rx ry
 
 ## Comparação
 |instrução|opcode|xxxx|op1|op2|ação|
@@ -80,22 +80,22 @@ shift(t,dir,b) rx ry
 A jump vai para o endereço salvo em rx e usa como condição o que está salvo em aux,
 se a jump for feita, o endereço de retorno é salvo em aux\
 A instrução possui 3 sinais para definir em qual conndição o jump deve ser feito
-- !: diz qual resultado esperado para acontecer o jump (1: verdadeiro; 2: false)
+- !: diz se o resultado deve ser invertido
 - =: diz se deve levar em consideração se em aux está salvo que é igual
 - <: diz se deve levar em consideração se em aux está salvo que é menor
-O que for levado em consideração, é feito um and e comparado com o resultado esperado,
+O que for levado em consideração, é feito um or e comparado com o resultado esperado,
 se forem iguais o jump é feito
 
 | jif(!,=,<) rx|opcode|! = <|xxxxx|rx|ação|
 |---|---|---|---|---|---|
 |**noop**|0000|000|xxxxx|rx|Um jump impossivel de acontecer|
 |**j**   |0000|100|xxxxx|rx|jump incondicional             |
-|**je**  |0000|110|xxxxx|rx|jump se igual                  |
-|**jne** |0000|010|xxxxx|rx|jump se diferente              |
-|**jl**  |0000|101|xxxxx|rx|jump se menor                  |
-|**jg**  |0000|011|xxxxx|rx|jump se maior                  |
-|**jle** |0000|101|xxxxx|rx|jump se menor ou igual         |
-|**jge** |0000|001|xxxxx|rx|jump se maior ou igual         |
+|**je**  |0000|010|xxxxx|rx|jump se igual                  |
+|**jne** |0000|110|xxxxx|rx|jump se diferente              |
+|**jl**  |0000|001|xxxxx|rx|jump se menor                  |
+|**jg**  |0000|111|xxxxx|rx|jump se maior                  |
+|**jle** |0000|011|xxxxx|rx|jump se menor ou igual         |
+|**jge** |0000|101|xxxxx|rx|jump se maior ou igual         |
 
 ## Entrada e Saida
 in/out rx ry
