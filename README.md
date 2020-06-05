@@ -1,4 +1,4 @@
-[Leia também em Português](README-ptbr.md)
+[Leia esta página em Português](README-ptbr.md)
 
 ---
 # Processor
