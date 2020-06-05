@@ -2,25 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define OP_J     0xb0000
-#define OP_CMP   0xb0001
-#define OP_STORE 0xb0010
-#define OP_LOAD  0xb0011
-#define OP_INOUT 0xb0100
-#define OP_SET   0xb0101
-#define OP_MOVE  0xb0110
-#define OP_ADD   0xb0111
-#define OP_SUB   0xb1000
-#define OP_MUL   0xb1001
-#define OP_DIV   0xb1010
-#define OP_SHIFT 0xb1011
-#define OP_AND   0xb1100
-#define OP_OR    0xb1101
-#define OP_XOR   0xb1110
-#define OP_NOT   0xb1111
+#include "memory.h"
 
-#define TAM_MEM 65536
-
+// -m MIF file
+// -b binary file
+// -0 text file with 0s and 1s of all memory
 int main(int argc, char const *argv[]) {
     if (argc < 3) {
         printf("Missing arguments\n");
