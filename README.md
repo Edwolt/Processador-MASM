@@ -81,8 +81,8 @@ aux: 0000 0000 0000 elzs\
 Onde:
 - e (igual): 1 se rx = ry
 - l (menor): 1 se rx < ry
-- z (zero): 1 se rx = 0
-- s (sinal): 1 se o ultimo bit de rx for 1
+- p (plus): 1 se o ultimo bit de rx for 0 ou rx valer zero
+- m (minus): 1 se o ultimo bit de rx for 1
 
 ## Desvio
 A jump vai para o endereço salvo em rx e usa como condição o que está salvo em aux,
@@ -91,21 +91,27 @@ A instrução possui 5 sinais para definir em qual conndição o jump deve ser f
 - n (inverte): diz se o resultado deve ser invertido
 - e (igual): diz se deve levar em consideração o valor em aux para igual
 - l (menor): diz se deve levar em consideração o valor em aux para menor
-- z (zero): diz se deve levar em consideração o valor em aux para zero 
-- s (sinal): diz se deve levar em consideração o valor em aux para sinal
+- p (plus): diz se deve levar em consideração o valor em aux para zero 
+- m (minus): diz se deve levar em consideração o valor em aux para sinal
 O que for levado em consideração, é feito um or e comparado com o resultado esperado,
 se forem iguais o jump é feito
 
-| jif(n,e,l,z,s) rx|opcode|n e l z s|xxx|rx|ação|
+| jif(n,e,l,p,m) rx|opcode|n e l z s|xxx|rx|ação|
 |---|---|---|---|---|---|
-|**noop**|0000|000|xxxxx|rx|Um jump impossivel de acontecer|
-|**j**   |0000|100|xxxxx|rx|jump incondicional             |
-|**je**  |0000|010|xxxxx|rx|jump se igual                  |
-|**jne** |0000|110|xxxxx|rx|jump se diferente              |
-|**jl**  |0000|001|xxxxx|rx|jump se menor                  |
-|**jg**  |0000|111|xxxxx|rx|jump se maior                  |
-|**jle** |0000|011|xxxxx|rx|jump se menor ou igual         |
-|**jge** |0000|101|xxxxx|rx|jump se maior ou igual         |
+|**noop**|0000|00000|xxx|rx|Um jump impossivel de acontecer|
+|**j**   |0000|10000|xxx|rx|jump incondicional             |
+|**je**  |0000|01000|xxx|rx|jump se igual                  |
+|**jne** |0000|11000|xxx|rx|jump se diferente              |
+|**jl**  |0000|00100|xxx|rx|jump se menor                  |
+|**jg**  |0000|11100|xxx|rx|jump se maior                  |
+|**jle** |0000|01100|xxx|rx|jump se menor ou igual         |
+|**jge** |0000|10100|xxx|rx|jump se maior ou igual         |
+|**jz**  |0000|10011|xxx|rx|jump se maior ou igual         |
+|**jnz** |0000|00011|xxx|rx|jump se maior ou igual         |
+|**jp**  |0000|00010|xxx|rx|jump se positivo               |
+|**jpz** |0000|10001|xxx|rx|jump se positivo ou zero       |
+|**jm**  |0000|00001|xxx|rx|jump se negativo               |
+|**jmz** |0000|10010|xxx|rx|jump se negativo ou zero|
 
 ## Entrada e Saida
 in/out rx ry
