@@ -81,8 +81,8 @@ aux: 0000 0000 0000 elzs\
 Onde:
 - e (igual): 1 se rx = ry
 - l (menor): 1 se rx < ry
-- p (plus): 1 se o ultimo bit de rx for 0 ou rx valer zero
-- m (minus): 1 se o ultimo bit de rx for 1
+- p (plus): 1 se o bit mais significativo de rx for 1 e rx for diferente de zero
+- m (minus): 1 se o bit mais significativo de rx for 1
 
 ## Desvio
 A jump vai para o endereço salvo em rx e usa como condição o que está salvo em aux,
