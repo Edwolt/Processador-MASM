@@ -111,7 +111,9 @@ se forem iguais o jump é feito
 |**jp**  |0000|00010|xxx|rx|jump se positivo               |
 |**jpz** |0000|10001|xxx|rx|jump se positivo ou zero       |
 |**jm**  |0000|00001|xxx|rx|jump se negativo               |
-|**jmz** |0000|10010|xxx|rx|jump se negativo ou zero|
+|**jmz** |0000|10010|xxx|rx|jump se negativo ou zero       |
+
+Obs: é possível fazer outras combinações de jump, mas essas são as mais importantes
 
 ## Entrada e Saida
 in/out rx ry
