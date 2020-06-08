@@ -1,5 +1,5 @@
 # Processador
-Um processador inspirado no (Processador ICMC)[https://github.com/simoesusp/Processador-ICMC]\
+Um processador inspirado no [Processador ICMC](https://github.com/simoesusp/Processador-ICMC) \
 
 Este é um processador de 16 bits com 16 registradores
 
@@ -76,17 +76,27 @@ O shift é feito usando 3 sinais para definir qual tipo de shift deve ser feito:
 |---|---|---|---|---|---|
 |**cmp**|0001|xxxx|ry|rx|Compara rx e ry e salva em aux|
 
+Depois da comparação aux recebe 4 valores:
+aux: 0000 0000 0000 elzs\
+Onde:
+- e (igual): 1 se rx = ry
+- l (menor): 1 se rx < ry
+- z (zero): 1 se rx = 0
+- s (sinal): 1 se o ultimo bit de rx for 1
+
 ## Desvio
 A jump vai para o endereço salvo em rx e usa como condição o que está salvo em aux,
 se a jump for feita, o endereço de retorno é salvo em aux\
-A instrução possui 3 sinais para definir em qual conndição o jump deve ser feito
-- !: diz se o resultado deve ser invertido
-- =: diz se deve levar em consideração se em aux está salvo que é igual
-- <: diz se deve levar em consideração se em aux está salvo que é menor
+A instrução possui 5 sinais para definir em qual conndição o jump deve ser feito
+- n (inverte): diz se o resultado deve ser invertido
+- e (igual): diz se deve levar em consideração o valor em aux para igual
+- l (menor): diz se deve levar em consideração o valor em aux para menor
+- z (zero): diz se deve levar em consideração o valor em aux para zero 
+- s (sinal): diz se deve levar em consideração o valor em aux para sinal
 O que for levado em consideração, é feito um or e comparado com o resultado esperado,
 se forem iguais o jump é feito
 
-| jif(!,=,<) rx|opcode|! = <|xxxxx|rx|ação|
+| jif(n,e,l,z,s) rx|opcode|n e l z s|xxx|rx|ação|
 |---|---|---|---|---|---|
 |**noop**|0000|000|xxxxx|rx|Um jump impossivel de acontecer|
 |**j**   |0000|100|xxxxx|rx|jump incondicional             |
