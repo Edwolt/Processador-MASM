@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "memory.h"
 
@@ -15,7 +16,7 @@ int main(int argc, char const *argv[]) {
 
     int i, j;
 
-    int memory[TAM_MEM];
+    uint16_t memory[TAM_MEM];
     for (i = 0; i < TAM_MEM; i++) {
         memory[i] = 0;
     }
