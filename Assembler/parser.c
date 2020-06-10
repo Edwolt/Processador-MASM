@@ -43,33 +43,186 @@ struct _Parser {
     int line;
 };
 
+//* =========================== *//
+//* ===== Private Methods ===== *//
+//* =========================== *//
+
+/**
+ * Returns if the character is a white space, but not a line break
+ */
 static bool isSpace(char c) {
     return c == '\t' ||
            c == '\v' ||
            c == ' ';
 }
 
+/**
+ * Returns if the character is a line break
+ */
 static bool isEnter(char c) {
     return c == '\n' ||
            c == '\f' ||
            c == '\r';
 }
 
+/**
+ * Returns if the character is a decimal digit
+ */
 static bool isDecimal(char c) {
     return 0 <= c - '0' && c - '0' < 10;
 }
 
-static Command* createCommand() {
-    Command* command = malloc(sizeof(Command));
-    if (!command) return NULL;
+/**
+ * Returns if the character is 0 or 1
+ */
+static bool isBinary(char c) {
+    return c == '0' || c == '1';
+}
+
+/**
+ * Returns if the character is a hexadecimal digit
+ */
+static bool isHexadecimal(char c) {
+    return isDecimal(c) ||
+           c == 'a' || c == 'A' ||
+           c == 'b' || c == 'B' ||
+           c == 'c' || c == 'C' ||
+           c == 'd' || c == 'D' ||
+           c == 'e' || c == 'E' ||
+           c == 'f' || c == 'F';
+}
+
+/**
+ * Transform a command on DECIMAL, POSITIVE_DECIMAL and NEGATIVE_DECIMAL state into 
+ */
+static void commandDecimal(Parser* parser, Command* command) {
+    uint32_t num = 0;
+
+    if (command->label[0] == '+') {
+        if (strlen(command->label) > 6) {
+            printf("Line %d: Number is too large\n", parser->line);
+            goto error;
+        }
+
+        command->label[0] = ' ';
+        num = atoi(command->label);
+        if (num > (uint32_t)0x0111111111111111) {
+            printf("Line %d: Number is too large\n", parser->line);
+            goto error;
+        }
+        num = ~num + 1;  // Two's complement
+    } else if (command->label[1] == '-') {
+        if (strlen(command->label) > 6) {
+            printf("Line %d: Number is too large\n", parser->line);
+            goto error;
+        }
+        command->label[0] = ' ';
+        num = atoi(command->label);
+        if (num > (uint32_t)0x0111111111111111) {
+            printf("Line %d: Number is too large\n", parser->line);
+            goto error;
+        }
+
+        command->what = COMMAND_CONST;
+        command->value = (uint16_t)num;
+    } else {
+        if (strlen(command->label) > 5) {
+            printf("Line %d: Number is too large\n", parser->line);
+            goto error;
+        }
+        num = atoi(command->label);
+        if (num > (uint32_t)0x1111111111111111) {
+            printf("Line %d: Number is too large\n", parser->line);
+            goto error;
+        }
+
+        command->what = COMMAND_CONST;
+        command->value = (uint16_t)num;
+    }
 
     command->what = COMMAND_CONST;
-    command->command = 0;
-    command->label = NULL;
-    command->nextLine = 0;
+    command->value = (uint16_t)num;
 
-    return command;
+    free(command->label);
+    command->label = NULL;
+    return;
+
+error:
+    command->value = 0;
+    command->what = COMMAND_NOTHING;
+
+    free(command->label);
+    command->label = NULL;
+    return;
 }
+
+static void commandBinary(Parser* parser, Command* command) {
+    int i;
+    uint16_t num;
+    uint16_t bit = 1;
+
+    int len = strlen(command->label);
+    if (len > 16) {
+        printf("Line %d: Number is too large\n", parser->line);
+        goto error;
+    }
+
+    for (i = len - 1; i >= 0; i++) {
+        if (command->label[i] == '1') num &= bit;
+        bit <<= 1;
+    }
+
+    command->what = COMMAND_CONST;
+    command->value = (uint16_t)num;
+
+    free(command->label);
+    command->label = NULL;
+    return;
+
+error:
+    command->value = 0;
+    command->what = COMMAND_NOTHING;
+
+    free(command->label);
+    command->label = NULL;
+    return;
+}
+
+static void commandHexadecimal(Parser* parser, Command* command) {
+    int i;
+    uint16_t num;
+    uint16_t bit = 1;
+
+    int len = strlen(command->label);
+    if (len > 4) {
+        printf("Line %d: Number is too large\n", parser->line);
+        goto error;
+    }
+
+    for (i = len - 1; i >= 0; i++) {
+        if (command->label[i] == '1') num &= bit;
+        bit <<= 1;
+    }
+
+    command->what = COMMAND_CONST;
+    command->value = (uint16_t)num;
+
+    free(command->label);
+    command->label = NULL;
+    return;
+
+error:
+    command->value = 0;
+    command->what = COMMAND_NOTHING;
+
+    free(command->label);
+    command->label = NULL;
+    return;
+}
+
+//* ========================== *//
+//* ===== Public Methods ===== *//
+//* ========================== *//
 
 Parser* createParser(char* path) {
     Parser* parser = malloc(sizeof(Parser));
@@ -91,6 +244,18 @@ void deleteParser(Parser* parser) {
     if (!parser) return;
     fclose(parser->file);
     free(parser);
+}
+
+Command* createCommand() {
+    Command* command = malloc(sizeof(Command));
+    if (!command) return NULL;
+
+    command->what = COMMAND_NOTHING;
+    command->value = 0;
+    command->label = NULL;
+    command->nextLine = 0;
+
+    return command;
 }
 
 void deleteCommand(Command* command) {
@@ -120,6 +285,8 @@ Command* parser_nextChunck(Parser* parser) {
     while (true) {
         if (parser->state == LABEL) {
             command->what = COMMAND_LABEL;
+            command->label[i] = '\0';
+
             parser->state = START;
             return command;
         }
@@ -169,50 +336,23 @@ Command* parser_nextChunck(Parser* parser) {
 
             case DECIMAL:
                 if (isEnter(c)) {
-                    if (i > 5) {
-                        printf("Line %d: This number is too large\n", parser->line);
-                    }
-                    uint32_t num = atoi(command->label);
-                    if (num > UINT16_MAX) {
-                        printf("Line %d: This number is too large\n", parser->line);
-                    }
-                    free(command->label);
-                    command->label = NULL;
-                    command->what = COMMAND_CONST;
-                    command->command = (uint16_t)num;
+                    command->label[i++] = '\0';
+                    commandDecimal(parser, command);
 
                     parser->state = START;
                     parser->line++;
 
                     return command;
                 } else if (isSpace(c)) {
-                    if (i > 5) {
-                        printf("Line %d: This number is too large\n", parser->line);
-                    }
-                    uint32_t num = atoi(command->label);
-                    if (num > UINT16_MAX) {
-                        printf("Line %d: This number is too large\n", parser->line);
-                    }
-                    free(command->label);
-                    command->label = NULL;
-                    command->what = COMMAND_CONST;
-                    command->command = (uint16_t)num;
+                    command->label[i++] = '\0';
+                    commandDecimal(parser, command);
 
                     parser->state = START;
 
                     return command;
                 } else if (c == ';') {
-                    if (i > 5) {
-                        printf("Line %d: This number is too large\n", parser->line);
-                    }
-                    uint32_t num = atoi(command->label);
-                    if (num > UINT16_MAX) {
-                        printf("Line %d: This number is too large\n", parser->line);
-                    }
-                    free(command->label);
-                    command->label = NULL;
-                    command->what = COMMAND_CONST;
-                    command->command = (uint16_t)num;
+                    command->label[i++] = '\0';
+                    commandDecimal(parser, command);
 
                     parser->state = COMMENT;
 
@@ -221,23 +361,137 @@ Command* parser_nextChunck(Parser* parser) {
                     command->label[i++] = c;
                 } else if (c == ':') {
                     parser->state = LABEL;
+                } else {
+                    parser->state = COMMAND;
                 }
                 break;
 
             case POSITIVE_DECIMAL:
-                // TODO Looks like DECIMAL
+                if (isEnter(c)) {
+                    command->label[i++] = '\0';
+                    commandDecimal(parser, command);
+
+                    parser->state = START;
+                    parser->line++;
+
+                    return command;
+                } else if (isSpace(c)) {
+                    command->label[i++] = '\0';
+                    commandDecimal(parser, command);
+
+                    parser->state = START;
+
+                    return command;
+                } else if (c == ';') {
+                    command->label[i++] = '\0';
+                    commandDecimal(parser, command);
+
+                    parser->state = COMMENT;
+
+                    return command;
+                } else if (isDecimal(c)) {
+                    command->label[i++] = c;
+                } else if (c == ':') {
+                    parser->state = LABEL;
+                } else {
+                    parser->state = COMMAND;
+                }
                 break;
 
             case NEGATIVE_DECIMAL:
-                // TODO Looks like DECIMAL
+                if (isEnter(c)) {
+                    command->label[i++] = '\0';
+                    commandDecimal(parser, command);
+
+                    parser->state = START;
+                    parser->line++;
+
+                    return command;
+                } else if (isSpace(c)) {
+                    command->label[i++] = '\0';
+                    commandDecimal(parser, command);
+
+                    parser->state = START;
+
+                    return command;
+                } else if (c == ';') {
+                    command->label[i++] = '\0';
+                    commandDecimal(parser, command);
+
+                    parser->state = COMMENT;
+
+                    return command;
+                } else if (isDecimal(c)) {
+                    command->label[i++] = c;
+                } else if (c == ':') {
+                    parser->state = LABEL;
+                } else {
+                    parser->state = COMMAND;
+                }
                 break;
 
             case BINARY:
-                // TODO Looks like DECIMAL
+                if (isEnter(c)) {
+                    command->label[i++] = '\0';
+                    commandBinary(parser, command);
+
+                    parser->state = START;
+                    parser->line++;
+
+                    return command;
+                } else if (isSpace(c)) {
+                    command->label[i++] = '\0';
+                    commandBinary(parser, command);
+
+                    parser->state = START;
+
+                    return command;
+                } else if (c == ';') {
+                    command->label[i++] = '\0';
+                    commandBinary(parser, command);
+
+                    parser->state = COMMENT;
+
+                    return command;
+                } else if (isBinary(c)) {
+                    command->label[i++] = c;
+                } else if (c == ':') {
+                    parser->state = LABEL;
+                } else {
+                    parser->state = COMMAND;
+                }
                 break;
 
             case HEXADECIMAL:
-                // TODO Looks like DECIMAL
+                if (isEnter(c)) {
+                    command->label[i++] = '\0';
+                    commandHexadecimal(parser, command);
+
+                    parser->state = START;
+                    parser->line++;
+
+                    return command;
+                } else if (isSpace(c)) {
+                    command->label[i++] = '\0';
+                    commandHexadecimal(parser, command);
+
+                    parser->state = START;
+
+                    return command;
+                } else if (c == ';') {
+                    command->label[i++] = '\0';
+                    commandHexadecimal(parser, command);
+
+                    parser->state = COMMENT;
+
+                    return command;
+                } else if (isHexadecimal(c)) {
+                    command->label[i++] = c;
+                } else if (c == ':') {
+                    parser->state = LABEL;
+                } else {
+                    parser->state = COMMAND;
+                }
                 break;
 
             case COMMAND:
