@@ -1,3 +1,6 @@
+#ifndef PARSER_H
+#define PARSER_H
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -15,7 +18,7 @@ enum CommandWhat {
     COMMAND_CODE,
     COMMAND_CONST,
     COMMAND_NEXTLINE,
-    COMMAND_ENDFILE
+    COMMAND_ENDFILE,
 };
 
 struct _Command {
@@ -56,4 +59,6 @@ void deleteCommand(Command* command);
  * Read the next chunck of code and 
  * returns a Command struct with data to assemble the chunck
  */
-Command* parser_nextChunck(Parser* parser);
+Command* parseNext(Parser* parser);
+
+#endif
