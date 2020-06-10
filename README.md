@@ -1,5 +1,5 @@
 # Processador
-Um processador inspirado no [Processador ICMC](https://github.com/simoesusp/Processador-ICMC) \
+Um processador inspirado no [Processador ICMC](https://github.com/simoesusp/Processador-ICMC)
 
 Este é um processador de 16 bits com 16 registradores
 
