@@ -2,7 +2,7 @@
 CC       := gcc
 
 #Output
-EXEC     := assembler.out
+EXEC     := Compiled/assembler
 
 #Files
 SRC      := $(wildcard *.c)
