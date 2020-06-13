@@ -10,6 +10,7 @@ enum State {
     NEGATIVE_DECIMAL,
     BINARY,
     HEXADECIMAL,
+    STRING,
     LABEL,
     COMMAND,
     END
@@ -158,9 +159,8 @@ static void commandDecimal(Parser* parser, Command* command) {
 
     command->what = COMMAND_CONST;
     command->value = (uint16_t)num;
-
     free(command->label);
-    ;
+
     return;
 
 error:
@@ -338,6 +338,12 @@ Command* parseNext(Parser* parser) {
                     parser->line++;
                     break;
 
+                case STRING:
+                    printf("Line %d: String isn't closed", parser->line);
+                    command->what = COMMAND_ENDFILE;
+                    free(command->label);
+                    break;
+
                 case COMMAND:
                     printf("Command isn't supported yet");
                     command->what = COMMAND_ENDFILE;
@@ -359,25 +365,28 @@ Command* parseNext(Parser* parser) {
             case START:
                 if (isEnter(c)) {
                     parser->line++;
-                    parser->state = START;
+                    // parser->state = START;
                 } else if (isSpace(c)) {
-                    parser->state = START;
+                    // parser->state = START;
                 } else if (c == ';') {
                     parser->state = COMMENT;
-                } else if (c == 'x') {
-                    parser->state = HEXADECIMAL;
-                } else if (c == 'b') {
-                    parser->state = BINARY;
                 } else if (c == '+') {
                     parser->state = POSITIVE_DECIMAL;
                 } else if (c == '-') {
                     parser->state = NEGATIVE_DECIMAL;
+                } else if (c == 'b') {
+                    parser->state = BINARY;
+                } else if (c == 'x') {
+                    parser->state = HEXADECIMAL;
+                } else if (c == '"') {
+                    parser->state = STRING;
                 } else if (c == ':') {
                     printf("Line %d: Empty label\n", parser->line);
+                    // parser->state = START;
                 } else if (isDecimal(c)) {
                     command->label[i++] = c;
                     parser->state = DECIMAL;
-                } else {  // Common char
+                } else {
                     command->label[i++] = c;
                     parser->state = COMMAND;
                 }
@@ -385,9 +394,10 @@ Command* parseNext(Parser* parser) {
 
             case COMMENT:
                 if (isEnter(c)) {
-                    parser->state = START;
                     parser->line++;
+                    parser->state = START;
                 }
+                // else parser->state = COMMENT;
                 break;
 
             case DECIMAL:
@@ -397,8 +407,8 @@ Command* parseNext(Parser* parser) {
                     command->label[i++] = '\0';
                     commandDecimal(parser, command);
 
-                    parser->state = START;
                     parser->line++;
+                    parser->state = START;
 
                     return command;
                 } else if (isSpace(c)) {
@@ -415,8 +425,18 @@ Command* parseNext(Parser* parser) {
                     parser->state = COMMENT;
 
                     return command;
+                } else if (c == '"') {
+                    command->label[i++] = '\0';
+                    commandDecimal(parser, command);
+
+                    parser->state = STRING;
+
+                    return command;
                 } else if (isDecimal(c)) {
                     command->label[i++] = c;
+                    // if(paser->state == DECIMAL) parser->state = DECIMAL;
+                    // if(paser->state == POSITIVE->DECIMAL) parser->state = POSITIVE_DECIMAL;
+                    // if(paser->state == NEGATIVE->DECIMAL) parser->state = NEGATIVE_DECIMAL;
                 } else if (c == ':') {
                     parser->state = LABEL;
                 } else {  // Common char
@@ -447,8 +467,16 @@ Command* parseNext(Parser* parser) {
                     parser->state = COMMENT;
 
                     return command;
+                } else if (c == '"') {
+                    command->label[i++] = '\0';
+                    commandBinary(parser, command);
+
+                    parser->state = STRING;
+
+                    return command;
                 } else if (isBinary(c)) {
                     command->label[i++] = c;
+                    // parser->state = BINARY;
                 } else if (c == ':') {
                     parser->state = LABEL;
                 } else {  // Common char
@@ -461,8 +489,8 @@ Command* parseNext(Parser* parser) {
                     command->label[i++] = '\0';
                     commandHexadecimal(parser, command);
 
-                    parser->state = START;
                     parser->line++;
+                    parser->state = START;
 
                     return command;
                 } else if (isSpace(c)) {
@@ -481,12 +509,97 @@ Command* parseNext(Parser* parser) {
                     return command;
                 } else if (isHexadecimal(c)) {
                     command->label[i++] = c;
+                    parser->state = HEXADECIMAL;
                 } else if (c == ':') {
                     parser->state = LABEL;
                 } else {  // Common char
                     parser->state = COMMAND;
                 }
                 break;
+
+            case STRING:
+                if (isEnter(c)) {
+                    printf("Line %d: String isn't closed\n", parser->line);
+
+                    command->what = COMMAND_CONST;
+                    command->value = 0;
+                    free(command->label);
+
+                    parser->state = START;
+
+                    return command;
+                } else if (c == '\\') {
+                    fscanf(parser->file, "%c", &c);
+                    if (feof(parser->file)) {
+                        printf("Line %d: String isn't closed\n", parser->line);
+
+                        command->what = COMMAND_NOTHING;
+                        free(command->label);
+
+                        parser->state = END;
+
+                        return command;
+                    }
+                    switch (c) {
+                        case '0':
+                            command->value = '\0';
+                            break;
+                        case 'a':
+                            command->value = '\a';
+                            break;
+                        case 'b':
+                            command->value = '\b';
+                            break;
+                        case 't':
+                            command->value = '\t';
+                            break;
+                        case 'n':
+                            command->value = '\n';
+                            break;
+                        case 'v':
+                            command->value = '\v';
+                            break;
+                        case 'f':
+                            command->value = '\f';
+                            break;
+                        case 'r':
+                            command->value = '\r';
+                            break;
+                        case 'e':
+                            command->value = 27;
+                            break;
+                        case '\'':
+                            command->value = '\'';
+                            break;
+                        case '\"':
+                            command->value = '\"';
+                            break;
+
+                        default:
+                            printf("Caracter nao reconhecido\n");
+                            command->value = c;
+                    }
+
+                    command->what = COMMAND_CONST;
+                    free(command->label);
+
+                    return command;
+                } else if (c == '"') {
+                    command->what = COMMAND_CONST;
+                    command->value = 0;
+                    free(command->label);
+
+                    parser->state = START;
+
+                    return command;
+                } else {
+                    command->what = COMMAND_CONST;
+                    command->value = (uint16_t)c;
+
+                    // parser->state = STRING;
+
+                    return command;
+                }
 
             case COMMAND:
                 command->label[i++] = c;
