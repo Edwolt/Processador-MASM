@@ -12,7 +12,7 @@ Marca onde está a próxima posição livre da pilha
 # Instruções
 O opcode de cada instrução será de 4 bits
 
-0. jif(!,=,<) rx
+0. jif(n,e,l,p,m) rx
 1. cmp rx ry
 1. store rx ry
 1. load rx ry
@@ -27,7 +27,7 @@ O opcode de cada instrução será de 4 bits
 1. or rx ry rz
 1. xor rx ry rz
 1. not rx ry
-1. shift(t,dir,b) rx ry
+1. shift(t,d,b) rx ry
 
 ## Instruções de manipulação da memória
 |instrução|opcode|xxxx|source|dest|ação|
