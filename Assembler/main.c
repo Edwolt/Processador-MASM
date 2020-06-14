@@ -21,7 +21,7 @@ uint16_t *createMemory(char *path) {
 
     i = 0;
     while ((command = parseNext(parser))) {
-        switch (command->what) {
+        switch (command->type) {
             case COMMAND_NOTHING:
                 break;
 
@@ -46,11 +46,13 @@ uint16_t *createMemory(char *path) {
                 goto while_break;
 
             default:
-                printf("(main) The assembler doesn't work\n");
+                printf("createMemory() doesn't work\n");
                 return NULL;
         }
     }
 while_break:
+
+    printf("\n");
     return memory;
 }
 

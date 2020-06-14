@@ -13,7 +13,7 @@ enum State {
     STRING,
     LABEL,
     COMMAND,
-    END
+    ENDFILE
 };
 
 enum Opcode {
@@ -47,6 +47,11 @@ struct _Parser {
 //* =========================== *//
 //* ===== Private Methods ===== *//
 //* =========================== *//
+
+// TODO This function can be turned to a Macro
+static void parsingError(Parser* parser, const char* str) {
+    printf("Line %d: %s\n", parser->line, str);
+}
 
 /**
  * Returns if the character is a white space, but not a line break
@@ -114,120 +119,74 @@ static uint16_t hexToInt(char c) {
 /**
  * Transform a command on DECIMAL, POSITIVE_DECIMAL and NEGATIVE_DECIMAL state into 
  */
-static void commandDecimal(Parser* parser, Command* command) {
+static Command* commandDecimal(Parser* parser, char* str) {
     uint32_t num = 0;
 
-    if (parser->state == DECIMAL) {
-        if (strlen(command->label) > 5) {
-            printf("Line %d: Number is too large\n", parser->line);
-            goto error;
-        }
-        num = atoi(command->label);
-        if (num > (uint32_t)0x1111111111111111) {
-            printf("Line %d: Number is too large\n", parser->line);
-            goto error;
-        }
-
-        command->what = COMMAND_CONST;
-        command->value = (uint16_t)num;
-    } else if (parser->state == POSITIVE_DECIMAL) {
-        if (strlen(command->label) > 6) {
-            printf("Line %d: Number is too large\n", parser->line);
-            goto error;
-        }
-
-        num = atoi(command->label);
-        if (num > (uint32_t)0x0111111111111111) {
-            printf("Line %d: Number is too large\n", parser->line);
-            goto error;
-        }
-        num = ~num + 1;  // Two's complement
-    } else if (parser->state == NEGATIVE_DECIMAL) {
-        if (strlen(command->label) > 6) {
-            printf("Line %d: Number is too large\n", parser->line);
-            goto error;
-        }
-        num = atoi(command->label);
-        if (num > (uint32_t)0x0111111111111111) {
-            printf("Line %d: Number is too large\n", parser->line);
-            goto error;
-        }
-
-        command->what = COMMAND_CONST;
-        command->value = (uint16_t)num;
+    // len > 6 doesn't overflow uint32_t (999999 == 0xF423F)
+    if (strlen(str) > 6) {
+        parsingError(parser, "Number is too large");
+        return commandNothing();
     }
 
-    command->what = COMMAND_CONST;
-    command->value = (uint16_t)num;
-    free(command->label);
+    num = atoi(str);
+    free(str);
 
-    return;
+    // Assert that num doesn't oveflow uint16_t
+    if (num >= (1 << 16)) {
+        parsingError(parser, "Number is too large");
+        return commandNothing();
+    }
 
-error:
-    command->value = 0;
-    command->what = COMMAND_NOTHING;
+    // If state is signed decimal, assert that num is positive
+    if ((parser->state == POSITIVE_DECIMAL || parser->state == NEGATIVE_DECIMAL) &&
+        ((num & (1 << 15)) != 0)) {
+        parsingError(parser, "Number is too large");
+        return commandNothing();
+    }
 
-    free(command->label);
-    return;
+    // If state is negative decimal, tranform num using two's complement
+    if (parser->state == NEGATIVE_DECIMAL) num = ~num + 1;
+
+    return commandConst((uint16_t)num);
 }
 
-static void commandBinary(Parser* parser, Command* command) {
+static Command* commandBinary(Parser* parser, char* str) {
     int i;
     uint16_t num = 0;
-    uint16_t bit = 1;
+    const uint16_t bit = 1;
 
-    int len = strlen(command->label);
+    int len = strlen(str);
     if (len > 16) {
-        printf("Line %d: Number is too large\n", parser->line);
-        goto error;
+        parsingError(parser, "Number is too large");
+        return commandNothing();
     }
 
     for (i = 0; i < len; i++) {
         num <<= 1;
-        if (command->label[i] == '1') num |= bit;
+        if (str[i] == '1') num |= bit;
     }
 
-    command->what = COMMAND_CONST;
-    command->value = num;
-
-    free(command->label);
-    return;
-
-error:
-    command->value = 0;
-    command->what = COMMAND_NOTHING;
-
-    free(command->label);
-    return;
+    free(str);
+    return commandConst(num);
 }
 
-static void commandHexadecimal(Parser* parser, Command* command) {
+static Command* commandHexadecimal(Parser* parser, char* str) {
     int i;
     uint16_t num = 0;
 
-    int len = strlen(command->label);
+    int len = strlen(str);
     if (len > 4) {
-        printf("Line %d: Number is too large\n", parser->line);
-        goto error;
+        parsingError(parser, "Number is too large");
+        return commandNothing();
     }
 
     for (i = 0; i < len; i++) {
         num <<= 4;
-        num |= hexToInt(command->label[i]);
+        num |= hexToInt(str[i]);
     }
 
-    command->what = COMMAND_CONST;
-    command->value = (uint16_t)num;
-
-    free(command->label);
-    return;
-
-error:
-    command->value = 0;
-    command->what = COMMAND_NOTHING;
-
-    free(command->label);
-    return;
+    free(str);
+    return commandConst(num);
 }
 
 //* ========================== *//
@@ -256,38 +215,13 @@ void deleteParser(Parser* parser) {
     free(parser);
 }
 
-Command* createCommand() {
-    Command* command = malloc(sizeof(Command));
-    if (!command) return NULL;
-
-    command->what = COMMAND_NOTHING;
-    command->value = 0;
-    command->label = NULL;
-    command->nextLine = 0;
-
-    return command;
-}
-
-void deleteCommand(Command* command) {
-    if (!command) return;
-    if (command->what == COMMAND_LABEL && command->label) {
-        free(command->label);
-    }
-    free(command);
-}
-
 Command* parseNext(Parser* parser) {
     if (!parser) return NULL;
+    if (parser->state == ENDFILE) return commandEndFile();
 
-    Command* command = createCommand();
-    if (!command) return NULL;
-
-    if (parser->state == END) {
-        command->what = COMMAND_ENDFILE;
-        return command;
-    }
-
-    command->label = malloc(TAM_COMMAND * sizeof(char));
+    // TODO
+    char* chunck = malloc(TAM_COMMAND * sizeof(char));
+    if (!chunck) return NULL;
 
     int i = 0;
     char c;
@@ -296,11 +230,10 @@ Command* parseNext(Parser* parser) {
         // printf("value: %s\n", command->label);
 
         if (parser->state == LABEL) {
-            command->what = COMMAND_LABEL;
-            command->label[i] = '\0';
+            chunck[i] = '\0';
 
             parser->state = START;
-            return command;
+            return commandLabel(chunck);
         }
 
         fscanf(parser->file, "%c", &c);
@@ -308,57 +241,45 @@ Command* parseNext(Parser* parser) {
             switch (parser->state) {
                 case START:
                 case COMMENT:
-                    command->what = COMMAND_ENDFILE;
-                    free(command->label);
-                    break;
+                    free(chunck);
+                    parser->state = ENDFILE;
+                    return commandEndFile();
 
                 case DECIMAL:
                 case POSITIVE_DECIMAL:
                 case NEGATIVE_DECIMAL:
-                    command->label[i++] = '\0';
-                    commandDecimal(parser, command);
-
-                    parser->state = START;
-                    parser->line++;
-                    break;
+                    chunck[i++] = '\0';
+                    parser->state = ENDFILE;
+                    return commandDecimal(parser, chunck);
 
                 case BINARY:
-                    command->label[i++] = '\0';
-                    commandBinary(parser, command);
-
-                    parser->state = START;
-                    parser->line++;
-                    break;
+                    chunck[i++] = '\0';
+                    parser->state = ENDFILE;
+                    return commandBinary(parser, chunck);
 
                 case HEXADECIMAL:
-                    command->label[i++] = '\0';
-                    commandHexadecimal(parser, command);
-
-                    parser->state = START;
-                    parser->line++;
-                    break;
+                    chunck[i++] = '\0';
+                    parser->state = ENDFILE;
+                    return commandHexadecimal(parser, chunck);
 
                 case STRING:
-                    printf("Line %d: String isn't closed", parser->line);
-                    command->what = COMMAND_ENDFILE;
-                    free(command->label);
-                    break;
+                    parsingError(parser, "String isn't closed");
+                    free(chunck);
+                    parser->state = ENDFILE;
+                    return commandEndFile();
 
                 case COMMAND:
-                    printf("Command isn't supported yet");
-                    command->what = COMMAND_ENDFILE;
-                    free(command->label);
-                    break;
+                    parsingError(parser, "Command isn't supported");
+                    free(chunck);
+                    parser->state = ENDFILE;
+                    return commandEndFile();
 
                 default:
-                    printf("(parser) The assembler doesn't work");
-                    command->what = COMMAND_ENDFILE;
-                    free(command->label);
-                    parser->state = END;
+                    printf("parseNext() doesn't work\n");
+                    free(chunck);
+                    parser->state = ENDFILE;
+                    return commandEndFile();
             }
-            parser->state = END;
-
-            return command;
         }
 
         switch (parser->state) {
@@ -381,13 +302,13 @@ Command* parseNext(Parser* parser) {
                 } else if (c == '"') {
                     parser->state = STRING;
                 } else if (c == ':') {
-                    printf("Line %d: Empty label\n", parser->line);
+                    parsingError(parser, "Empty label");
                     // parser->state = START;
                 } else if (isDecimal(c)) {
-                    command->label[i++] = c;
+                    chunck[i++] = c;
                     parser->state = DECIMAL;
-                } else {
-                    command->label[i++] = c;
+                } else {  // Common char
+                    chunck[i++] = c;
                     parser->state = COMMAND;
                 }
                 break;
@@ -404,36 +325,32 @@ Command* parseNext(Parser* parser) {
             case POSITIVE_DECIMAL:
             case NEGATIVE_DECIMAL:
                 if (isEnter(c)) {
-                    command->label[i++] = '\0';
-                    commandDecimal(parser, command);
+                    chunck[i++] = '\0';
+                    Command* command = commandDecimal(parser, chunck);
 
                     parser->line++;
                     parser->state = START;
-
                     return command;
                 } else if (isSpace(c)) {
-                    command->label[i++] = '\0';
-                    commandDecimal(parser, command);
+                    chunck[i++] = '\0';
+                    Command* command = commandDecimal(parser, chunck);
 
                     parser->state = START;
-
                     return command;
                 } else if (c == ';') {
-                    command->label[i++] = '\0';
-                    commandDecimal(parser, command);
+                    chunck[i++] = '\0';
+                    Command* command = commandDecimal(parser, chunck);
 
                     parser->state = COMMENT;
-
                     return command;
                 } else if (c == '"') {
-                    command->label[i++] = '\0';
-                    commandDecimal(parser, command);
+                    chunck[i++] = '\0';
+                    Command* command = commandDecimal(parser, chunck);
 
                     parser->state = STRING;
-
                     return command;
                 } else if (isDecimal(c)) {
-                    command->label[i++] = c;
+                    chunck[i++] = c;
                     // if(paser->state == DECIMAL) parser->state = DECIMAL;
                     // if(paser->state == POSITIVE->DECIMAL) parser->state = POSITIVE_DECIMAL;
                     // if(paser->state == NEGATIVE->DECIMAL) parser->state = NEGATIVE_DECIMAL;
@@ -446,36 +363,32 @@ Command* parseNext(Parser* parser) {
 
             case BINARY:
                 if (isEnter(c)) {
-                    command->label[i++] = '\0';
-                    commandBinary(parser, command);
+                    chunck[i++] = '\0';
+                    Command* command = commandBinary(parser, chunck);
 
-                    parser->state = START;
                     parser->line++;
-
+                    parser->state = START;
                     return command;
                 } else if (isSpace(c)) {
-                    command->label[i++] = '\0';
-                    commandBinary(parser, command);
+                    chunck[i++] = '\0';
+                    Command* command = commandBinary(parser, chunck);
 
                     parser->state = START;
-
                     return command;
                 } else if (c == ';') {
-                    command->label[i++] = '\0';
-                    commandBinary(parser, command);
+                    chunck[i++] = '\0';
+                    Command* command = commandBinary(parser, chunck);
 
                     parser->state = COMMENT;
-
                     return command;
                 } else if (c == '"') {
-                    command->label[i++] = '\0';
-                    commandBinary(parser, command);
+                    chunck[i++] = '\0';
+                    Command* command = commandBinary(parser, chunck);
 
                     parser->state = STRING;
-
                     return command;
                 } else if (isBinary(c)) {
-                    command->label[i++] = c;
+                    chunck[i++] = c;
                     // parser->state = BINARY;
                 } else if (c == ':') {
                     parser->state = LABEL;
@@ -486,29 +399,26 @@ Command* parseNext(Parser* parser) {
 
             case HEXADECIMAL:
                 if (isEnter(c)) {
-                    command->label[i++] = '\0';
-                    commandHexadecimal(parser, command);
+                    chunck[i++] = '\0';
+                    Command* command = commandHexadecimal(parser, chunck);
 
                     parser->line++;
                     parser->state = START;
-
                     return command;
                 } else if (isSpace(c)) {
-                    command->label[i++] = '\0';
-                    commandHexadecimal(parser, command);
+                    chunck[i++] = '\0';
+                    Command* command = commandHexadecimal(parser, chunck);
 
                     parser->state = START;
-
                     return command;
                 } else if (c == ';') {
-                    command->label[i++] = '\0';
-                    commandHexadecimal(parser, command);
+                    chunck[i++] = '\0';
+                    Command* command = commandHexadecimal(parser, chunck);
 
                     parser->state = COMMENT;
-
                     return command;
                 } else if (isHexadecimal(c)) {
-                    command->label[i++] = c;
+                    chunck[i++] = c;
                     parser->state = HEXADECIMAL;
                 } else if (c == ':') {
                     parser->state = LABEL;
@@ -519,90 +429,60 @@ Command* parseNext(Parser* parser) {
 
             case STRING:
                 if (isEnter(c)) {
-                    printf("Line %d: String isn't closed\n", parser->line);
-
-                    command->what = COMMAND_CONST;
-                    command->value = 0;
-                    free(command->label);
+                    parsingError(parser, "String isn't closed");
+                    parser->line++;
+                    free(chunck);
 
                     parser->state = START;
-
-                    return command;
+                    return commandConst(0);
                 } else if (c == '\\') {
                     fscanf(parser->file, "%c", &c);
                     if (feof(parser->file)) {
-                        printf("Line %d: String isn't closed\n", parser->line);
-
-                        command->what = COMMAND_NOTHING;
-                        free(command->label);
-
-                        parser->state = END;
-
-                        return command;
+                        parsingError(parser, "String isn't closed");
+                        parser->state = ENDFILE;
+                        return commandEndFile();
                     }
+
+                    free(chunck);
                     switch (c) {
                         case '0':
-                            command->value = '\0';
-                            break;
+                            return commandConst('\0');
                         case 'a':
-                            command->value = '\a';
-                            break;
+                            return commandConst('\a');
                         case 'b':
-                            command->value = '\b';
-                            break;
+                            return commandConst('\b');
                         case 't':
-                            command->value = '\t';
-                            break;
+                            return commandConst('\t');
                         case 'n':
-                            command->value = '\n';
-                            break;
+                            return commandConst('\n');
                         case 'v':
-                            command->value = '\v';
-                            break;
+                            return commandConst('\v');
                         case 'f':
-                            command->value = '\f';
-                            break;
+                            return commandConst('\f');
                         case 'r':
-                            command->value = '\r';
-                            break;
+                            return commandConst('\r');
                         case 'e':
-                            command->value = 27;
-                            break;
+                            return commandConst(27);
                         case '\'':
-                            command->value = '\'';
-                            break;
+                            return commandConst('\'');
                         case '\"':
-                            command->value = '\"';
-                            break;
-
+                            return commandConst('\"');
                         default:
-                            printf("Caracter nao reconhecido\n");
-                            command->value = c;
+                            parsingError(parser, "Invalid Character");
+                            return commandConst(c);
                     }
-
-                    command->what = COMMAND_CONST;
-                    free(command->label);
-
-                    return command;
                 } else if (c == '"') {
-                    command->what = COMMAND_CONST;
-                    command->value = 0;
-                    free(command->label);
-
+                    free(chunck);
                     parser->state = START;
-
-                    return command;
+                    return commandConst((uint16_t)'\0');
                 } else {
-                    command->what = COMMAND_CONST;
-                    command->value = (uint16_t)c;
-
+                    free(chunck);
                     // parser->state = STRING;
-
-                    return command;
+                    return commandConst((uint16_t)c);
                 }
 
             case COMMAND:
-                command->label[i++] = c;
+                chunck[i++] = c;
                 if (c == ':') {
                     parser->state = LABEL;
                 }
@@ -610,14 +490,13 @@ Command* parseNext(Parser* parser) {
                 break;
 
             default:
-                printf("(parser) The assembler doesn't work");
-                command->what = COMMAND_ENDFILE;
-                free(command->label);
-                parser->state = END;
+                printf("(parserNext) The assembler doesn't work");
+                free(chunck);
+                parser->state = ENDFILE;
+                return commandEndFile();
         }
     }
-    printf("(parser) The assembler doesn't work");
-    free(command->label);
-    command->what = COMMAND_ENDFILE;
-    parser->state = END;
+    printf("(parserNext) The assembler doesn't work");
+    free(chunck);
+    return commandEndFile();
 }
