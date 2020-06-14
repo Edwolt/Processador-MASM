@@ -48,7 +48,6 @@ struct _Parser {
 //* ===== Private Methods ===== *//
 //* =========================== *//
 
-// TODO This function can be turned to a Macro
 static void parsingError(Parser* parser, const char* str) {
     printf("Line %d: %s\n", parser->line, str);
 }
@@ -118,6 +117,7 @@ static uint16_t hexToInt(char c) {
 
 /**
  * Transform a command on DECIMAL, POSITIVE_DECIMAL and NEGATIVE_DECIMAL state into 
+ * Chunck should end with '\0'
  */
 static Command* commandDecimal(Parser* parser, char* str) {
     uint32_t num = 0;
@@ -150,6 +150,9 @@ static Command* commandDecimal(Parser* parser, char* str) {
     return commandConst((uint16_t)num);
 }
 
+/**
+ * Chunck should end with '\0'
+ */
 static Command* commandBinary(Parser* parser, char* str) {
     int i;
     uint16_t num = 0;
@@ -170,6 +173,9 @@ static Command* commandBinary(Parser* parser, char* str) {
     return commandConst(num);
 }
 
+/**
+ * Chunck should end with '\0'
+ */
 static Command* commandHexadecimal(Parser* parser, char* str) {
     int i;
     uint16_t num = 0;
@@ -187,6 +193,47 @@ static Command* commandHexadecimal(Parser* parser, char* str) {
 
     free(str);
     return commandConst(num);
+}
+
+/**
+ * Chunck should end with '\0'
+ */
+static Command* commandEOF(Parser* parser, char* chunck) {
+    switch (parser->state) {
+        case START:
+        case COMMENT:
+            free(chunck);
+            return commandEndFile();
+
+        case DECIMAL:
+        case POSITIVE_DECIMAL:
+        case NEGATIVE_DECIMAL:
+            // chunck[i++] = '\0';
+            return commandDecimal(parser, chunck);
+
+        case BINARY:
+            // chunck[i++] = '\0';
+            return commandBinary(parser, chunck);
+
+        case HEXADECIMAL:
+            // chunck[i++] = '\0';
+            return commandHexadecimal(parser, chunck);
+
+        case STRING:
+            parsingError(parser, "String isn't closed");
+            free(chunck);
+            return commandEndFile();
+
+        case COMMAND:
+            parsingError(parser, "Command isn't supported");
+            free(chunck);
+            return commandEndFile();
+
+        default:
+            printf("commandEOF() doesn't work\n");
+            free(chunck);
+            return commandEndFile();
+    }
 }
 
 //* ========================== *//
@@ -238,48 +285,10 @@ Command* parseNext(Parser* parser) {
 
         fscanf(parser->file, "%c", &c);
         if (feof(parser->file)) {
-            switch (parser->state) {
-                case START:
-                case COMMENT:
-                    free(chunck);
-                    parser->state = ENDFILE;
-                    return commandEndFile();
-
-                case DECIMAL:
-                case POSITIVE_DECIMAL:
-                case NEGATIVE_DECIMAL:
-                    chunck[i++] = '\0';
-                    parser->state = ENDFILE;
-                    return commandDecimal(parser, chunck);
-
-                case BINARY:
-                    chunck[i++] = '\0';
-                    parser->state = ENDFILE;
-                    return commandBinary(parser, chunck);
-
-                case HEXADECIMAL:
-                    chunck[i++] = '\0';
-                    parser->state = ENDFILE;
-                    return commandHexadecimal(parser, chunck);
-
-                case STRING:
-                    parsingError(parser, "String isn't closed");
-                    free(chunck);
-                    parser->state = ENDFILE;
-                    return commandEndFile();
-
-                case COMMAND:
-                    parsingError(parser, "Command isn't supported");
-                    free(chunck);
-                    parser->state = ENDFILE;
-                    return commandEndFile();
-
-                default:
-                    printf("parseNext() doesn't work\n");
-                    free(chunck);
-                    parser->state = ENDFILE;
-                    return commandEndFile();
-            }
+            chunck[i++] = '\0';
+            Command* command = commandEOF(parser, chunck);
+            parser->state = ENDFILE;
+            return command;
         }
 
         switch (parser->state) {
@@ -439,8 +448,10 @@ Command* parseNext(Parser* parser) {
                     fscanf(parser->file, "%c", &c);
                     if (feof(parser->file)) {
                         parsingError(parser, "String isn't closed");
+                        chunck[i++] = '\0';
+                        Command* command = commandEOF(parser, chunck);
                         parser->state = ENDFILE;
-                        return commandEndFile();
+                        return command;
                     }
 
                     free(chunck);
@@ -483,20 +494,24 @@ Command* parseNext(Parser* parser) {
 
             case COMMAND:
                 chunck[i++] = c;
-                if (c == ':') {
+                if (isSpace(c)) {
+                    // Create Command
+                } else if (c == ':') {
                     parser->state = LABEL;
+                } else {
+                    chunck[i++] = c;
                 }
                 // TODO
                 break;
 
             default:
-                printf("(parserNext) The assembler doesn't work");
+                printf("(parserNext) The assembler doesn't work\n");
                 free(chunck);
                 parser->state = ENDFILE;
                 return commandEndFile();
         }
     }
-    printf("(parserNext) The assembler doesn't work");
+    printf("(parserNext) The assembler doesn't work\n");
     free(chunck);
     return commandEndFile();
 }
