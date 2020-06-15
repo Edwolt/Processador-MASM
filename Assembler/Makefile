@@ -2,7 +2,7 @@
 CC       := gcc
 
 #Output and test
-FOLDER   := Compiled
+FOLDER   := Test
 EXEC     := $(FOLDER)/assembler
 ASM      := $(FOLDER)/test.masm
 MIF      := $(FOLDER)/test.mif
@@ -24,6 +24,12 @@ RMFLAGS  := -f -v
 all: $(EXEC)
 
 test: $(EXEC)
+	echo ""
+	echo ""
+	echo "------------------------"
+	echo "----- Testing code -----"
+	echo "------------------------"
+	echo ""
 	./$(EXEC) $(ASM) -m $(MIF) -1 $(TXT) -o $(BIN)
 
 compile: clean $(EXEC)
