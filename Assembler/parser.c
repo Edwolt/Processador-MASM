@@ -209,7 +209,7 @@ static Command* createBinary(Parser* parser) {
 
 /**
  * Return a command using binary value on buffer
- * Buffer: The 'x' character and until 4 hexadecimal diigits (xHHHH)
+ * Buffer: The 'x' or '#' character and until 4 hexadecimal diigits (xHHHH or #HHHH)
  */
 static Command* createHexadecimal(Parser* parser) {
     int i;
