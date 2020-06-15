@@ -9,7 +9,7 @@
  * Create a array with the assembled code
  */
 uint16_t *createMemory(char *path) {
-    int i;
+    int i, j;
 
     Parser *parser = createParser(path);
     Command *command;
@@ -20,7 +20,12 @@ uint16_t *createMemory(char *path) {
     for (i = 0; i < TAM_MEM; i++) memory[i] = 0;
 
     i = 0;
-    while ((command = parseNext(parser))) {
+    while (true) {
+        command = parseNext(parser);
+        if (!command) {
+            printf("Assembler failed\n");
+        }
+
         switch (command->type) {
             case COMMAND_NOTHING:
                 break;
@@ -29,20 +34,17 @@ uint16_t *createMemory(char *path) {
                 // TODO
                 break;
 
-            case COMMAND_CODE:
+            case COMMAND_VALUE:
                 memory[i++] = command->value;
                 break;
 
-            case COMMAND_CONST:
-                memory[i++] = command->value;
+            case COMMAND_LIST:
+                for (j = 0; j < command->value; i++) {
+                    memory[i++] = command->list[j];
+                }
                 break;
 
-            case COMMAND_NEXTLINE:
-                memory[i++] = command->value;
-                memory[i++] = command->nextLine;
-                break;
-
-            case COMMAND_ENDFILE:
+            case COMMAND_END:
                 goto while_break;
 
             default:

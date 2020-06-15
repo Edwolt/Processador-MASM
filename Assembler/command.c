@@ -17,46 +17,41 @@ Command* commandLabel(char* label) {
     return command;
 }
 
-Command* commandCode(uint16_t value) {
+Command* commandValue(uint16_t value) {
     Command* command = malloc(sizeof(Command));
     if (!command) return NULL;
 
-    command->type = COMMAND_CODE;
+    command->type = COMMAND_VALUE;
     command->value = value;
     return command;
 }
 
-Command* commandConst(uint16_t value) {
+Command* commandList(uint16_t len, uint16_t* list) {
     Command* command = malloc(sizeof(Command));
     if (!command) return NULL;
 
-    command->type = COMMAND_CONST;
-    command->value = value;
+    command->type = COMMAND_LIST;
+    command->value = len;
+    command->list = list;
     return command;
 }
 
-Command* commandNextLine(uint16_t value, uint16_t nextLine) {
+Command* commandEnd() {
     Command* command = malloc(sizeof(Command));
     if (!command) return NULL;
 
-    command->type = COMMAND_NEXTLINE;
-    command->value = value;
-    command->nextLine = nextLine;
-    return command;
-}
-
-Command* commandEndFile() {
-    Command* command = malloc(sizeof(Command));
-    if (!command) return NULL;
-
-    command->type = COMMAND_ENDFILE;
+    command->type = COMMAND_END;
     return command;
 }
 
 void deleteCommand(Command* command) {
     if (!command) return;
+
     if (command->type == COMMAND_LABEL && command->label) {
         free(command->label);
+    } else if (command->type == COMMAND_LIST && command->list) {
+        free(command->list);
     }
+
     free(command);
 }

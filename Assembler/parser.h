@@ -1,5 +1,4 @@
-#ifndef PARSER_H
-#define PARSER_H
+#pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -45,5 +44,3 @@ void deleteCommand(Command* command);
  * returns a Command struct with data to assemble the chunck
  */
 Command* parseNext(Parser* parser);
-
-#endif
