@@ -107,22 +107,23 @@ A instrução possui 5 sinais para definir em qual conndição o jump deve ser f
   O que for levado em consideração, é feito um or e comparado com o resultado esperado,
   se forem iguais o jump é feito
 
-| jif(n,e,l,p,m) rx | opcode | n e l z s | xxx | rx  | ação                            |
-| ----------------- | ------ | --------- | --- | --- | ------------------------------- |
-| **noop**          | 0000   | 00000     | xxx | rx  | Um jump impossivel de acontecer |
-| **j**             | 0000   | 10000     | xxx | rx  | jump incondicional              |
-| **je**            | 0000   | 01000     | xxx | rx  | jump se igual                   |
-| **jne**           | 0000   | 11000     | xxx | rx  | jump se diferente               |
-| **jl**            | 0000   | 00100     | xxx | rx  | jump se menor                   |
-| **jg**            | 0000   | 11100     | xxx | rx  | jump se maior                   |
-| **jle**           | 0000   | 01100     | xxx | rx  | jump se menor ou igual          |
-| **jge**           | 0000   | 10100     | xxx | rx  | jump se maior ou igual          |
-| **jz**            | 0000   | 10011     | xxx | rx  | jump se maior ou igual          |
-| **jnz**           | 0000   | 00011     | xxx | rx  | jump se maior ou igual          |
-| **jp**            | 0000   | 00010     | xxx | rx  | jump se positivo                |
-| **jpz**           | 0000   | 10001     | xxx | rx  | jump se positivo ou zero        |
-| **jm**            | 0000   | 00001     | xxx | rx  | jump se negativo                |
-| **jmz**           | 0000   | 10010     | xxx | rx  | jump se negativo ou zero        |
+| jif(n,e,l,p,m) rx | opcode | n e l z s | xxx | rx   | ação                            |
+| ----------------- | ------ | --------- | --- | ---- | ------------------------------- |
+| **noop**          | 0000   | 00000     | xxx | xxxx | Um jump impossivel de acontecer |
+| **nop rx**        | 0000   | 00000     | xxx | rx   | Um jump impossivel de acontecer |
+| **j rx**          | 0000   | 10000     | xxx | rx   | jump incondicional              |
+| **je rx**         | 0000   | 01000     | xxx | rx   | jump se igual                   |
+| **jne rx**        | 0000   | 11000     | xxx | rx   | jump se diferente               |
+| **jl rx**         | 0000   | 00100     | xxx | rx   | jump se menor                   |
+| **jg rx**         | 0000   | 11100     | xxx | rx   | jump se maior                   |
+| **jle rx**        | 0000   | 01100     | xxx | rx   | jump se menor ou igual          |
+| **jge rx**        | 0000   | 10100     | xxx | rx   | jump se maior ou igual          |
+| **jz rx**         | 0000   | 10011     | xxx | rx   | jump se maior ou igual          |
+| **jnz rx**        | 0000   | 00011     | xxx | rx   | jump se maior ou igual          |
+| **jp rx**         | 0000   | 00010     | xxx | rx   | jump se positivo                |
+| **jpz rx**        | 0000   | 10001     | xxx | rx   | jump se positivo ou zero        |
+| **jm rx**         | 0000   | 00001     | xxx | rx   | jump se negativo                |
+| **jmz rx**        | 0000   | 10010     | xxx | rx   | jump se negativo ou zero        |
 
 Obs: é possível fazer outras combinações de jump, mas essas são as mais importantes
 
@@ -132,9 +133,9 @@ Manda os dados dos dois registradores para o dispositivo avisar quando a ação 
 O dispositivo pode escrever o resultado no registrador ou na memória\
 TODO: verificar se essa é a melhor abordagem
 
-| instrução     | opcode | ?   | xxx | src  | dest | ação                       |
-| ------------- | ------ | --- | --- | ---- | ---- | -------------------------- |
-| **out rx ry** | 0100   | 1   | xxx | ry   | rx   | Usa dispositivo de saida   |
-|               | nnnn   | n   | nnn | nnnn | nnnn | Número do dispositivo      |
-| **in rx ry**  | 0100   | 0   | xxx | ry   | rx   | Usa dispositivo de entrada |
-|               | nnnn   | n   | nnn | nnnn | nnnn | Número do dispositivo      |
+| instrução         | opcode | ?   | xxx | src  | dest | ação                       |
+| ----------------- | ------ | --- | --- | ---- | ---- | -------------------------- |
+| **out rx ry num** | 0100   | 1   | xxx | ry   | rx   | Usa dispositivo de saida   |
+|                   | nnnn   | n   | nnn | nnnn | nnnn | Número do dispositivo      |
+| **in rx ry num**  | 0100   | 0   | xxx | ry   | rx   | Usa dispositivo de entrada |
+|                   | nnnn   | n   | nnn | nnnn | nnnn | Número do dispositivo      |
