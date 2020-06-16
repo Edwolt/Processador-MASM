@@ -3,12 +3,8 @@ CC       := gcc
 
 #Output and test
 FOLDER   := Test
+TEST     := $(patsubst %.masm,%,$(wildcard $(FOLDER)/*.masm))
 EXEC     := $(FOLDER)/assembler
-ASM      := $(FOLDER)/test.masm
-MIF      := $(FOLDER)/test.mif
-BIN      := $(FOLDER)/test.mbin
-TXT      := $(FOLDER)/test.txt
-
 
 #Files
 SRC      := $(wildcard *.c)
@@ -25,21 +21,38 @@ all: $(EXEC)
 
 test: $(EXEC)
 	echo ""
+	echo "------------------------"
+	echo "----- Testing code -----"
+	echo "------------------------"
+	echo ""
+
+	for i in $(TEST); do \
+		echo ">> Test $$i"; \
+		./$(EXEC) $$i.masm -m $$i.mif -1 $$i.txt -o $$i.bin; \
+		echo ""; \
+	done;
+
+testd: $(EXEC)
 	echo ""
 	echo "------------------------"
 	echo "----- Testing code -----"
 	echo "------------------------"
 	echo ""
-	./$(EXEC) $(ASM) -m $(MIF) -1 $(TXT) -o $(BIN)
+
+	for i in $(TEST); do \
+		echo ">> Test $$i"; \
+		./$(EXEC) $$i.masm -v -m $$i.mif -1 $$i.txt -o $$i.bin; \
+		echo ""; \
+	done;
 
 compile: clean $(EXEC)
 
 clean:
 	rm $(OBJ) $(RMFLAGS)
 	rm $(EXEC) $(RMFLAGS)
-	rm $(MIF) $(RMFLAGS)
-	rm $(TXT) $(RMFLAGS)
-	rm $(BIN) $(RMFLAGS)
+	rm $(FOLDER)/*.mif $(RMFLAGS)
+	rm $(FOLDER)/*.txt $(RMFLAGS)
+	rm $(FOLDER)/*.bin $(RMFLAGS)
 
 #Compile
 $(EXEC): $(OBJ)

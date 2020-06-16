@@ -172,7 +172,7 @@ static Command* createNegative(Parser* parser) {
         parsingError(parser, "Number is too large");
         return commandNothing();
     }
-    num = ~num + 1; // Two's complement
+    num = ~num + 1;  // Two's complement
 
     return commandValue((uint16_t)num);
 }
@@ -238,8 +238,10 @@ static Command* createHexadecimal(Parser* parser) {
 }
 
 /**
- * Return the value on parser if its a valid value
- * the parser state is important to this function
+ * If the parser have a valid value, create a command with it
+ * Else return a command end
+
+ * The parser state is important to this function
  */
 static Command* createEOF(Parser* parser) {
     switch (parser->state) {
@@ -323,10 +325,12 @@ Command* parseNext(Parser* parser) {
 
     char c;
     while (true) {
-        // printf("state: %d   ", parser->state);
-        // printf("value(%d): ", parser->n);
-        // for (int i = 0; i < parser->n; i++) printf("%c", parser->buffer[i]);
-        // printf("\n");
+        if (debug) {
+            printf("state %d | ", parser->state);
+            printf("buffer %-5d | ", parser->n);
+            for (int i = 0; i < parser->n; i++) printf("%c", parser->buffer[i]);
+            printf("\n");
+        }
 
         if (parser->state == LABEL) {
             parser->state = START;
@@ -578,8 +582,15 @@ Command* parseNext(Parser* parser) {
                 }
 
             case CODE:  // TODO
-                if (isSpace(c)) {
+                if (isEnter(c)) {
+                    parsingError(parser, "Invalid instruction");
+                    parser->line++;
+                    parser->n = 0;  // Clear buffer
+                    parser->state = START;
+                    return commandNothing();
+                } else if (isSpace(c)) {
                     // TODO Create Command
+                    parser->n = 0;  // Clear buffer
                 } else if (c == ':') {
                     parser->state = LABEL;
                 } else {

@@ -1,0 +1,74 @@
+store r1 r0
+#2001
+-1
+
+load r2 r3
+#3032
+-1
+
+set r4 10
+#5004
+#000A
+-1
+
+move r5 r6
+#6065
+-1
+
+add r7 r8 r9
+#7987
+-1
+
+sub r10 r11 r12
+#8CBA
+-1
+
+mul r13 aux sp
+#9FED
+-1
+
+div r0, r5, r10
+#AA50
+-1
+
+and r3 r4 r5
+#B543
+-1
+
+or r3 r2 r1
+#D123
+-1
+
+xor r10 r13 r0
+#EAD0
+-1
+
+not r5 r5
+#F055
+-1
+
+shift(111) r1 r2
+#BE21
+-1
+
+; TODO outros shifts
+
+cmp sp sp
+#10FF
+-1
+
+noop
+#0000
+-1
+
+j sp
+#080F
+-1
+
+; TODO jump instructions
+
+in r0 r0 0
+#4000
+#0000
+
+; TODO in out
