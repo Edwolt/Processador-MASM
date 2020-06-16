@@ -132,9 +132,9 @@ Manda os dados dos dois registradores para o dispositivo avisar quando a ação 
 O dispositivo pode escrever o resultado no registrador ou na memória\
 TODO: verificar se essa é a melhor abordagem
 
-| instrução     | opcode | ?   | xxx | src  | dest | ação                       |
-| ------------- | ------ | --- | --- | ---- | ---- | -------------------------- |
-| **out rx ry** | 0100   | 1   | xxx | ry   | rx   | Usa dispositivo de saida   |
-|               | nnnn   | n   | nnn | nnnn | nnnn | Número do dispositivo      |
-| **in rx ry**  | 0100   | 0   | xxx | ry   | rx   | Usa dispositivo de entrada |
-|               | nnnn   | n   | nnn | nnnn | nnnn | Número do dispositivo      |
+| instrução         | opcode | ?   | xxx | src  | dest | ação                       |
+| ----------------- | ------ | --- | --- | ---- | ---- | -------------------------- |
+| **out rx ry num** | 0100   | 1   | xxx | ry   | rx   | Usa dispositivo de saida   |
+|                   | nnnn   | n   | nnn | nnnn | nnnn | Número do dispositivo      |
+| **in rx ry num**  | 0100   | 0   | xxx | ry   | rx   | Usa dispositivo de entrada |
+|                   | nnnn   | n   | nnn | nnnn | nnnn | Número do dispositivo      |
