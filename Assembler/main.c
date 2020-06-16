@@ -24,6 +24,7 @@ uint16_t *createMemory(char *path) {
         command = parseNext(parser);
         if (!command) {
             if (debug) printf("Assembler failed\n");
+            break;
         }
 
         switch (command->type) {
@@ -56,6 +57,7 @@ uint16_t *createMemory(char *path) {
                 printf("createMemory() doesn't work\n");
                 return NULL;
         }
+        deleteCommand(command);
     }
 while_break:
 
@@ -110,7 +112,7 @@ int main(int argc, /*const*/ char *argv[]) {
         printf("Missing source\n");
         return EXIT_FAILURE;
     }
-    printf(debug?"Debug mode on\n":"Debug mode off\n");
+    printf(debug ? "Debug mode on\n" : "Debug mode off\n");
 
     // Parse code
     uint16_t *memory = createMemory(sourcePath);

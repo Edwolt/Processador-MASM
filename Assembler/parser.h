@@ -10,7 +10,7 @@
 
 #define TAM_MEM 65536
 
-extern bool debug;
+bool debug;
 
 typedef struct _Parser Parser;
 

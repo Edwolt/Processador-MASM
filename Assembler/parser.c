@@ -331,7 +331,7 @@ Command* parseNext(Parser* parser) {
             for (int i = 0; i < parser->n; i++) printf("%c", parser->buffer[i]);
             printf("\n");
         }
-        
+
         if (parser->state == LABEL) {
             parser->state = START;
             char* str = parser->buffer;
@@ -582,8 +582,15 @@ Command* parseNext(Parser* parser) {
                 }
 
             case CODE:  // TODO
-                if (isSpace(c)) {
+                if (isEnter(c)) {
+                    parsingError(parser, "Invalid instruction");
+                    parser->line++;
+                    parser->n = 0;  // Clear buffer
+                    parser->state = START;
+                    return commandNothing();
+                } else if (isSpace(c)) {
                     // TODO Create Command
+                    parser->n = 0;  // Clear buffer
                 } else if (c == ':') {
                     parser->state = LABEL;
                 } else {
