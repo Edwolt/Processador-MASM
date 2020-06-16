@@ -1,0 +1,5 @@
+assembler
+*.mif
+*.txt
+*.bin
+const.masm
