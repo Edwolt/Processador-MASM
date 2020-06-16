@@ -23,28 +23,33 @@ uint16_t *createMemory(char *path) {
     while (true) {
         command = parseNext(parser);
         if (!command) {
-            printf("Assembler failed\n");
+            if (debug) printf("Assembler failed\n");
         }
 
         switch (command->type) {
             case COMMAND_NOTHING:
+                if (debug) printf("Nothing\n");
                 break;
 
             case COMMAND_LABEL:
+                if (debug) printf("Label: %s\n", command->label);
                 // TODO
                 break;
 
             case COMMAND_VALUE:
+                if (debug) printf("Value: %d\n", command->value);
                 memory[i++] = command->value;
                 break;
 
             case COMMAND_LIST:
+                if (debug) printf("List: [%d]\n", command->value);
                 for (j = 0; j < command->value; i++) {
                     memory[i++] = command->list[j];
                 }
                 break;
 
             case COMMAND_END:
+                if (debug) printf("End\n");
                 goto while_break;
 
             default:
@@ -65,6 +70,7 @@ int main(int argc, /*const*/ char *argv[]) {
     int i, j;
 
     // Extract arguments
+    debug = false;
     char *mifPath = NULL;
     char *binaryPath = NULL;
     char *textPath = NULL;
@@ -83,8 +89,11 @@ int main(int argc, /*const*/ char *argv[]) {
                 printf("Options:\n");
                 printf("\t-m <file>\tAssemble and save as mif on <file>\n");
                 printf("\t-o <file>\tAssemble and save as binary on <file>\n");
-                printf("\t-1 <file>\tAssemble and save as a text with binary representation of resul on <file>\n");
+                printf("\t-1 <file>\tAssemble and save as a text with binary representation of result on <file>\n");
+                printf("\t-v <file>\tDebug\n");
                 printf("\t-h, --help\tDisplay this menssage\n");
+            } else if (argv[i][1] == 'v') {
+                debug = true;
             } else {
                 printf("Invalid flag\n");
             }
@@ -101,6 +110,7 @@ int main(int argc, /*const*/ char *argv[]) {
         printf("Missing source\n");
         return EXIT_FAILURE;
     }
+    printf(debug?"Debug mode on\n":"Debug mode off\n");
 
     // Parse code
     uint16_t *memory = createMemory(sourcePath);
@@ -110,9 +120,8 @@ int main(int argc, /*const*/ char *argv[]) {
 
     // Calculates memory tam
     int memTam;
-    for (memTam = TAM_MEM - 1; memTam > 0; memTam--) {
-        if (memory[memTam] != 0) {
-            memTam++;
+    for (memTam = TAM_MEM; memTam > 0; memTam--) {
+        if (memory[memTam - 1] != 0) {
             break;
         }
     }
