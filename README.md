@@ -110,7 +110,7 @@ A instrução possui 5 sinais para definir em qual conndição o jump deve ser f
 | jif(n,e,l,p,m) rx | opcode | n e l z s | xxx | rx   | ação                            |
 | ----------------- | ------ | --------- | --- | ---- | ------------------------------- |
 | **noop**          | 0000   | 00000     | xxx | xxxx | Um jump impossivel de acontecer |
-| **nop rx**        | 0000   | 00000     | xxx | rx   | Um jump impossivel de acontecer |
+| **jn rx**         | 0000   | 00000     | xxx | rx   | Um jump impossivel de acontecer |
 | **j rx**          | 0000   | 10000     | xxx | rx   | jump incondicional              |
 | **je rx**         | 0000   | 01000     | xxx | rx   | jump se igual                   |
 | **jne rx**        | 0000   | 11000     | xxx | rx   | jump se diferente               |
