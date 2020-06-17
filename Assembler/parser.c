@@ -1,5 +1,7 @@
 #include "parser.h"
 
+#include "message.h"
+
 #define TAM_COMMAND 100
 
 /**
@@ -57,38 +59,37 @@ struct _Parser {
  * Prints a error with str menssage
  */
 static inline void parsingError(Parser* parser, const char* str) {
-    // printf("\033[1;31m> \033[0m\033[1;35mLine %d: \033[0;60m%s\033[0m\n", parser->line, str);
-    printf("\033[1;31m!!\033[0;1m Line %d:\033[0m %s\n", parser->line, str);
+    printf(MARK_ERROR "\033[1m Line %d:\033[0m %s\n", parser->line, str);
 }
 
 static inline void parsingWarning(Parser* parser, const char* str) {
-    printf("\033[1;35m##\033[0;1m Line %d:\033[0m %s\n", parser->line, str);
+    printf(MARK_WARNING "\033[1m Line %d:\033[0m %s\n", parser->line, str);
 }
 
 /**
  * Returns if the character is a white space, but not a line break
  */
-static bool isSpace(char c) { return c == '\t' || c == '\v' || c == ' '; }
+static inline bool isSpace(char c) { return c == '\t' || c == '\v' || c == ' '; }
 
 /**
  * Returns if the character is a line break
  */
-static bool isEnter(char c) { return c == '\n' || c == '\f' || c == '\r'; }
+static inline bool isEnter(char c) { return c == '\n' || c == '\f' || c == '\r'; }
 
 /**
  * Returns if the character is a decimal digit
  */
-static bool isDecimal(char c) { return '0' <= c && c <= '9'; }
+static inline bool isDecimal(char c) { return '0' <= c && c <= '9'; }
 
 /**
  * Returns if the character is 0 or 1
  */
-static bool isBinary(char c) { return c == '0' || c == '1'; }
+static inline bool isBinary(char c) { return c == '0' || c == '1'; }
 
 /**
  * Returns if the character is a hexadecimal digit
  */
-static bool isHexadecimal(char c) { return isDecimal(c) || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F'); }
+static inline bool isHexadecimal(char c) { return isDecimal(c) || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F'); }
 
 /**
  * Return the value of the hexdecimal digit represented by character c
@@ -287,6 +288,17 @@ static Command* createEOF(Parser* parser) {
     }
 }
 
+Command* createConst() {
+    // TODO
+    // se a str comeca como numero
+    //    se a str continua como numero
+    // se a str comeca como hexa
+    //    se a str continua como hexa
+    // ...
+    // Nao era um constante: retorna aviso
+    return NULL;
+}
+
 //* ========================== *//
 //* ===== Public Methods ===== *//
 //* ========================== *//
@@ -333,7 +345,7 @@ Command* parseNext(Parser* parser) {
     char c;
     while (true) {
         if (debug) {
-            printf("\032[1;34m??\033[0m state %d | ", parser->state);
+            printf(MARK_DEBUG "state %d | ", parser->state);
             printf("buffer %-5d | ", parser->n);
             for (int i = 0; i < parser->n; i++) printf("%c", parser->buffer[i]);
             printf("\n");
@@ -597,6 +609,11 @@ Command* parseNext(Parser* parser) {
                     return commandNothing();
                 } else if (isSpace(c)) {
                     // TODO Create Command
+                    // parser->buffer[parser->n] = '\0';
+                    // int rx, ry, rz, num;
+                    // if (strcmp(parser->buffer, "store")) {
+                    // fscanf()
+                    // }
                     parser->n = 0;  // Clear buffer
                 } else if (c == ':') {
                     parser->state = LABEL;

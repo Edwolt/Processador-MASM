@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "parser.h"
+#include "message.h"
 
 /**
  * Create a array with the assembled code
@@ -29,28 +30,28 @@ uint16_t *createMemory(char *path) {
 
         switch (command->type) {
             case COMMAND_NOTHING:
-                if (debug) printf("Nothing\n");
+                if (debug) printf(MARK_DEBUGR "Nothing\033[0m\n");
                 break;
 
             case COMMAND_LABEL:
-                if (debug) printf("Label: %s\n", command->label);
+                if (debug)  printf(MARK_DEBUGR "Label: %s\033[0m\n", command->label);
                 // TODO
                 break;
 
             case COMMAND_VALUE:
-                if (debug) printf("Value: %d\n", command->value);
+                if (debug) printf(MARK_DEBUGR "Value: %d\n", command->value);
                 memory[i++] = command->value;
                 break;
 
             case COMMAND_LIST:
-                if (debug) printf("List: [%d]\n", command->value);
+                if (debug) printf(MARK_DEBUGR "List: [%d]\n", command->value);
                 for (j = 0; j < command->value; i++) {
                     memory[i++] = command->list[j];
                 }
                 break;
 
             case COMMAND_END:
-                if (debug) printf("End\n");
+                if (debug) printf(MARK_DEBUGR "End\n");
                 goto while_break;
 
             default:
