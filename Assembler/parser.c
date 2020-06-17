@@ -56,7 +56,14 @@ struct _Parser {
 /**
  * Prints a error with str menssage
  */
-static void parsingError(Parser* parser, const char* str) { printf("Line %d: %s\n", parser->line, str); }
+static inline void parsingError(Parser* parser, const char* str) {
+    // printf("\033[1;31m> \033[0m\033[1;35mLine %d: \033[0;60m%s\033[0m\n", parser->line, str);
+    printf("\033[1;31m!!\033[0;1m Line %d:\033[0m %s\n", parser->line, str);
+}
+
+static inline void parsingWarning(Parser* parser, const char* str) {
+    printf("\033[1;35m##\033[0;1m Line %d:\033[0m %s\n", parser->line, str);
+}
 
 /**
  * Returns if the character is a white space, but not a line break
@@ -326,7 +333,7 @@ Command* parseNext(Parser* parser) {
     char c;
     while (true) {
         if (debug) {
-            printf("state %d | ", parser->state);
+            printf("\032[1;34m??\033[0m state %d | ", parser->state);
             printf("buffer %-5d | ", parser->n);
             for (int i = 0; i < parser->n; i++) printf("%c", parser->buffer[i]);
             printf("\n");
@@ -583,7 +590,7 @@ Command* parseNext(Parser* parser) {
 
             case CODE:  // TODO
                 if (isEnter(c)) {
-                    parsingError(parser, "Invalid instruction");
+                    parsingWarning(parser, "Invalid instruction");
                     parser->line++;
                     parser->n = 0;  // Clear buffer
                     parser->state = START;
