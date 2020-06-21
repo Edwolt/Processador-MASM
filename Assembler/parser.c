@@ -91,10 +91,31 @@ static inline bool isBinary(char c) { return c == '0' || c == '1'; }
  */
 static inline bool isHexadecimal(char c) { return isDecimal(c) || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F'); }
 
+// TODO do some changes to make read code easy 
+static void readChunck(Parser* parser, char* str, bool* end) {
+    char c;
+    fscanf(parser->file, "%c", &c);
+    if (feof(parser->file)) {
+        return false;
+    }
+    int i = 0;
+    while (!isSpace(c) && !isEnter(c) && c != ';') {
+        str[i++] = c;
+    }
+    if (c == isSpace(c)) {
+        return;
+    } else if (isEnter(c)) {
+        parser->line++;
+        return;
+    } else if (c == ';') {
+        fscanf("%*[^\n]");  // Le até o \n
+    }
+}
+
 /**
  * Return the value of the hexdecimal digit represented by character c
  */
-static uint16_t hexToInt(char c) {
+inline static uint16_t hexToInt(char c) {
     if (isDecimal(c)) {
         return c - '0';
     } else if ('a' <= c && c <= 'f') {
