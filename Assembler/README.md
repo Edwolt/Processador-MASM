@@ -68,6 +68,22 @@ Possui todas as intruções verdadeiras do processador como esperado
   | #FFFF   | 1111111111111111 |
   | xFFFFF  | **Erro**         |
 
+- TODO Caracter: Retorna um valor ascii de um caracter\
+
+  | Exemplo | Resultado        |
+  | ------- | ---------------- |
+  | 'H'     | 0000000001001000 |
+  | 'e'     | 0000000001100101 |
+  | 'l'     | 0000000001101100 |
+  | 'o'     | 0000000001101111 |
+  | ' '     | 0000000000100000 |
+  | 'W'     | 0000000001010111 |
+  | 'r'     | 0000000001110010 |
+  | 'd'     | 0000000001100100 |
+  | '\n'    | 0000000000001010 |
+  | '\0'    | 0000000000000000 |
+  | 'ab'    | **Erro**         |
+
 - String: Um sequencia de caracteres terminando no caracter nulo\
    A string tem que estar entre aspas duplas
   O resultado será um vetor de caracter com os valores hexadecimais de cada um do caracteres
@@ -87,6 +103,26 @@ Possui todas as intruções verdadeiras do processador como esperado
   |                 | 0000000001100100 | d        |
   |                 | 0000000000001010 | '\n'     |
   |                 | 0000000000000000 | '\0'     |
+
+- TODO Espaço: Aloca um um determinado numero de espaco
+
+  | Exemplo | Resultado        |
+  | ------- | ---------------- |
+  | \[5\]   | 0000000000000000 |
+  |         | 0000000000000000 |
+  |         | 0000000000000000 |
+  |         | 0000000000000000 |
+  |         | 0000000000000000 |
+
+- TODO Espaço: inicializado: Aloca o espaco inicializando com um determinado valor:
+
+  | Exemplo    | Resultado        |
+  | ---------- | ---------------- |
+  | \[5, b10\] | 0000000000000010 |
+  |            | 0000000000000010 |
+  |            | 0000000000000010 |
+  |            | 0000000000000010 |
+  |            | 0000000000000010 |
 
 - Vetor: O montador não possui uma keyword para vetor, basta colocar os valores separados por espaço
 
