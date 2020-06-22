@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "command.h"
+#include "message.h"
 
 #define TAM_MEM 65536
 
