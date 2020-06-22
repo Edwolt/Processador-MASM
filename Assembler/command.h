@@ -13,6 +13,7 @@ enum CommandType {
     COMMAND_LABEL,    // Command has a label
     COMMAND_VALUE,    // Command has a const value
     COMMAND_LIST,     // Command has a array of const value
+    COMMAND_SPACE,    // Command will create value space with nothing
     COMMAND_END,      // Command has nothing and has no more command to be parsed
 };
 
