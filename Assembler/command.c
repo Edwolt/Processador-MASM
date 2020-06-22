@@ -36,6 +36,15 @@ Command* commandList(uint16_t len, uint16_t* list) {
     return command;
 }
 
+Command* commandSpace(uint16_t len) {
+    Command* command = malloc(sizeof(Command));
+    if (!command) return NULL;
+
+    command->type = COMMAND_SPACE;
+    command->value = len;
+    return command;
+}
+
 Command* commandEnd() {
     Command* command = malloc(sizeof(Command));
     if (!command) return NULL;

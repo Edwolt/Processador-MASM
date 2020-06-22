@@ -53,18 +53,20 @@ struct _Parser {
 //* ========================== *//
 
 static inline void parsingError(Parser* parser, const char* str, ...) {
-    printf(MARK_ERROR "\033[1m Line %d:\033[0m \n", parser->line);
+    printf(MARK_ERROR "\033[1m Line %d:\033[0m ", parser->line);
     va_list args;
     va_start(args, str);
     vprintf(str, args);
     va_end(args);
+    printf("\n");
 }
 static inline void parsingWarning(Parser* parser, const char* str, ...) {
-    printf(MARK_WARNING "\033[1m Line %d:\033[0m \n", parser->line);
+    printf(MARK_WARNING "\033[1m Line %d:\033[0m ", parser->line);
     va_list args;
     va_start(args, str);
     vprintf(str, args);
     va_end(args);
+    printf("\n");
 }
 
 inline static bool isSpace(char c) { return c == '\t' || c == '\v' || c == ' '; }
@@ -74,6 +76,9 @@ inline static bool isDecimal(char c) { return '0' <= c && c <= '9'; }
 inline static bool isBinary(char c) { return c == '0' || c == '1'; }
 inline static bool isHexadecimal(char c) {
     return isDecimal(c) || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F');
+}
+inline static bool isConstStart(char c) {
+    return isDecimal(c) || c == '+' || c == '-' || c == 'b' || c == 'x' || c == '#';
 }
 
 inline static uint16_t hexToInt(char c) {
@@ -231,39 +236,38 @@ static Command* createHexadecimal(Parser* parser) {
 }
 
 static bool isConst(Parser* parser, char c) {
-    bufferPushZ(parser);
-    switch (parser->buffer[0]) {
-        case '-':
-        case '+':
-            return isDecimal(c);
-        case 'b':
-            return isBinary(c);
-        case 'x':
-        case '#':
-            return isHexadecimal(c);
-        default:  // Decimal value
-            return isDecimal(c);
+    char v = parser->buffer[0];
+    if (isDecimal(c) || v == '-' || v == '+') {
+        return isDecimal(c);
+    } else if (v == 'b') {
+        return isBinary(c);
+    } else if (v == 'x' || v == '#') {
+        return isHexadecimal(c);
+    } else {
+        return false;
     }
 }
 
 static Command* createConst(Parser* parser) {
-    switch (parser->buffer[0]) {
-        case '-':
-            return createNegative(parser);
-        case '+':
-            return createPositive(parser);
-        case 'b':
-            return createBinary(parser);
-        case 'x':
-        case '#':
-            return createHexadecimal(parser);
-        default:  // Is Decimal
-            return createDecimal(parser);
+    bufferPushZ(parser);
+    Command* command;
+    char v = parser->buffer[0];
+    if (isDecimal(v)) {
+        command = createDecimal(parser);
+    } else if (v == '-') {
+        command = createNegative(parser);
+    } else if (v == '+') {
+        command = createPositive(parser);
+    } else if (v == 'b') {
+        command = createBinary(parser);
+    } else if (v == 'x' || v == '#') {
+        command = createHexadecimal(parser);
+    } else {
+        printf(MARK_ASERROR "createConst(): %s was marked as CONST\n", parser->buffer);
+        command = NULL;
     }
-
-    if (parser->buffer[0] == 'x') {
-        return createHexadecimal(parser);
-    }
+    bufferClear(parser);
+    return command;
 }
 
 /**
@@ -372,24 +376,15 @@ Command* parseNext(Parser* parser) {
                     // parser->state = START;
                 } else if (c == ';') {
                     parser->state = COMMENT;
-                } else if (isDecimal(c)) {
-                    bufferPush(parser, c);
-                    parser->state = CONST;
-                } else if (c == '+') {
-                    bufferPush(parser, c);
-                    parser->state = CONST;
-                } else if (c == '-') {
-                    bufferPush(parser, c);
-                    parser->state = CONST;
-                } else if (c == 'b') {
-                    bufferPush(parser, c);
-                    parser->state = CONST;
-                } else if (c == 'x' || c == '#') {
+                } else if (isConstStart(c)) {
                     bufferPush(parser, c);
                     parser->state = CONST;
                 } else if (c == '"') {
-                    bufferPush(parser, c);
                     parser->state = STRING;
+                } else if (c == '[') {
+                    parser->state = ARRAY;
+                } else if (c == ']') {
+                    parsingError(parser, "Unexpected token \"]\"");
                 } else if (c == ':') {
                     parsingError(parser, "Empty label");
                     // parser->state = START;
@@ -400,7 +395,7 @@ Command* parseNext(Parser* parser) {
                 break;
 
             case COMMENT:
-                fscanf(parser->file, "%*[\n]");
+                fscanf(parser->file, "%*[^\n]");
                 parser->state = START;
 
                 // else parser->state = COMMENT;
@@ -422,6 +417,15 @@ Command* parseNext(Parser* parser) {
                     return command;
                 } else if (c == '"') {
                     Command* command = createConst(parser);
+                    parser->state = STRING;
+                    return command;
+                } else if (c == '[') {
+                    Command* command = createConst(parser);
+                    parser->state = ARRAY;
+                    return command;
+                } else if (c == ']') {
+                    Command* command = createConst(parser);
+                    parsingError(parser, "Unexpected Token \"]\"");
                     return command;
                 } else if (c == ':') {
                     parser->state = LABEL;
@@ -485,6 +489,9 @@ Command* parseNext(Parser* parser) {
                     // parser->state = STRING;
                     return commandValue((uint16_t)c);
                 }
+            case ARRAY:
+                // TODO
+                break;
 
             case CODE:  // TODO
                 if (isEnter(c)) {

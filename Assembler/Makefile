@@ -27,7 +27,7 @@ test: $(EXEC)
 	echo ""
 
 	for i in $(TEST); do \
-		echo ">> Test $$i"; \
+		echo "\033[1m===== Test $$i =====\033[0m"; \
 		./$(EXEC) $$i.masm -m $$i.mif -1 $$i.txt -o $$i.bin; \
 		echo ""; \
 	done;

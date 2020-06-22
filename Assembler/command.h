@@ -27,29 +27,12 @@ struct _Command {
     uint16_t* list;
 };
 
-/**
- * Creates a command of nothing type 
- */
-Command* commandNothing();
-
-/**
- * Creates a command of label type
- */
-Command* commandLabel(char* label);
-
-/**
- * Creates a command of value type
- */
-Command* commandValue(uint16_t value);
-
-/**
- * Creates a command of next line type
- */
-Command* commandList(uint16_t len, uint16_t* list);
-/**
- * Creates a command of type end
- */
-Command* commandEnd();
+Command* commandNothing();                           // Creates a command of nothing type
+Command* commandLabel(char* label);                  // Creates a command of label type
+Command* commandValue(uint16_t value);               // Creates a command of value type
+Command* commandList(uint16_t len, uint16_t* list);  // Creates a command of list type
+Command* commandSpace(uint16_t len);                 // Creates a command of space type
+Command* commandEnd();                               // Creates a command of type end
 
 /**
  * Destruct command and unalloc the memory
