@@ -1,0 +1,58 @@
+"Hello World\n"
+-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 
+1
+5
+70
+65535
+9999999
+#ABCD
+
+1
++70
++65535
++9999999
+#ABCD
+
+-0
+-1
+-5
+-70
+-65535
+-9999999
+#FFFF
+
+b1010101010101010
+
+#FFFF
+#FFFF
+#FFFF
+9999999
+#FFFF
++65530
+-65530
+#FFFF
+65530
+#FFFF
+60
+5
+b101
+xFFFF
+-2
+#FFFF
+"String"
+"Hello World\n"
+"ue
+#FFFF
+vector: 50 60 70
+#FFFF
+5;None
+#FFFF
+;None
+;None
+label:
+lalel:
+teste:6
+#FFFF
+hello_menssage: "Hello World\n"
+#FFFF
+final:7;Testefinal
