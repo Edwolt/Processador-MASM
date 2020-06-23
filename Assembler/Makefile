@@ -1,5 +1,5 @@
 #Copilation
-CC       := gcc
+CC       := g++
 
 #Output and test
 FOLDER   := Test
@@ -7,9 +7,9 @@ TEST     := $(patsubst %.masm,%,$(wildcard $(FOLDER)/*.masm))
 EXEC     := $(FOLDER)/assembler
 
 #Files
-SRC      := $(wildcard *.c)
-OBJ      := $(SRC:.c=.o)
-HEADER   := $(wildcard *.h)
+SRC      := $(wildcard *.cpp)
+OBJ      := $(SRC:.cpp=.o) pair.o
+HEADER   := $(wildcard *.hpp)
 
 #Flags
 CFLAGS   := -Wall -lm -Wextra -pedantic -Werror=implicit-function-declaration
@@ -58,6 +58,6 @@ clean:
 $(EXEC): $(OBJ)
 	$(CC) -o $(EXEC) $(OBJ) $(CFLAGS)
 
-%.o: %.c
+%.o: %.cpp
 	$(CC) -c -o $@ $< $(CFLAGS)
 
