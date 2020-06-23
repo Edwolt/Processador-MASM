@@ -17,35 +17,38 @@ O opcode de cada instrução será de 4 bits
 
 0. jif(n,e,l,p,m) rx
 1. cmp rx ry
-1. store rx ry
-1. load rx ry
-1. in/out rx ry
-1. set rx num
-1. move rx ry
-1. add rx ry rz
-1. sub rx ry rz
-1. mul rx ry rz
-1. div rx ry rz
-1. and rx ry rz
-1. or rx ry rz
-1. xor rx ry rz
-1. not rx ry
-1. shift(t,d,b) rx ry
+2. store/load rx ry
+3. in/out rx ry
+4. move rx ry
+5. set rx num
+6. adc rx
+7. add rx ry rz
+8. sub rx ry rz
+9. mul rx ry rz
+10. div rx ry rz
+11. and rx ry rz
+12. or rx ry rz
+13. xor rx ry rz
+14. not rx ry
+15. shift(t,d,b) rx ry
 
 ## Instruções de manipulação da memória
 
-| instrução       | opcode | xxxx | source | dest | ação          |
-| --------------- | ------ | ---- | ------ | ---- | ------------- |
-| **store rx ry** | 0010   | xxxx | ry     | rx   | Mem(rx) <- ry |
-| **load rx ry**  | 0011   | xxxx | ry     | rx   | rx <- Mem(ry) |
+| instrução       | opcode | ?   | xxx | source | dest | ação          |
+| --------------- | ------ | --- | --- | ------ | ---- | ------------- |
+| **load rx ry**  | 0010   | 0   | xxx | ry     | rx   | rx <- Mem(ry) |
+| **store rx ry** | 0010   | 1   | xxx | ry     | rx   | Mem(rx) <- ry |
+
 
 ## Instruções para definir o valor do registrador
 
-| instrução      | opcode | xxxx | source | dest | ação                                                 |
-| -------------- | ------ | ---- | ------ | ---- | ---------------------------------------------------- |
-| **set rx num** | 0101   | xxxx | xxxx   | rx   | rx <- num (Pega o num da proxima posição da memória) |
-|                | nnnn   | nnnn | nnnn   | nnnn | Esse é o valor de num para a instrução set           |
-| **move rx ry** | 0110   | xxxx | ry     | rx   | rx <- ry                                             |
+| instrução      | opcode | xxxx | source | dest | ação                                                        |
+| -------------- | ------ | ---- | ------ | ---- | ----------------------------------------------------------- |
+| **move rx ry** | 0100   | xxxx | ry     | rx   | rx <- ry                                                    |
+| **set rx num** | 0101   | xxxx | xxxx   | rx   | rx <- num (Pega o num da proxima posição da memória)        |
+|                | nnnn   | nnnn | nnnn   | nnnn | Esse é o valor de num para a instrução set                  |
+| **adc rx num** | 0110   | nnnn | nnnn   | nnnn | rx <- ry + num (aux armazena overflow, num usa sign extend) |
+
 
 ## Operações da ULA
 
@@ -129,13 +132,15 @@ Obs: é possível fazer outras combinações de jump, mas essas são as mais imp
 
 ## Entrada e Saida
 
-Manda os dados dos dois registradores para o dispositivo avisar quando a ação foi feita\
+Manda os dados dos dois registradores\
 O dispositivo pode escrever o resultado no registrador ou na memória\
+Uma operação in só permite o processador voltar a processar quando o dispositivo avisar que a instrução terminou\
 TODO: verificar se essa é a melhor abordagem
 
-| instrução         | opcode | ?   | xxx | src  | dest | ação                       |
+| instrução         | opcode | ?   | num | src  | dest | ação                       |
 | ----------------- | ------ | --- | --- | ---- | ---- | -------------------------- |
-| **out rx ry num** | 0100   | 1   | xxx | ry   | rx   | Usa dispositivo de saida   |
-|                   | nnnn   | n   | nnn | nnnn | nnnn | Número do dispositivo      |
-| **in rx ry num**  | 0100   | 0   | xxx | ry   | rx   | Usa dispositivo de entrada |
-|                   | nnnn   | n   | nnn | nnnn | nnnn | Número do dispositivo      |
+| **out rx ry num** | 0011   | 1   | nnn | ry   | rx   | Usa dispositivo de saida   |
+| **in rx ry num**  | 0011   | 0   | nnn | ry   | rx   | Usa dispositivo de entrada |
+
+Obs: in 000 causa um halt
+Obs: in 111 causa sleep de ry ciclos de clocks
