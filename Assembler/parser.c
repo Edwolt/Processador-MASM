@@ -211,9 +211,11 @@ parser_eof:
  */
 static void consumeSpace(Parser* parser) {
     char c;
-    do {
+
+    parserScan(parser, "%c", &c);
+    while (isSpace(c)) {
         parserScan(parser, "%c", &c);
-    } while (isSpace(c));
+    }
 
     ungetc(c, parser->file);
     return;
@@ -227,10 +229,12 @@ parser_eof:
  */
 static void consumeWhiteSpace(Parser* parser) {
     char c;
-    do {
-        parserScan(parser, "%c", &c);
+
+    parserScan(parser, "%c", &c);
+    while (isSpace(c) || isEnter(c)) {
         if (isEnter(c)) parser->line++;
-    } while (isSpace(c) || isEnter(c));
+        parserScan(parser, "%c", &c);
+    }
 
     ungetc(c, parser->file);
     return;
@@ -257,11 +261,14 @@ parser_eof:
  */
 static void readConst(Parser* parser) {
     char c;
-    do {
+
+    parserScan(parser, "%c", &c);
+    while (isConst(parser->buffer, c)) {
         bufferPush(parser, c);
         parserScan(parser, "%c", &c);
-    } while (isConst(parser->buffer, c));
+    }
     ungetc(c, parser->file);
+
     return;
 
 parser_eof:
@@ -322,12 +329,16 @@ Command* parseNext(Parser* parser) {
                 if (c == ';') {
                     parserScan(parser, "%*[^\n]");
                 } else if (isConstStart(c)) {
+                    bufferPush(parser, c);
+                    // printf("%d: \'%s\'\n", parser->n, parser->buffer);
                     readConst(parser);
+                    // printf("%d: \'%s\'\n", parser->n, parser->buffer);
                     parserScan(parser, "%c", &c);
 
                     if (isSpace(c) || isEnter(c) ||
                         c == '\'' || c == '"' || c == '[' || c == ']') {
                         ungetc(c, parser->file);
+                        bufferPushZ(parser);
                         return parseConst(parser);
                     } else if (c == ':') {
                         bufferPush(parser, c);
@@ -353,7 +364,9 @@ Command* parseNext(Parser* parser) {
                         free(aux);
                     } else {
                         readConst(parser);
-                        len = evalConst(&flag, parser->buffer, parser->n);
+                        if (parser->n == 0) {
+                            printf(LINE_ERROR "Expected a number, but get nothing\n", parser->line++);
+                        }
                     }
 
                     parserScan(parser, "%c", &c);
@@ -363,6 +376,7 @@ Command* parseNext(Parser* parser) {
                     }
 
                     if (c == ']') {
+                        len = evalConst(&flag, parser->buffer, parser->n);
                         return commandSpace(0, len);
                     } else if (c == ',') {
                     } else if (isEnter(c)) {
@@ -389,6 +403,9 @@ Command* parseNext(Parser* parser) {
                         free(aux);
                     } else {
                         readConst(parser);
+                        if (parser->n == 0) {
+                            printf(MARK_ERROR "Empty number\n");
+                        }
                         len = evalConst(&flag, parser->buffer, parser->n);
                     }
 
@@ -457,16 +474,6 @@ Command* parseNext(Parser* parser) {
             case CODE:
                 printf(MARK_BUG "Label not implemented\n");
                 return NULL;
-
-                /*
-            // case COMMENT:
-            // case CONST:
-            // case CHAR:
-            // case ARRAY:
-            case LABEL:
-            case CODE:
-                return;
-                */
 
             case ENDFILE: return commandEnd();
 

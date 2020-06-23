@@ -4,15 +4,12 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "command.h"
 #include "message.h"
 #include "value.h"
 
 #define TAM_MEM 65536
-
-bool debug;
 
 typedef struct _Parser Parser;
 

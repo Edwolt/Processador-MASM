@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -15,7 +14,7 @@ enum EvalFlag {
     EVAL_OK,       // Success evaluate
     EVAL_LARGE,    // Number is too large
     EVAL_INVALID,  // Received a string that don't match with pattern
-    EVAL_BUG,    // Exist a bug on eval
+    EVAL_BUG,      // Exist a bug on eval
 };
 
 /**
