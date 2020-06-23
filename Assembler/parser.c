@@ -91,6 +91,15 @@ inline static char* bufferReturn(Parser* parser) {
     return aux;
 }
 
+static void statePrint(const char* state, Parser* parser) {
+    if (debug) {
+        int i;
+        printf(MARK_DEBUG "%d: %s\t| %d\t", parser->line, state, parser->n);
+        for (i = 0; i < parser->n; i++) printf("%c", parser->buffer[i]);
+        printf("\n");
+    }
+}
+
 //* ============================= *//
 //* ===== Private Functions ===== *//
 //* ============================= *//
@@ -110,18 +119,18 @@ static Command* parseConst(Parser* parser) {
             return commandValue(num);
 
         case EVAL_LARGE:
-            printf(LINE_ERROR "Number is too large\n", parser->line);
+            parsingError(parser, "Number is too large\n");
             return commandNothing();
 
         case EVAL_BUG:
             return commandNothing();
 
         case EVAL_INVALID:
-            printf(LINE_ERROR "Invalid Const: %s\n", parser->line, parser->buffer);
+            parsingError(parser, "Invalid Const: %s", parser->buffer);
             return commandNothing();
 
         default:
-            printf(MARK_BUG "parserConst()\n");
+            messageBug("parserConst(): %s\n", parser->buffer);
             return commandEnd();
     }
 }
@@ -135,13 +144,14 @@ static Command* parseEscapedChar(Parser* parser, char c) {
             return commandValue(val);
 
         case EVAL_LARGE:
-            return commandNothing(LINE_ERROR "Number is too large\n", parser->line);
+            parsingError(parser, "Number is too large\n");
+            return commandNothing();
 
         case EVAL_BUG:
             return commandNothing();
 
         case EVAL_INVALID:
-            printf(LINE_ERROR "Invalid Character: '\\%c'\n", parser->line, c);
+            parsingError(parser, "Invalid Character: '\\%c'\n", c);
             return commandNothing();
 
         default: return commandNothing();
@@ -165,22 +175,18 @@ static Command* parserClose(Parser* parser) {
         case CONST: return parseConst(parser);
 
         case STRING:
-            printf(LINE_ERROR "String isn't closed\n", parser->line);
+            parsingError(parser, "String isn't closed\n");
             return commandEnd();
 
         case CODE:
-            printf(LINE_ERROR "Command isn't supported", parser->line);
+            parsingError(parser, "Command isn't supported\n");
             return commandEnd();
 
         default:
-            printf(MARK_BUG "commandEOF()\n");
+            messageBug("parserClose()\n");
             return commandEnd();
     }
 }
-
-//* =========================== *//
-//* ===== State Functions ===== *//
-//* =========================== *//
 
 /**
  * If you readed a single quote you can call this meuhod to return a command with the value on char
@@ -191,7 +197,7 @@ static Command* resolveChar(Parser* parser) {
 
     parserScan(parser, "%c", &c);
     if (c == '\'') {
-        printf(LINE_ERROR "Empty char\n", parser->line);
+        parsingError(parser, "Empty char\b");
         return commandNothing();
     } else if (c == '\\') {
         parserScan(parser, "%c", &c);
@@ -201,7 +207,7 @@ static Command* resolveChar(Parser* parser) {
     }
 
 parser_eof:
-    printf(LINE_ERROR "Empty or invalid char\n", parser->line);
+    parsingError(parser, "Empty or invalid char\n");
     return commandNothing();
 }
 
@@ -312,7 +318,7 @@ Command* parseNext(Parser* parser) {
     if (!parser->buffer) {
         parser->buffer = malloc(TAM_COMMAND * sizeof(char));
         if (!parser->buffer) {
-            printf(MARK_BUG "The assembler can't run without alocate memory\n");
+            messageBug("The assembler can't allocate memory\n");
             return NULL;
         }
         parser->n = 0;
@@ -322,23 +328,29 @@ Command* parseNext(Parser* parser) {
     while (true) {
         switch (parser->state) {
             case START:
+                statePrint("START", parser);
+
                 consumeWhiteSpace(parser);
                 if (parser->state != START) break;
 
+                statePrint("START", parser);
+
                 parserScan(parser, "%c", &c);
                 if (c == ';') {
+                    statePrint("COMMENT", parser);
                     parserScan(parser, "%*[^\n]");
+                    statePrint("COMMENT", parser);
                 } else if (isConstStart(c)) {
+                    statePrint("CONST", parser);
+
                     bufferPush(parser, c);
-                    // printf("%d: \'%s\'\n", parser->n, parser->buffer);
                     readConst(parser);
-                    // printf("%d: \'%s\'\n", parser->n, parser->buffer);
                     parserScan(parser, "%c", &c);
 
+                    statePrint("CONST", parser);
                     if (isSpace(c) || isEnter(c) ||
                         c == '\'' || c == '"' || c == '[' || c == ']') {
                         ungetc(c, parser->file);
-                        bufferPushZ(parser);
                         return parseConst(parser);
                     } else if (c == ':') {
                         bufferPush(parser, c);
@@ -347,15 +359,19 @@ Command* parseNext(Parser* parser) {
                         bufferPush(parser, c);
                         parser->state = CODE;
                     }
+                    statePrint("CONST", parser);
                 } else if (c == '\'') {
+                    statePrint("CHAR", parser);
                     return resolveChar(parser);
                 } else if (c == '"') {
+                    statePrint("STRING", parser);
                     parser->state = STRING;
                 } else if (c == '[') {
                     uint16_t len;
                     uint16_t val = 0;
                     enum EvalFlag flag;
 
+                    statePrint("ARRAY", parser);
                     consumeSpace(parser);
                     parserScan(parser, "%c", &c);
                     if (c == '\'') {
@@ -364,36 +380,39 @@ Command* parseNext(Parser* parser) {
                         free(aux);
                     } else {
                         readConst(parser);
-                        if (parser->n == 0) {
-                            printf(LINE_ERROR "Expected a number, but get nothing\n", parser->line++);
-                        }
+                        len = evalConst(&flag, parser->buffer, parser->n);
                     }
 
+                    statePrint("ARRAY", parser);
                     parserScan(parser, "%c", &c);
                     if (isSpace(c)) {
                         consumeSpace(parser);
                         parserScan(parser, "%c", &c);
                     }
+                    statePrint("ARRAY", parser);
 
                     if (c == ']') {
-                        len = evalConst(&flag, parser->buffer, parser->n);
                         return commandSpace(0, len);
                     } else if (c == ',') {
                     } else if (isEnter(c)) {
-                        printf(LINE_ERROR "Expected a number\n", parser->line++);
+                        parsingError(parser, "Expected a number\n");
+                        parser->line++;
                         parserScan(parser, "%*[^[]%*c");
                         break;
                     } else if (c == '\'') {
-                        printf(LINE_ERROR "Expected a \",\" or a number\n", parser->line);
+                        parsingError(parser, "Expected a ',' or a number\n");
+                        parserScan(parser, "%*[^[]%*c");
                     } else if (c == '"' || c == '[' || c == ':') {
-                        printf(LINE_ERROR "Expected a number\n", parser->line);
+                        parsingError(parser, "Expected a ',' or a number, get %c\n", c);
                         parserScan(parser, "%*[^[]%*c");
                         break;
                     } else {
-                        printf(LINE_ERROR "Expected a number\n", parser->line);
+                        parsingError(parser, "Expected a ',' or a number, get %c\n", c);
                         parserScan(parser, "%*[^[]%*c");
                         break;
                     }
+
+                    statePrint("ARRAY", parser);
 
                     consumeSpace(parser);
                     parserScan(parser, "%c", &c);
@@ -403,11 +422,10 @@ Command* parseNext(Parser* parser) {
                         free(aux);
                     } else {
                         readConst(parser);
-                        if (parser->n == 0) {
-                            printf(MARK_ERROR "Empty number\n");
-                        }
                         len = evalConst(&flag, parser->buffer, parser->n);
                     }
+
+                    statePrint("ARRAY", parser);
 
                     parserScan(parser, "%c", &c);
                     if (isSpace(c)) {
@@ -415,43 +433,42 @@ Command* parseNext(Parser* parser) {
                         parserScan(parser, "%c", &c);
                     }
 
+                    statePrint("ARRAY", parser);
                     if (c == ']') {
                         return commandSpace(val, len);
                     } else if (c == ',') {
-                        printf(LINE_ERROR "Expected a number\n", parser->line);
+                        parsingError(parser, "Expected a number\n");
                         parserScan(parser, "%*[^[]%*c");
                         break;
                     } else if (isEnter(c)) {
-                        printf(LINE_ERROR "Expected a number\n", parser->line++);
+                        parsingError(parser, "Expected a number, get end of line\n");
                         parserScan(parser, "%*[^[]%*c");
                         break;
-                    } else if (c == '\'') {
-                        printf(LINE_ERROR "Expected a number\n", parser->line);
-                    } else if (c == '"' || c == '[' || c == ':') {
-                        printf(LINE_ERROR "Expected a number\n", parser->line);
+                    } else if (c == '\'' || c == '"' || c == '[' || c == ':') {
+                        parsingError(parser, "Expected a number, get '%c'\n", c);
                         parserScan(parser, "%*[^[]%*c");
                         break;
                     } else {
-                        printf(LINE_ERROR "Expected a number\n", parser->line);
+                        parsingError(parser, "Expected a number\n");
                         parserScan(parser, "%*[^[]%*c");
                         break;
                     }
-                    printf(LINE_ERROR "Erro estranho\n", parser->line);
-
                 } else if (c == ']') {
-                    printf(LINE_ERROR "Unexpected token \"]\"\n", parser->line);
+                    parsingError(parser, "Unexpected token: \"]\"\n");
                 } else if (c == ':') {
-                    printf(LINE_ERROR "Empty label\n", parser->line);
+                    parsingError(parser, "Empty label\n");
                 } else {
                     bufferPush(parser, c);
+                    statePrint("CODE", parser);
                     parser->state = CODE;
                 }
                 break;
 
             case STRING:
                 parserScan(parser, "%c", &c);
+                statePrint("STRING", parser);
                 if (isEnter(c)) {
-                    printf(LINE_ERROR "String isn't closed\n", parser->line);
+                    parsingError(parser, "String isn't closed\n");
                     parser->line++;
                     parser->state = START;
                     return commandValue('\0');
@@ -468,17 +485,17 @@ Command* parseNext(Parser* parser) {
                 }
 
             case LABEL:
-                printf(MARK_BUG "Label not implemented\n");
+                messageBug("Label not implemented yet\n");
                 return NULL;
 
             case CODE:
-                printf(MARK_BUG "Label not implemented\n");
+                messageBug("Code not implemented yet\n");
                 return NULL;
 
             case ENDFILE: return commandEnd();
 
             default:
-                printf(MARK_DEBUG "%d\n", parser->state);
+                messageBug("Parser on invalid state %d\n", parser->state);
                 return NULL;
         }
     }

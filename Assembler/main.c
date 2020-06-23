@@ -24,34 +24,34 @@ uint16_t *createMemory(char *path) {
     while (true) {
         command = parseNext(parser);
         if (!command) {
-            printf(MARK_BUG "Assembler failed\n");
+            messageBug("Assembler failed (parser returned NULL)\n");
             break;
         }
 
         switch (command->type) {
             case COMMAND_NOTHING:
-                if (debug) printf(MARK_DEBUGR "Nothing\033[0m\n");
+                messageDebugr("Nothing\n");
                 break;
 
-            case COMMAND_LABEL:
-                if (debug) printf(MARK_DEBUGR "Label: %s\033[0m\n", command->label);
-                // TODO
+            case COMMAND_LABEL:  // TODO
+                messageDebugr("Label %s\n", command->label);
+
                 break;
 
             case COMMAND_VALUE:
-                if (debug) printf(MARK_DEBUGR "Value: %d\n", command->val);
+                messageDebugr("Value: %d\n", command->val);
                 memory[i++] = command->val;
                 break;
 
             case COMMAND_LIST:
-                if (debug) printf(MARK_DEBUGR "List: [%d]\n", command->len);
+                messageDebugr("List: [%d]\n", command->len);
                 for (j = 0; j < command->len; i++) {
                     memory[i++] = command->list[j];
                 }
                 break;
 
             case COMMAND_SPACE:
-                if (debug) printf(MARK_DEBUGR "Space: [%d, %d]\n", command->len, command->val);
+                messageDebugr("Space: [%d, %d]\n", command->len, command->val);
                 if (command->val == 0) {
                     i += command->len;
                     break;
@@ -63,11 +63,11 @@ uint16_t *createMemory(char *path) {
                 break;
 
             case COMMAND_END:
-                if (debug) printf(MARK_DEBUGR "End\n");
+                messageDebugr("End\n");
                 goto while_break;
 
             default:
-                printf(MARK_BUG "createMemory()\n");
+                messageBug("createMemory\n");
                 return NULL;
         }
         deleteCommand(command);
@@ -167,10 +167,10 @@ int main(int argc, /*const*/ char *argv[]) {
         fprintf(dest, "END;\n");
 
         fclose(dest);
-        printf("Assembled to MIF: %s\n", mifPath);
+        messageOut("Assembled to MIF: %s\n", mifPath);
     }
     if (binaryPath) {
-        printf("Assembled to Binary: %s\n", binaryPath);
+        messageOut("Assemble to Binary not supported yet: %s\n", binaryPath);
     }
     if (textPath) {
         dest = fopen(textPath, "w");
@@ -184,7 +184,7 @@ int main(int argc, /*const*/ char *argv[]) {
         fprintf(dest, "----------------\n");
 
         fclose(dest);
-        printf("Assembled to Text: %s\n", textPath);
+        messageOut("Assembled to Text: %s\n", textPath);
     }
 
     free(memory);

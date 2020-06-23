@@ -129,7 +129,7 @@ uint16_t evalConst(enum EvalFlag* flag, char* str, int n) {
     } else if (str[0] == 'x' || str[0] == '#') {
         return evalHexadecimal(flag, str, n);
     } else {
-        printf(MARK_BUG "evalConst(): \"%s\" isn't a CONST\n", str);
+        messageBug("evalConst(): \"%s\" isn''t a const\n", str);
         *flag = EVAL_BUG;
         return NOTHING;
     }
