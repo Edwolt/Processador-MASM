@@ -143,6 +143,20 @@ Possui todas as intruções verdadeiras do processador como esperado
 
 TODO
 
-## Pseudo Instruçõess
+## Pseudo Instruções
 
 TODO
+
+- push rx
+  store rx
+  set aux 1
+
+
+- pop rx
+- rts rx
+
+- inchar
+- outchar
+
+- halt
+  in aux aux 0
