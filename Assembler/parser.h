@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdarg.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -9,6 +8,7 @@
 
 #include "command.h"
 #include "message.h"
+#include "value.h"
 
 #define TAM_MEM 65536
 
