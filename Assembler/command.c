@@ -17,12 +17,12 @@ Command* commandLabel(char* label) {
     return command;
 }
 
-Command* commandValue(uint16_t value) {
+Command* commandValue(uint16_t val) {
     Command* command = malloc(sizeof(Command));
     if (!command) return NULL;
 
     command->type = COMMAND_VALUE;
-    command->value = value;
+    command->val = val;
     return command;
 }
 
@@ -31,17 +31,18 @@ Command* commandList(uint16_t len, uint16_t* list) {
     if (!command) return NULL;
 
     command->type = COMMAND_LIST;
-    command->value = len;
+    command->len = len;
     command->list = list;
     return command;
 }
 
-Command* commandSpace(uint16_t len) {
+Command* commandSpace(uint16_t val, uint16_t len) {
     Command* command = malloc(sizeof(Command));
     if (!command) return NULL;
 
     command->type = COMMAND_SPACE;
-    command->value = len;
+    command->len = len;
+    command->val = val;
     return command;
 }
 

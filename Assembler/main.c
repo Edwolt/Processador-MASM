@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "parser.h"
 #include "message.h"
+#include "parser.h"
 
 /**
  * Create a array with the assembled code
@@ -24,7 +24,7 @@ uint16_t *createMemory(char *path) {
     while (true) {
         command = parseNext(parser);
         if (!command) {
-            if (debug) printf("Assembler failed\n");
+            printf(MARK_BUG "Assembler failed\n");
             break;
         }
 
@@ -34,19 +34,31 @@ uint16_t *createMemory(char *path) {
                 break;
 
             case COMMAND_LABEL:
-                if (debug)  printf(MARK_DEBUGR "Label: %s\033[0m\n", command->label);
+                if (debug) printf(MARK_DEBUGR "Label: %s\033[0m\n", command->label);
                 // TODO
                 break;
 
             case COMMAND_VALUE:
-                if (debug) printf(MARK_DEBUGR "Value: %d\n", command->value);
-                memory[i++] = command->value;
+                if (debug) printf(MARK_DEBUGR "Value: %d\n", command->val);
+                memory[i++] = command->val;
                 break;
 
             case COMMAND_LIST:
-                if (debug) printf(MARK_DEBUGR "List: [%d]\n", command->value);
-                for (j = 0; j < command->value; i++) {
+                if (debug) printf(MARK_DEBUGR "List: [%d]\n", command->len);
+                for (j = 0; j < command->len; i++) {
                     memory[i++] = command->list[j];
+                }
+                break;
+
+            case COMMAND_SPACE:
+                if (debug) printf(MARK_DEBUGR "Space: [%d, %d]\n", command->len, command->val);
+                if (command->val == 0) {
+                    i += command->len;
+                    break;
+                }
+
+                for (j = 0; j < command->len; i++) {
+                    memory[i++] = command->val;
                 }
                 break;
 
@@ -55,7 +67,7 @@ uint16_t *createMemory(char *path) {
                 goto while_break;
 
             default:
-                printf("createMemory() doesn't work\n");
+                printf(MARK_BUG "createMemory()\n");
                 return NULL;
         }
         deleteCommand(command);

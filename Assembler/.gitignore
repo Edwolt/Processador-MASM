@@ -1,6 +1,9 @@
 .vscode/
 assembler
 
+# I don't know what it's, then it isn't important
+*.swp
+
 # Prerequisites
 *.d
 

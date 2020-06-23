@@ -8,53 +8,64 @@
 
 #include "message.h"
 
+/**
+ * Flag with the result of a eval
+ */
 enum EvalFlag {
-    EVAL_OK, // Success evaluate
-    EVAL_LARGE,  // Number is too large
-    EVAL_INVALID,
-    EVAL_ERROR,
+    EVAL_OK,       // Success evaluate
+    EVAL_LARGE,    // Number is too large
+    EVAL_INVALID,  // Received a string that don't match with pattern
+    EVAL_BUG,    // Exist a bug on eval
 };
 
 /**
- * Parse the buffer to a decimal command
- * Buffer: Until five decimal diigits (DDDDD)
+ * eval a string with decimal value:
+ * pattern: DDDDD
+ * example: 12345
  */
 uint16_t evalDecimal(enum EvalFlag* flag, char* str, int n);
 
 /**
- * Parse the buffer to positive decimal command
- * Buffer: The '+' and until five decimal diigits (+DDDDD)
+ * eval a string with positive decimal value:
+ * pattern: +DDDDD
+ * example: +12345
  */
 uint16_t evalPositive(enum EvalFlag* flag, char* str, int n);
 
 /**
- * Parse the buffer to a negative decimal command
- * Buffer: The '-' and until five decimal diigits (-DDDDD)
+ * eval a string with a negative decimal:
+ * pattern: -DDDDD
+ * example: -12345
  */
 uint16_t evalNegative(enum EvalFlag* flag, char* str, int n);
 
 /**
- * Parse the buffer to a binary command
- * Buffer: The 'b' character and until 16 binary diigits (bBBBBBBBBBBBBBBBB)
+ * eval a string with a binary number
+ * pattern: bBBBBBBBBBBBBBBBB
+ * example: b1010101010101010
  */
 uint16_t evalBinary(enum EvalFlag* flag, char* str, int n);
 
 /**
- * Parse the buffer to a hexadecimal command
- * Buffer: The 'x' or '#' character and until 4 hexadecimal diigits (xHHHH or #HHHH)
+ * eval a string with a hexadecimal number
+ * pattern: xHHHH or #HHHH
+ * example: xABCD
+ * example: #ABCD
  */
 uint16_t evalHexadecimal(enum EvalFlag* flag, char* str, int n);
 
 /**
- * Parse the buffer to a const value, then creates a command with it
- * Clear the buffer
- * Buffer: The 'b' character and until 16 binary diigits (bBBBBBBBBBBBBBBBB)
+ * Parse a string with:
+ * * A decimal value
+ * * A positive decimal value
+ * * A negative decimal value
+ * * A binary value
+ * * A hexadecimal value
  */
 uint16_t evalConst(enum EvalFlag* flag, char* str, int n);
 
 /**
- * Return a command with the value of char c
- * if it was escaped
- * example: if c == 0 returns a command with value '\0'
+ * Return a command with the value of char c if it was escaped
+ * example: if c is '0' returns '\0'
  */
 uint16_t evalEscapedChar(enum EvalFlag* flag, char c);
