@@ -3,6 +3,21 @@
 inline static bool isSpace(char c) { return c == '\t' || c == '\v' || c == ' '; }
 inline static bool isEnter(char c) { return c == '\n' || c == '\f' || c == '\r'; }
 
+enum TokenType {
+    DECIMAL,
+    POSITIVE,
+    NEGATIVE,
+    BINARY,
+    OCTAL,
+    HEXADECIMAL,
+    CHAR,
+    ARRAY,
+    STRING,
+    LABEL,
+    CODE,
+    NOTHING,
+};
+
 struct Parser {
     ifstream file;
     int line = 0;
@@ -50,7 +65,7 @@ struct Parser {
             } else if (isEnter(c)) {
                 line++;
             } else if (c == ';') {
-                commment();
+                readComment();
             } else if (c == '"') {
                 file.unget();
                 return getString();
@@ -85,15 +100,57 @@ struct Parser {
         return token;
     }
 
-    void
-    parseAll() {
-        while (!file.eof()) {
-            string token = getToken();
-            cdebug << "Token: " << token << endl;
+    TokenType categorizeToken(string token) {
+        if (token.front() == '"') {
+            return STRING;
+        } else if (token.front() == '\'') {
+            return CHAR;
+        } else if (token.front() == '[') {
+            return ARRAY;
+        } else if (token.front() == '+') {
+            return POSITIVE;
+        } else if (token.front() == '-') {
+            return NEGATIVE;
+        } else if (token.front() == '#') {
+            return HEXADECIMAL;
+        } else if (token.front() == 'b') {
+            return NOTHING;
+        } else if (token.front() == 'o') {
+            return NOTHING;
+        } else if (token.front() == 'x') {
+            return NOTHING;
+        } else if (token.back() == ':') {
+            return LABEL;
+        } else {
+            return NOTHING;
+            // TODO Verify all char to determinates if its a code or a decimal
         }
     }
 
-    void commment() {
+    void parseAll() {
+        while (!file.eof()) {
+            string token = getToken();
+            string type;
+            switch (categorizeToken(token)) {
+                case DECIMAL: type = string("DECIMAL"); break;
+                case POSITIVE: type = string("POSITIVE"); break;
+                case NEGATIVE: type = string("NEGATIVE"); break;
+                case BINARY: type = string("BINARY"); break;
+                case OCTAL: type = string("OCTAL"); break;
+                case HEXADECIMAL: type = string("HEXADECIMAL"); break;
+                case CHAR: type = string("CHAR   "); break;
+                case ARRAY: type = string("ARRAY   "); break;
+                case STRING: type = string("STRING"); break;
+                case LABEL: type = string("LABEL   "); break;
+                case CODE: type = string("CODE   "); break;
+                case NOTHING: type = string("NOTHING"); break;
+                default: type = string("DEFAULT"); break;
+            }
+            cdebug << "Token: " << type << "\t`" << token << '`' << endl;
+        }
+    }
+
+    void readComment() {
         char c;
         while (file.get(c)) {
             if (isEnter(c)) break;
@@ -104,6 +161,7 @@ struct Parser {
 
     vector<uint16_t> getMemory() { return memory; }
 };
+
 vector<uint16_t> parseCode(string path) {
     Parser parser(path);
     parser.parseAll();
