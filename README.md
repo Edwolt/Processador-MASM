@@ -39,7 +39,6 @@ O opcode de cada instrução será de 4 bits
 | **load rx ry**  | 0010   | 0   | xxx | ry     | rx   | rx <- Mem(ry) |
 | **store rx ry** | 0010   | 1   | xxx | ry     | rx   | Mem(rx) <- ry |
 
-
 ## Instruções para definir o valor do registrador
 
 | instrução      | opcode | xxxx | source | dest | ação                                                        |
@@ -48,7 +47,6 @@ O opcode de cada instrução será de 4 bits
 | **set rx num** | 0101   | xxxx | xxxx   | rx   | rx <- num (Pega o num da proxima posição da memória)        |
 |                | nnnn   | nnnn | nnnn   | nnnn | Esse é o valor de num para a instrução set                  |
 | **adc rx num** | 0110   | nnnn | nnnn   | nnnn | rx <- ry + num (aux armazena overflow, num usa sign extend) |
-
 
 ## Operações da ULA
 
@@ -137,10 +135,10 @@ O dispositivo pode escrever o resultado no registrador ou na memória\
 Uma operação in só permite o processador voltar a processar quando o dispositivo avisar que a instrução terminou\
 TODO: verificar se essa é a melhor abordagem
 
-| instrução         | opcode | ?   | num | src  | dest | ação                       |
-| ----------------- | ------ | --- | --- | ---- | ---- | -------------------------- |
-| **out rx ry num** | 0011   | 1   | nnn | ry   | rx   | Usa dispositivo de saida   |
-| **in rx ry num**  | 0011   | 0   | nnn | ry   | rx   | Usa dispositivo de entrada |
+| instrução         | opcode | ?   | num | src | dest | ação                       |
+| ----------------- | ------ | --- | --- | --- | ---- | -------------------------- |
+| **out rx ry num** | 0011   | 1   | nnn | ry  | rx   | Usa dispositivo de saida   |
+| **in rx ry num**  | 0011   | 0   | nnn | ry  | rx   | Usa dispositivo de entrada |
 
 Obs: in 000 causa um halt
 Obs: in 111 causa sleep de ry ciclos de clocks
