@@ -1,6 +1,6 @@
 #include "files.hpp"
 
-void writeMIF(string path, vector<uint16_t> memory) {
+void writeMIF(string path, vector<u16> memory) {
     ofstream file(path);
     file << "-- Codigo gerado pelo montador" << endl;
     file << "WIDTH=16;" << endl;
@@ -28,13 +28,13 @@ void writeMIF(string path, vector<uint16_t> memory) {
     cass << "Assembled to MIF: " << path << endl;
 }
 
-void writeBinary(string path, vector<uint16_t> memory) {
+void writeBinary(string path, vector<u16> memory) {
     cass << "Assemble to Binary not supported yet: " << path << endl;
 }
 
-void writeText(string path, vector<uint16_t> memory) {
+void writeText(string path, vector<u16> memory) {
     ofstream file(path);
-    for (uint16_t i : memory) {
+    for (u16 i : memory) {
         for (int j = 15; j >= 0; j--) {
             file << ((memory[i] >> j) % 2);
         }

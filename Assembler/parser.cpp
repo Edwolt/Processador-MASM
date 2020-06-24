@@ -21,9 +21,9 @@ enum TokenType {
 struct Parser {
     ifstream file;
     int line = 0;
-    map<string, vector<int>> labelsRef;
-    map<string, int> labelsVal;
-    vector<uint16_t> memory;
+    map<string, vector<u16>> labelsRef;
+    map<string, u16> labelsVal;
+    vector<u16> memory;
 
     Parser(string path) {
         file = ifstream(path);
@@ -193,13 +193,13 @@ struct Parser {
             return POSITIVE;
         } else if (token.front() == '-') {
             return NEGATIVE;
-        } else if (token.front() == '#') {
+        } else if (token.front() == '#') {  // More efficient (any token started with # is hexadecimal token)
             return HEXADECIMAL;
-        } else if (token.front() == 'b' && isBin(token)) {
+        } else if (isBin(token)) {
             return BINARY;
-        } else if (token.front() == 'o' && isOct(token)) {
+        } else if (isOct(token)) {
             return OCTAL;
-        } else if (token.front() == 'x' && isHex(token)) {
+        } else if (isHex(token)) {
             return HEXADECIMAL;
         } else if (isDec(token)) {
             return DECIMAL;
@@ -289,10 +289,10 @@ struct Parser {
         line++;
     }
 
-    vector<uint16_t> getMemory() { return memory; }
+    vector<u16> getMemory() { return memory; }
 };
 
-vector<uint16_t> parseCode(string path) {
+vector<u16> parseCode(string path) {
     Parser parser(path);
     parser.parseAll();
     // parser.labels();

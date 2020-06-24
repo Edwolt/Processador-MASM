@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 extern bool debug;
 
 #define cerror   cout << "\033[1;31m!!\033[0m "
@@ -13,3 +11,6 @@ extern bool debug;
 
 #define lerror(line)   cout << "\033[1;31m!! Line " << (line) << ":\033[0m "
 #define lwarning(line) cout << "\033[1;35m## Line " << (line) << ":\033[0m "
+
+typedef uint16_t u16;
+typedef uint32_t u32;

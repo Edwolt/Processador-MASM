@@ -2,13 +2,14 @@
 
 #include <cstdint>
 #include <fstream>
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
 
-#include "util.hpp"
 #include "const.hpp"
+#include "util.hpp"
 
 using namespace std;
 
-vector<uint16_t> parseCode(string path);
+vector<u16> parseCode(string path);

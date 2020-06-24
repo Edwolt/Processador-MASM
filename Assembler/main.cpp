@@ -62,7 +62,7 @@ int main(int argc, char const *argv[]) {
     cout << (debug ? "Debug mode on\n" : "Debug mode off") << endl;
 
     // Parse code
-    vector<uint16_t> memory = parseCode(sourcePath);
+    vector<u16> memory = parseCode(sourcePath);
 
     // Calculates memory tam
     while (!memory.empty()) {

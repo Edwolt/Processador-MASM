@@ -13,6 +13,24 @@ bool isDec(string str) {
     return true;
 }
 
+bool isPos(string str) {
+    if (str[0] != '+') return false;
+
+    for (unsigned i = 1; i < str.size(); i++) {
+        if (!isDec(str[i])) return false;
+    }
+
+    return true;
+}
+
+bool isNeg(string str) {
+    for (unsigned i = 1; i < str.size(); i++) {
+        if (!isDec(i)) return false;
+    }
+
+    return true;
+}
+
 bool isBin(string str) {
     if (str.front() != 'b') return false;
 
@@ -44,17 +62,17 @@ bool isHex(string str) {
     return true;
 }
 
-inline static void pushBin(uint16_t& n, char c) {
+inline static void pushBin(u16& n, char c) {
     n <<= 1;
     if (c == '1') n |= 1;
 }
 
-inline static void pushOct(uint16_t& n, char c) {
+inline static void pushOct(u16& n, char c) {
     n <<= 3;
     n |= (c - '0');
 }
 
-inline static void pushHex(uint16_t& n, char c) {
+inline static void pushHex(u16& n, char c) {
     n <<= 4;
     if (isDec(c)) {
         n |= (c - '0');
@@ -65,73 +83,131 @@ inline static void pushHex(uint16_t& n, char c) {
     }
 }
 
-uint16_t evalDec(int line, string token) {
-    uint32_t num = stoi(token);
-    if (token.size() > 5 || num >= (1 << 16)) {
-        uint16_t num = stoi(token);
+u16 evalDec(int line, string str) {
+    u16 num = stoi(str);
+    if (str.size() > 5 || num >= (1 << 16)) {
         lerror(line) << "Number is too large (returning " << (uint16_t)num << ')' << endl;
     }
     return num;
 }
 
-uint16_t evalPos(int line, string token) {
-    token.erase(0, 1);
-    uint32_t num = stoi(token);
-    if (token.size() > 6 || num >= (1 << 15)) {
+u16 evalPos(int line, string str) {
+    str.erase(0, 1);
+    u32 num = stoi(str);
+    if (str.size() > 6 || num >= (1 << 15)) {
         lerror(line) << "Number is too large (using " << (uint16_t)num << ')' << endl;
     }
     return num;
 }
 
-uint16_t evalNeg(int line, string token) {
-    token.erase(0, 1);
-    uint32_t num = stoi(token);
-    if (token.size() > 6 || num >= (1 << 15)) {
+u16 evalNeg(int line, string str) {
+    str.erase(0, 1);
+    u32 num = stoi(str);
+    if (str.size() > 6 || num >= (1 << 15)) {
         lerror(line) << "Number is too large (using -" << (uint16_t)num << ')' << endl;
     }
     return ~num + 1;  // Two's complement
 }
 
-uint16_t evalBin(int line, string token) {
-    token.erase(0, 1);
-    uint16_t num = 0;
-    for (char i : token) pushBin(num, i);
+u16 evalBin(int line, string str) {
+    str.erase(0, 1);
+    u16 num = 0;
+    for (char i : str) pushBin(num, i);
 
-    if (token.size() > 16) {
+    if (str.size() > 16) {
         lerror(line) << "Number is too large (using " << num << ')' << endl;
     }
     return num;
 }
 
-uint16_t evalOct(int line, string token) {
-    token.erase(0, 1);
-    uint16_t num = 0;
-    for (char i : token) pushOct(num, i);
+u16 evalOct(int line, string str) {
+    str.erase(0, 1);
+    u16 num = 0;
+    for (char i : str) pushOct(num, i);
 
-    if (token.size() > 16) {
+    if (str.size() > 7 || num >= (1 << 15)) {
         lerror(line) << "Number is too large (using " << num << ')' << endl;
     }
     return num;
 }
 
-uint16_t evalHex(int line, string token) {
-    token.erase(0, 1);
-    uint16_t num = 0;
-    for (char i : token) pushHex(num, i);
+u16 evalHex(int line, string str) {
+    str.erase(0, 1);
+    u16 num = 0;
+    for (char i : str) pushHex(num, i);
 
-    if (token.size() > 16) {
+    if (str.size() > 4) {
         lerror(line) << "Number is too large (using " << num << ')' << endl;
     }
     return num;
 }
 
-uint16_t evalChar(int line, string token) {
-    token.erase(0, 1);
-    token.pop_back();
+u16 evalDecImm(int line, string str) {
+    u32 num = stoi(str);
+    if (str.size() > 3 || num >= (1 << 7)) {
+        lerror(line) << "Number is too large (returning " << (u32)num << ')' << endl;
+    }
+    return num;
+}
 
-    if (token.size() == 2) {
-        if (token[0] == '\'') {
-            switch (token[1]) {
+u16 evalPosImm(int line, string str) {
+    str.erase(0, 1);
+    u32 num = stoi(str);
+    if (str.size() > 3 || num >= (1 << 6)) {
+        lerror(line) << "Number is too large (using " << (u16)num << ')' << endl;
+    }
+    return num;
+}
+
+u16 evalNegImm(int line, string str) {
+    str.erase(0, 1);
+    u32 num = stoi(str);
+    if (str.size() > 3 || num >= (1 << 6)) {
+        lerror(line) << "Number is too large (using -" << (u16)num << ')' << endl;
+    }
+    return ~num + 1;  // Two's complement
+}
+
+u16 evalBinImm(int line, string str) {
+    str.erase(0, 1);
+    u16 num = 0;
+    for (char i : str) pushBin(num, i);
+
+    if (str.size() > 7) {
+        lerror(line) << "Number is too large (using " << num << ')' << endl;
+    }
+    return num;
+}
+
+u16 evalOctImm(int line, string str) {
+    str.erase(0, 1);
+    u16 num = 0;
+    for (char i : str) pushOct(num, i);
+
+    if (str.size() > 4 || num >= (1 << 7)) {
+        lerror(line) << "Number is too large (using " << num << ')' << endl;
+    }
+    return num;
+}
+
+u16 evalHexImm(int line, string str) {
+    str.erase(0, 1);
+    u16 num = 0;
+    for (char i : str) pushHex(num, i);
+
+    if (str.size() > 3 || num >= (1 << 7)) {
+        lerror(line) << "Number is too large (using " << num << ')' << endl;
+    }
+    return num;
+}
+
+u16 evalChar(int line, string str) {
+    str.erase(0, 1);
+    str.pop_back();
+
+    if (str.size() == 2) {
+        if (str[0] == '\'') {
+            switch (str[1]) {
                 case '0': return '\0';
                 case 'a': return '\a';
                 case 'b': return '\b';
@@ -144,28 +220,40 @@ uint16_t evalChar(int line, string token) {
                 case '\'': return '\'';
                 case '\"': return '\"';
                 default:
-                    lerror(line) << "Invalid char '" << token << "', using '" << token[1] << '\'' << endl;
-                    return token[1];
+                    lerror(line) << "Invalid char '" << str << "', using '" << str[1] << '\'' << endl;
+                    return str[1];
             }
         } else {
-            lerror(line) << "Char is too long, using " << token[0] << endl;
-            return token[1];
+            lerror(line) << "Char is too long, using " << str[0] << endl;
+            return str[1];
         }
-    } else if (token.size() == 1) {
-        return token[0];
-    } else if (token.size() == 0) {
+    } else if (str.size() == 1) {
+        return str[0];
+    } else if (str.size() == 0) {
         lerror(line) << "Empty char, using '\0'" << endl;
         return '\0';
     } else {
-        lerror(line) << "Char is too long, using " << token[0] << endl;
-        return token[0];
+        lerror(line) << "Char is too long, using " << str[0] << endl;
+        return str[0];
     }
 }
 
-pair<uint16_t, int> evalArr(int line, string token) {
-    return {0, 0};
+static pair<string, string> split(string str) {
+    unsigned i = 0;
+    while (str[i != ',']) {
+        i++;
+    }
+
+    return pair<string, string>(str.substr(0, i - 1), str.substr(i + 1));
 }
 
-vector<uint16_t> evalStr(int line, string token) {
-    return vector<uint16_t>(0);
+pair<u16, u16> evalArr(int line, string str) {
+    str.erase(0, 1);
+    str.pop_back();
+    int val, len;
+    return { 0, 0 }
+}
+
+vector<u16> evalStr(int line, string str) {
+    return vector<u16>(0);
 }
