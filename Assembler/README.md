@@ -139,40 +139,24 @@ Possui todas as intruções verdadeiras do processador como esperado
 
 ## Labels
 
-TODO
-
 ## Pseudo Instruções
 
-TODO
-
-- save rx ry ... rz
-  ```
-  push rx
-  push ry
-  ...
-  push rz
-  ```
 - push rx
 
   ```
   store rx
-  set aux 1
-  add sp sp aux
+  subi sp 1
   ```
 
 - pop rx
 
   ```
   load rx
-  set aux 1
-  sub sp sp aux
+  addi sp 1
   ```
 
-- rts rx
-  ```
-  j rx
-  ```
 - mod rx ry rz
+
   ```
   div rx ry rz
   move rx aux
