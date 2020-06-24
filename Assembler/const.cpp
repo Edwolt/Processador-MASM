@@ -148,7 +148,7 @@ uint16_t evalChar(int line, string token) {
                     return token[1];
             }
         } else {
-            lerror(line) << "Char is too long, using " << token[1] << endl;
+            lerror(line) << "Char is too long, using " << token[0] << endl;
             return token[1];
         }
     } else if (token.size() == 1) {

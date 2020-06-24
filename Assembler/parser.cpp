@@ -147,7 +147,7 @@ struct Parser {
                 file.unget();
                 return readArray();
             } else if (c == ']') {
-                lwarning(line) << "Array without open, ignoring it" << endl;
+                lerror(line) << "Array without open, ignoring it" << endl;
             } else if (c == '\'') {
                 file.unget();
                 return readChar();
@@ -213,37 +213,44 @@ struct Parser {
             switch (categorizeToken(token)) {
                 case DECIMAL:
                     memory.push_back(evalDec(line, token));
-                    cdebug << "Token: DEC\t`" << token << "` = " << memory.back() << endl;
+                    cdebug << "Token: DEC\t | `" << token << '`' << endl;
+                    cdebugr << memory.back() << endl;
                     break;
 
                 case POSITIVE:
                     memory.push_back(evalPos(line, token));
-                    cdebug << "Token: POS\t`" << token << "` = " << memory.back() << endl;
+                    cdebug << "Token: POS\t | `" << token << '`' << endl;
+                    cdebugr << memory.back() << endl;
                     break;
 
                 case NEGATIVE:
                     memory.push_back(evalNeg(line, token));
-                    cdebug << "Token: NEG\t`" << token << "` = " << memory.back() << endl;
+                    cdebug << "Token: NEG\t | `" << token << '`' << endl;
+                    cdebugr << memory.back() << endl;
                     break;
 
                 case BINARY:
                     memory.push_back(evalBin(line, token));
-                    cdebug << "Token: BIN\t`" << token << "` = " << memory.back() << endl;
+                    cdebug << "Token: BIN\t | `" << token << '`' << endl;
+                    cdebugr << memory.back() << endl;
                     break;
 
                 case OCTAL:
                     memory.push_back(evalOct(line, token));
-                    cdebug << "Token: OCT\t`" << token << "` = " << memory.back() << endl;
+                    cdebug << "Token: OCT\t | `" << token << '`' << endl;
+                    cdebugr << memory.back() << endl;
                     break;
 
                 case HEXADECIMAL:
                     memory.push_back(evalHex(line, token));
-                    cdebug << "Token: HEX\t`" << token << "` = " << memory.back() << endl;
+                    cdebug << "Token: HEX\t | `" << token << '`' << endl;
+                    cdebugr << memory.back() << endl;
                     break;
 
                 case CHAR:
                     memory.push_back(evalChar(line, token));
-                    cdebug << "Token: CHAR\t`" << token << "` = " << memory.back() << " (" << (char)memory.back() << ')'<< endl;
+                    cdebug << "Token: CHAR\t | `" << token << '`' << endl;
+                    cdebugr << memory.back() << " (" << (char)memory.back() << ')' << endl;
                     break;
 
                 case ARRAY:
