@@ -50,20 +50,28 @@ xFFFF
 -2
 [5]
 
+o7777
+
+
 "String"
 "Hello World\n"
 "ue
-#FFFF
+[5]
+
 vector: 50 60 70
-#FFFF
+[5]
+
 5;None
-#FFFF
 ;None
 ;None
 label:
+label:
 lalel:
+; ; ; ; Double definition of label
 teste:6
+[5]
+
 #FFFF
 hello_menssage: "Hello World\n"
-#FFFF
 final:7;Testefinal
+[5]

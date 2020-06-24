@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-bool debug;
+extern bool debug;
 
 #define cerror   cout << "\033[1;31m!!\033[0m "
 #define cwarning cout << "\033[1;35m##\033[0m "
@@ -10,3 +10,6 @@ bool debug;
 #define cdebug   if (debug) cout << "\033[1;32m??\033[0m "
 #define cdebugr  if (debug) cout << "\033[1;36m<<\033[0m "
 #define cass     cout << "\033[1;33m>>\033[0m "
+
+#define lerror(line)   cerror << "\033[1mLine " << (line) << ":\033[0m "
+#define lwarning(line) cwarning << "\033[1mLine " << (line) << ":\033[0m "

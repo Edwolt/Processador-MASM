@@ -8,11 +8,11 @@ EXEC     := $(FOLDER)/assembler
 
 #Files
 SRC      := $(wildcard *.cpp)
-OBJ      := $(SRC:.cpp=.o) pair.o
+OBJ      := $(SRC:.cpp=.o)
 HEADER   := $(wildcard *.hpp)
 
 #Flags
-CFLAGS   := -Wall -lm -Wextra -pedantic -Werror=implicit-function-declaration
+CFLAGS   := -Wall
 RMFLAGS  := -f -v
 
 

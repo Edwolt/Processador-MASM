@@ -1,14 +1,18 @@
+#include <string.h>
+
 #include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "message.hpp"
+#include "files.hpp"
+#include "parser.hpp"
+#include "util.hpp"
 
 using namespace std;
 
-const int MEM_DEPTH = 2 << 16;
+bool debug;
 
 void printHelp() {
     cout << "./assembler <source> [options]..." << endl;
@@ -21,15 +25,13 @@ void printHelp() {
 }
 
 int main(int argc, char const *argv[]) {
-    int i, j;
-
     // Extract arguments
     debug = false;
     string mifPath = "";
     string binaryPath = "";
     string textPath = "";
     string sourcePath = "";
-    for (i = 1; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         if (argv[i][0] == '-') {
             if (argv[i][1] == 'm') {
                 mifPath = string(argv[++i]);
@@ -60,7 +62,7 @@ int main(int argc, char const *argv[]) {
     cout << (debug ? "Debug mode on\n" : "Debug mode off") << endl;
 
     // Parse code
-    vector<uint16_t> memory = codeParse();
+    vector<uint16_t> memory = parseCode(sourcePath);
 
     // Calculates memory tam
     while (!memory.empty()) {
@@ -75,50 +77,7 @@ int main(int argc, char const *argv[]) {
     }
 
     // Write compiled files
-    ofstream dest;
-    if (!mifPath.empty()) {
-        dest.open(mifPath, ios::out | ios::trunc);
-
-        dest << "-- Codigo gerado pelo montador" << endl;
-        dest << "WIDTH=16;" << endl;
-        dest << "DEPTH=" << MEM_DEPTH << ";" << endl;
-        dest << "ADDRESS_RADIX=UNS" << endl;
-        dest << "DATA_RADIX=BIN;" << endl;
-        dest << "CONTENT BEGIN" << endl;
-        for (i = 0; i < memTam; i++) {
-            dest << i << ':';
-            for (j = 15; j >= 0; j--) {
-                dest << ((memory[i] >> j) % 2);
-            }
-            dest << ';' << endl;
-        }
-        if (i < MEM_DEPTH - 1) {
-            dest << i << ".." << (MEM_DEPTH - 1) << ':0000000000000000;' << endl;
-        } else if (i < MEM_DEPTH) {
-            dest << (MEM_DEPTH - 1) << ':0000000000000000;' << endl;
-        }
-        dest << "END;" << endl;
-
-        dest.close();
-        cass << "Assembled to MIF: " << mifPath << endl;
-    }
-    if (!binaryPath.empty()) {
-        cass << "Assemble to Binary not supported yet: " << binaryPath << endl;
-    }
-    if (textPath) {
-        dest = fopen(textPath, "w");
-
-        for (i = 0; i < memTam; i++) {
-            for (j = 15; j >= 0; j--) {
-                fprintf(dest, "%d", (memory[i] >> j) % 2);
-            }
-            fprintf(dest, "   #%04X   %d\n", memory[i], memory[i]);
-        }
-        fprintf(dest, "----------------\n");
-
-        fclose(dest);
-        messageOut("Assembled to Text: %s\n", textPath);
-    }
-
-    free(memory);
+    if (!mifPath.empty()) writeMIF(mifPath, memory);
+    if (!binaryPath.empty()) writeBinary(binaryPath, memory);
+    if (!textPath.empty()) writeText(textPath, memory);
 }

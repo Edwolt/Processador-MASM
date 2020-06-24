@@ -1,11 +1,17 @@
 #pragma once
 
-#include <cstdint>
+#include <fstream>
 #include <string>
 #include <vector>
 
-void writeMIF(string path, vector<unint_16t> memory);
+#include "util.hpp"
 
-void writeBinary(string path, vector<unint_16t> memory);
+using namespace std;
 
-void writeText(string path, vector<unint_16t> memory);
+const int MEM_DEPTH = 0x10000;
+
+void writeMIF(string path, vector<uint16_t> memory);
+
+void writeBinary(string path, vector<uint16_t> memory);
+
+void writeText(string path, vector<uint16_t> memory);
