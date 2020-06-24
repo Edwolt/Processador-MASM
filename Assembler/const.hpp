@@ -9,20 +9,22 @@
 
 using namespace std;
 
-uint16_t createDecimal(string token);
+inline bool isDec(char c);
+inline bool isBin(char c);
+inline bool isOct(char c);
+inline bool isHex(char c);
 
-uint16_t createPositive(string token);
+bool isDec(string str);
+bool isBin(string str);
+bool isOct(string str);
+bool isHex(string str);
 
-uint16_t createNegative(string token);
-
-uint16_t createBinary(string token);
-
-uint16_t createOctal(string token);
-
-uint16_t createHexadecimal(string token);
-
-uint16_t createChar(string token);
-
-pair<uint16_t, int> createArray(string token);
-
-vector<uint16_t> createString(string token);
+uint16_t evalDec(int line, string token);
+uint16_t evalPos(int line, string token);
+uint16_t evalNeg(int line, string token);
+uint16_t evalBin(int line, string token);
+uint16_t evalOct(int line, string token);
+uint16_t evalHex(int line, string token);
+uint16_t evalChar(int line, string token);
+pair<uint16_t, int> evalArr(int line, string token);
+vector<uint16_t> evalStr(int line, string token);

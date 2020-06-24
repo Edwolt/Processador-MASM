@@ -45,9 +45,15 @@ struct Parser {
             if (c == '\'' && token.back() != '\\') {
                 token.push_back(c);
                 break;
+            } else if (c == ';') {
+                file.unget();
+                lerror(line) << "Char without close" << endl;
+                token.clear();
+                return token;
             } else if (isEnter(c)) {
                 line++;
-                lerror(line) << "String without close" << endl;
+                lerror(line) << "Char without close" << endl;
+                token.clear();
                 return token;
             }
 
@@ -73,9 +79,15 @@ struct Parser {
             if (c == '"' && token.back() != '\\') {
                 token.push_back(c);
                 break;
+            } else if (c == ';') {
+                file.unget();
+                lerror(line) << "String without close" << endl;
+                token.clear();
+                return token;
             } else if (isEnter(c)) {
                 line++;
                 lerror(line) << "String without close" << endl;
+                token.clear();
                 return token;
             }
 
@@ -101,9 +113,15 @@ struct Parser {
             if (c == ']') {
                 token.push_back(c);
                 break;
+            } else if (c == ';') {
+                file.unget();
+                lerror(line) << "Array without close" << endl;
+                token.clear();
+                return token;
             } else if (isEnter(c)) {
                 line++;
                 lerror(line) << "Array without close" << endl;
+                token.clear();
                 return token;
             }
 
@@ -129,7 +147,7 @@ struct Parser {
                 file.unget();
                 return readArray();
             } else if (c == ']') {
-                lerror(line) << "Array without open, ignoring it" << endl;
+                lwarning(line) << "Array without open, ignoring it" << endl;
             } else if (c == '\'') {
                 file.unget();
                 return readChar();
@@ -161,7 +179,11 @@ struct Parser {
     }
 
     TokenType categorizeToken(string token) {
-        if (token.front() == '"') {
+        if (token.empty()) {
+            return NOTHING;
+        } else if (token.back() == ':') {
+            return LABEL;
+        } else if (token.front() == '"') {
             return STRING;
         } else if (token.front() == '\'') {
             return CHAR;
@@ -173,40 +195,81 @@ struct Parser {
             return NEGATIVE;
         } else if (token.front() == '#') {
             return HEXADECIMAL;
-        } else if (token.front() == 'b') {
-            return NOTHING;
-        } else if (token.front() == 'o') {
-            return NOTHING;
-        } else if (token.front() == 'x') {
-            return NOTHING;
-        } else if (token.back() == ':') {
-            return LABEL;
-        } else {
-            return NOTHING;
-            // TODO Verify all char to determinates if its a code or a decimal
+        } else if (token.front() == 'b' && isBin(token)) {
+            return BINARY;
+        } else if (token.front() == 'o' && isOct(token)) {
+            return OCTAL;
+        } else if (token.front() == 'x' && isHex(token)) {
+            return HEXADECIMAL;
+        } else if (isDec(token)) {
+            return DECIMAL;
         }
+        return CODE;
     }
 
     void parseAll() {
         while (!file.eof()) {
             string token = getToken();
-            string type;
             switch (categorizeToken(token)) {
-                case DECIMAL: type = string("DECIMAL"); break;
-                case POSITIVE: type = string("POSITIVE"); break;
-                case NEGATIVE: type = string("NEGATIVE"); break;
-                case BINARY: type = string("BINARY"); break;
-                case OCTAL: type = string("OCTAL"); break;
-                case HEXADECIMAL: type = string("HEXADECIMAL"); break;
-                case CHAR: type = string("CHAR   "); break;
-                case ARRAY: type = string("ARRAY   "); break;
-                case STRING: type = string("STRING"); break;
-                case LABEL: type = string("LABEL   "); break;
-                case CODE: type = string("CODE   "); break;
-                case NOTHING: type = string("NOTHING"); break;
-                default: type = string("DEFAULT"); break;
+                case DECIMAL:
+                    memory.push_back(evalDec(line, token));
+                    cdebug << "Token: DEC\t`" << token << "` = " << memory.back() << endl;
+                    break;
+
+                case POSITIVE:
+                    memory.push_back(evalPos(line, token));
+                    cdebug << "Token: POS\t`" << token << "` = " << memory.back() << endl;
+                    break;
+
+                case NEGATIVE:
+                    memory.push_back(evalNeg(line, token));
+                    cdebug << "Token: NEG\t`" << token << "` = " << memory.back() << endl;
+                    break;
+
+                case BINARY:
+                    memory.push_back(evalBin(line, token));
+                    cdebug << "Token: BIN\t`" << token << "` = " << memory.back() << endl;
+                    break;
+
+                case OCTAL:
+                    memory.push_back(evalOct(line, token));
+                    cdebug << "Token: OCT\t`" << token << "` = " << memory.back() << endl;
+                    break;
+
+                case HEXADECIMAL:
+                    memory.push_back(evalHex(line, token));
+                    cdebug << "Token: HEX\t`" << token << "` = " << memory.back() << endl;
+                    break;
+
+                case CHAR:
+                    memory.push_back(evalChar(line, token));
+                    cdebug << "Token: CHAR\t`" << token << "` = " << memory.back() << " (" << (char)memory.back() << ')'<< endl;
+                    break;
+
+                case ARRAY:
+                    // type = string("ARR");
+                    break;
+
+                case STRING:
+                    // type = string("STR");
+                    break;
+
+                case LABEL:
+                    // type = string("LABEL");
+                    break;
+
+                case CODE:
+                    // type = string("CODE");
+                    break;
+
+                case NOTHING:
+                    // type = string("NOT");
+                    break;
+
+                default:
+                    // type = string("DEF");
+                    break;
             }
-            cdebug << "Token: " << type << "\t`" << token << '`' << endl;
         }
     }
 
