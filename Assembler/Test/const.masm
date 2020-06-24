@@ -1,0 +1,104 @@
+"Hello World\n"
+[5]; Creates a space to make easy to read the result
+
+5"string"'c'[1]5"string"'c'[1]
+[5]
+
+]5[ ; Inverted array
+[5]
+
+"\"
+"\""
+"\"""
+'\'
+'\''
+'\'''
+[5]
+
+5
+70
+65535
+9999999
+[5]
+
+1
++70
++65535
++9999999
+[5]
+
+"5"5#5[5];Test
+[5]
+
+-0
+-1
+-5
+-70
+-65535
+-9999999
+[5]
+
+b1010101010101010
+[5]
+
+9999999
+[5]
+
+
++65530
+-65530
+[5]
+
+65530
+[5]
+
+60
+5
+b101
+[5]
+
+xFFFF
+#FFFF
+[5]
+
+-2
+[5]
+
+o7777
+
+
+"String"
+"Hello World\n"
+"ue
+[5]
+
+vector: 50 60 70
+[5]
+
+5;None
+;None
+;None
+label:
+label:
+lalel:
+; ; ; ; Double definition of label
+teste:6
+[5]
+
+over: 9000
+xyz: 1 2 3
+bait: #BAAB
+[5]
+
+'a'
+'aa'
+'\a'
+''
+'\as
+'\kk'
+'\u'
+[5]
+
+#FFFF
+hello_menssage: "Hello World\n"
+final:7;Testefinal

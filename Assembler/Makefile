@@ -1,5 +1,5 @@
 #Copilation
-CC       := gcc
+CC       := g++
 
 #Output and test
 FOLDER   := Test
@@ -7,12 +7,12 @@ TEST     := $(patsubst %.masm,%,$(wildcard $(FOLDER)/*.masm))
 EXEC     := $(FOLDER)/assembler
 
 #Files
-SRC      := $(wildcard *.c)
-OBJ      := $(SRC:.c=.o)
-HEADER   := $(wildcard *.h)
+SRC      := $(wildcard *.cpp)
+OBJ      := $(SRC:.cpp=.o)
+HEADER   := $(wildcard *.hpp)
 
 #Flags
-CFLAGS   := -Wall -lm -Wextra -pedantic -Werror=implicit-function-declaration
+CFLAGS   := -Wall
 RMFLAGS  := -f -v
 
 
@@ -27,8 +27,9 @@ test: $(EXEC)
 	echo ""
 
 	for i in $(TEST); do \
-		echo ">> Test $$i"; \
+		echo "\033[1m===== Test $$i =====\033[0m"; \
 		./$(EXEC) $$i.masm -m $$i.mif -1 $$i.txt -o $$i.bin; \
+	    echo "\033[1m________________________\033[0m"; \
 		echo ""; \
 	done;
 
@@ -42,6 +43,7 @@ testd: $(EXEC)
 	for i in $(TEST); do \
 		echo ">> Test $$i"; \
 		./$(EXEC) $$i.masm -v -m $$i.mif -1 $$i.txt -o $$i.bin; \
+	    echo "\033[1m________________________\033[0m"; \
 		echo ""; \
 	done;
 
@@ -58,6 +60,6 @@ clean:
 $(EXEC): $(OBJ)
 	$(CC) -o $(EXEC) $(OBJ) $(CFLAGS)
 
-%.o: %.c
+%.o: %.cpp
 	$(CC) -c -o $@ $< $(CFLAGS)
 
