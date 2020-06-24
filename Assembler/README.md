@@ -172,4 +172,10 @@ TODO
   ```
   j rx
   ```
+- mod rx ry rz
+  ```
+  div rx ry rz
+  move rx aux
+  ```
+
 - TODO quando os in/out tiver definido cada dispositivo vai ter sua pseudo instrução
