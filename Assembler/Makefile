@@ -29,6 +29,7 @@ test: $(EXEC)
 	for i in $(TEST); do \
 		echo "\033[1m===== Test $$i =====\033[0m"; \
 		./$(EXEC) $$i.masm -m $$i.mif -1 $$i.txt -o $$i.bin; \
+	    echo "\033[1m________________________\033[0m"; \
 		echo ""; \
 	done;
 
@@ -42,6 +43,7 @@ testd: $(EXEC)
 	for i in $(TEST); do \
 		echo ">> Test $$i"; \
 		./$(EXEC) $$i.masm -v -m $$i.mif -1 $$i.txt -o $$i.bin; \
+	    echo "\033[1m________________________\033[0m"; \
 		echo ""; \
 	done;
 
