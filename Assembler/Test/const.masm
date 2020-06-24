@@ -1,6 +1,20 @@
 "Hello World\n"
 [5]; Creates a space to make easy to read the result
 
+5"string"'c'[1]5"string"'c'[1]
+[5]
+
+]5[ ; Inverted array
+[5]
+
+"\"
+"\""
+"\"""
+'\'
+'\''
+'\'''
+[5]
+
 5
 70
 65535
@@ -74,7 +88,15 @@ teste:6
 over: 9000
 xyz: 1 2 3
 bait: #BAAB
+[5]
 
+'a'
+'aa'
+'\a'
+''
+'\as
+'\kk'
+'\u'
 [5]
 
 #FFFF

@@ -8,7 +8,7 @@
 
 using namespace std;
 
-const int MEM_DEPTH = 0x10000;
+const int MEM_DEPTH = 1 << 16;
 
 void writeMIF(string path, vector<uint16_t> memory);
 

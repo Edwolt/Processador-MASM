@@ -29,32 +29,88 @@ struct Parser {
         file = ifstream(path);
     }
 
-    string getString() {
-        string str;
+    string readChar() {
+        string token;
         char c;
         file.get(c);
-        if (file.eof()) return str;
-        if (c != '"') {
+        if (file.eof()) return token;
+        if (c != '\'') {
             file.unget();
-            cbug << "getString(): can't read a string from file" << endl;
-            return str;
+            cbug << "readChar(): can't read a char from file" << endl;
+            return token;
         }
-        str.push_back(c);
+        token.push_back(c);
 
         while (file.get(c)) {
-            if (c == '"') {
-                str.push_back(c);
+            if (c == '\'' && token.back() != '\\') {
+                token.push_back(c);
                 break;
             } else if (isEnter(c)) {
                 line++;
                 lerror(line) << "String without close" << endl;
-                return str;
+                return token;
             }
 
-            str.push_back(c);
+            token.push_back(c);
         }
 
-        return str;
+        return token;
+    }
+
+    string readString() {
+        string token;
+        char c;
+        file.get(c);
+        if (file.eof()) return token;
+        if (c != '"') {
+            file.unget();
+            cbug << "getString(): can't read a string from file" << endl;
+            return token;
+        }
+        token.push_back(c);
+
+        while (file.get(c)) {
+            if (c == '"' && token.back() != '\\') {
+                token.push_back(c);
+                break;
+            } else if (isEnter(c)) {
+                line++;
+                lerror(line) << "String without close" << endl;
+                return token;
+            }
+
+            token.push_back(c);
+        }
+
+        return token;
+    }
+
+    string readArray() {
+        string token;
+        char c;
+        file.get(c);
+        if (file.eof()) return token;
+        if (c != '[') {
+            file.unget();
+            cbug << "getArray(): can't read a array from file" << endl;
+            return token;
+        }
+        token.push_back(c);
+
+        while (file.get(c)) {
+            if (c == ']') {
+                token.push_back(c);
+                break;
+            } else if (isEnter(c)) {
+                line++;
+                lerror(line) << "Array without close" << endl;
+                return token;
+            }
+
+            token.push_back(c);
+        }
+
+        return token;
     }
 
     string getToken() {
@@ -68,7 +124,15 @@ struct Parser {
                 readComment();
             } else if (c == '"') {
                 file.unget();
-                return getString();
+                return readString();
+            } else if (c == '[') {
+                file.unget();
+                return readArray();
+            } else if (c == ']') {
+                lerror(line) << "Array without open, ignoring it" << endl;
+            } else if (c == '\'') {
+                file.unget();
+                return readChar();
             } else {
                 file.unget();
                 break;
@@ -77,17 +141,13 @@ struct Parser {
 
         if (file.eof()) return token;
 
-        file.get(c);
-        if (file.eof()) return token;
-        token.push_back(c);
-
         while (file.get(c)) {
             if (isSpace(c)) {
                 break;
             } else if (isEnter(c)) {
                 line++;
                 break;
-            } else if (c == ';' || c == '\'' || c == '[' || c == '#') {
+            } else if (c == ';' || c == '\'' || c == '"' || c == '[' || (c == '#' && !token.empty())) {
                 file.unget();
                 return token;
             } else if (c == ':') {
