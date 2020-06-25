@@ -1,13 +1,19 @@
+; Test the behavior of assembler on constants
+
 "Hello World\n"
 [5]; Creates a space to make easy to read the result
 
-5"string"'c'[1]5"string"'c'[1]
+; Things without space
+"5"5#5[5];Test
+1x1
+5"string"'c'#A[1]5"string"'c'xA[1]
 [5]
 
-]5[ ; Inverted array
+; Inverted array
+]5[
 [5]
 
-; Number with invalid digits with invalid digits
+; Number with invalid digits
 #TEST
 o18 ; Is considered a label
 o3:
@@ -17,8 +23,21 @@ o3:
 +-
 [5]
 
+; Empty chars, string and array
+''
+[]
+""
+[5]
 
+; Test unclosed chars, string and array 
+'a
+"Hello World
+[10
+[10,
+10]
+[5]
 
+; Testing escaped char
 "\"
 "\""
 "\"""
@@ -27,21 +46,22 @@ o3:
 '\'''
 [5]
 
+; Decimal
 5
 70
 65535
 9999999
+9999999
 [5]
 
+; Positive decimal
 1
 +70
 +65535
 +9999999
 [5]
 
-"5"5#5[5];Test
-[5]
-
+; Negative decimal
 -0
 -1
 -5
@@ -50,43 +70,48 @@ o3:
 -9999999
 [5]
 
+; Binary number
 b1010101010101010
 [5]
 
-9999999
-[5]
-
-
+; Out of range signed decimal 
+65530
 +65530
 -65530
 [5]
 
-65530
-[5]
-
+; Some constants
 60
 5
 b101
-[5]
-
 xFFFF
 #FFFF
-[5]
-
+o7777
 -2
 [5]
 
-o7777
-
-
+; Testing strings
 "String"
 "Hello World\n"
 "ue
 [5]
 
+; Testing label before numbers
 vector: 50 60 70
 [5]
 
+; Double definition of a label
+test:
+test:
+test
+test
+
+test2:
+test2
+test2
+[5]
+
+; Testing commentary
 5;None
 ;None
 ;None
@@ -97,11 +122,13 @@ lalel:
 teste:6
 [5]
 
+;
 over: 9000
 xyz: 1 2 3
 bait: #BAAB
 [5]
 
+; Testing chars
 'a'
 'aa'
 '\a'
@@ -111,6 +138,6 @@ bait: #BAAB
 '\u'
 [5]
 
-#FFFF
+; Other tests
 hello_menssage: "Hello World\n"
 final:7;Testefinal

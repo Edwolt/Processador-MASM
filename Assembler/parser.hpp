@@ -12,4 +12,7 @@
 
 using namespace std;
 
-vector<u16> parseCode(string path);
+/**
+ * Assemble the code on the path
+ */
+vector<u16> assembleCode(string path);

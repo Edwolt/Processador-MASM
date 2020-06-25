@@ -1,3 +1,5 @@
+; Command, Expected value, -1
+; TODO update the expected values
 store r1 r0
 #2001
 -1

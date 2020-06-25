@@ -12,8 +12,9 @@
 
 using namespace std;
 
-bool debug;
-
+/**
+ * Print the help menssage
+ */
 void printHelp() {
     cout << "./assembler <source> [options]..." << endl;
     cout << "Options:" << endl;
@@ -62,7 +63,7 @@ int main(int argc, char const *argv[]) {
     cout << (debug ? "Debug mode on\n" : "Debug mode off") << endl;
 
     // Parse code
-    vector<u16> memory = parseCode(sourcePath);
+    vector<u16> memory = assembleCode(sourcePath);
 
     // Calculates memory tam
     while (!memory.empty()) {
