@@ -35,7 +35,7 @@ O opcode de cada instrução será de 4 bits
 
 ---
 
-## Instruções de manipulação da memória
+# Instruções de manipulação da memória
 
 | instrução       | opcode | ?   | xxx | source | dest | ação          |
 | --------------- | ------ | --- | --- | ------ | ---- | ------------- |
@@ -44,7 +44,7 @@ O opcode de cada instrução será de 4 bits
 
 ---
 
-## Instruções para definir o valor do registrador
+# Instruções para definir o valor do registrador
 
 | instrução      | opcode | xxxx | source | dest | ação                                               |
 | -------------- | ------ | ---- | ------ | ---- | -------------------------------------------------- |
@@ -52,7 +52,7 @@ O opcode de cada instrução será de 4 bits
 | **set rx num** | 0101   | xxxx | xxxx   | rx   | rx <- num (Pega num na próxima posição da memória) |
 |                | nnnn   | nnnn | nnnn   | nnnn | Esse é o valor de num para a instrução set         |
 
-### Operações imediata
+## Operações imediata
 
 | instrução       | opcode | ?   | num     | dest | ação                                  |
 | --------------- | ------ | --- | ------- | ---- | ------------------------------------- |
@@ -61,7 +61,7 @@ O opcode de cada instrução será de 4 bits
 
 ---
 
-## Operações da ULA
+# Operações da ULA
 
 | instrução        | opcode | op2  | op1 | dest | ação                                   |
 | ---------------- | ------ | ---- | --- | ---- | -------------------------------------- |
@@ -74,7 +74,7 @@ O opcode de cada instrução será de 4 bits
 | **xor rx ry rz** | 1110   | rz   | ry  | rx   | rx <- ry xor rz                        |
 | **not rx ry**    | 1111   | xxxx | ry  | rx   | rx <- not ry                           |
 
-### Operações de shift:
+## Operações de shift:
 
 Essa operação leva em conta apenas os 4 primeiros bits do ry\
 O shift é feito usando 3 sinais para definir qual tipo de shift deve ser feito:
@@ -94,7 +94,7 @@ O shift é feito usando 3 sinais para definir qual tipo de shift deve ser feito:
 
 ---
 
-## Comparação
+# Comparação
 
 | instrução | opcode | xxxx | op1 | op2 | ação                           |
 | --------- | ------ | ---- | --- | --- | ------------------------------ |
@@ -109,7 +109,7 @@ Onde:
 - p (plus): 1 se o bit mais significativo de rx for 1 e rx for diferente de zero
 - m (minus): 1 se o bit mais significativo de rx for 1
 
-### Desvio
+## Desvio
 
 A jump vai para o endereço salvo em rx e usa como condição o que está salvo em aux,
 se a jump for feita, o endereço de retorno é salvo em aux\
@@ -145,7 +145,7 @@ Obs: é possível fazer outras combinações de jump, mas essas são as mais imp
 
 ---
 
-## Entrada e Saida
+# Entrada e Saida
 
 TODO: verificar se essa é a melhor abordagem\
 
