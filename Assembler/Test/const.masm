@@ -7,6 +7,18 @@
 ]5[ ; Inverted array
 [5]
 
+; Number with invalid digits with invalid digits
+#TEST
+o18 ; Is considered a label
+o3:
++two
+-two
+-+
++-
+[5]
+
+
+
 "\"
 "\""
 "\"""

@@ -1,8 +1,5 @@
 #include "parser.hpp"
 
-inline static bool isSpace(char c) { return c == '\t' || c == '\v' || c == ' '; }
-inline static bool isEnter(char c) { return c == '\n' || c == '\f' || c == '\r'; }
-
 enum TokenType {
     DECIMAL,
     POSITIVE,
@@ -27,6 +24,9 @@ struct Parser {
 
     Parser(string path) {
         file = ifstream(path);
+    }
+    ~Parser() {
+        file.close();
     }
 
     string readChar() {
@@ -189,72 +189,86 @@ struct Parser {
             return CHAR;
         } else if (token.front() == '[') {
             return ARRAY;
-        } else if (token.front() == '+') {
+        } else if (isDec(token)) {
+            return DECIMAL;
+        } else if (isPos(token)) {
             return POSITIVE;
-        } else if (token.front() == '-') {
+        } else if (token.front() == '+') {
+            lerror(line) << "Invalid number: " << token << endl;
+            return NOTHING;
+        } else if (isNeg(token)) {
             return NEGATIVE;
-        } else if (token.front() == '#') {  // More efficient (any token started with # is hexadecimal token)
-            return HEXADECIMAL;
+        } else if (token.front() == '-') {
+            lerror(line) << "Invalid number: " << token << endl;
+            return NOTHING;
         } else if (isBin(token)) {
             return BINARY;
         } else if (isOct(token)) {
             return OCTAL;
         } else if (isHex(token)) {
             return HEXADECIMAL;
-        } else if (isDec(token)) {
-            return DECIMAL;
+        } else if (token.front() == '#') {
+            lerror(line) << "Invalid number: " << token << endl;
+            return NOTHING;
         }
         return CODE;
     }
 
     void parseAll() {
         while (!file.eof()) {
+            pair<u16, u16> arr;
+
             string token = getToken();
+
             switch (categorizeToken(token)) {
                 case DECIMAL:
                     memory.push_back(evalDec(line, token));
-                    cdebug << "Token: DEC\t | `" << token << '`' << endl;
+                    ldebug(line) << "Token: DEC\t | `" << token << '`' << endl;
                     cdebugr << memory.back() << endl;
                     break;
 
                 case POSITIVE:
                     memory.push_back(evalPos(line, token));
-                    cdebug << "Token: POS\t | `" << token << '`' << endl;
+                    ldebug(line) << "Token: POS\t | `" << token << '`' << endl;
                     cdebugr << memory.back() << endl;
                     break;
 
                 case NEGATIVE:
                     memory.push_back(evalNeg(line, token));
-                    cdebug << "Token: NEG\t | `" << token << '`' << endl;
+                    ldebug(line) << "Token: NEG\t | `" << token << '`' << endl;
                     cdebugr << memory.back() << endl;
                     break;
 
                 case BINARY:
                     memory.push_back(evalBin(line, token));
-                    cdebug << "Token: BIN\t | `" << token << '`' << endl;
+                    ldebug(line) << "Token: BIN\t | `" << token << '`' << endl;
                     cdebugr << memory.back() << endl;
                     break;
 
                 case OCTAL:
                     memory.push_back(evalOct(line, token));
-                    cdebug << "Token: OCT\t | `" << token << '`' << endl;
+                    ldebug(line) << "Token: OCT\t | `" << token << '`' << endl;
                     cdebugr << memory.back() << endl;
                     break;
 
                 case HEXADECIMAL:
                     memory.push_back(evalHex(line, token));
-                    cdebug << "Token: HEX\t | `" << token << '`' << endl;
+                    ldebug(line) << "Token: HEX\t | `" << token << '`' << endl;
                     cdebugr << memory.back() << endl;
                     break;
 
                 case CHAR:
                     memory.push_back(evalChar(line, token));
-                    cdebug << "Token: CHAR\t | `" << token << '`' << endl;
+                    ldebug(line) << "Token: CHAR\t | `" << token << '`' << endl;
                     cdebugr << memory.back() << " (" << (char)memory.back() << ')' << endl;
                     break;
 
                 case ARRAY:
-                    // type = string("ARR");
+                    arr = evalArr(line, token);
+                    memory.resize(memory.size() + arr.first, arr.second);
+
+                    ldebug(line) << "Token: ARR\t | `" << token << '`' << endl;
+                    cdebugr << '[' << arr.first << ',' << arr.second << ']' << endl;
                     break;
 
                 case STRING:
@@ -277,6 +291,11 @@ struct Parser {
                     // type = string("DEF");
                     break;
             }
+        }
+
+        if (memory.size() > MEM_DEPTH) {
+            memory.resize(MEM_DEPTH);
+            cerror << "The program is more large than memory, assembled until to length " << line << endl;
         }
     }
 

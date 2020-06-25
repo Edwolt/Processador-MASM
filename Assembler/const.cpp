@@ -9,56 +9,46 @@ bool isDec(string str) {
     for (char i : str) {
         if (!isDec(i)) return false;
     }
-
     return true;
 }
 
 bool isPos(string str) {
     if (str[0] != '+') return false;
-
     for (unsigned i = 1; i < str.size(); i++) {
         if (!isDec(str[i])) return false;
     }
-
     return true;
 }
 
 bool isNeg(string str) {
+    if (str[0] != '-') return false;
     for (unsigned i = 1; i < str.size(); i++) {
-        if (!isDec(i)) return false;
+        if (!isDec(str[i])) return false;
     }
-
     return true;
 }
 
 bool isBin(string str) {
     if (str.front() != 'b') return false;
-
     for (unsigned i = 1; i < str.size(); i++) {
         if (!isBin(str[i])) return false;
     }
-
     return true;
 }
 
 bool isOct(string str) {
     if (str.front() != 'o') return false;
-
     for (unsigned i = 1; i < str.size(); i++) {
         if (!isOct(str[i])) return false;
     }
-
     return true;
 }
 
 bool isHex(string str) {
     if (str.front() != 'x' && str.front() != '#') return false;
-    if (str.front() == '#') cbug << "Hexadecimal starting with '#' don't need to use the isHex function" << endl;
-
     for (unsigned i = 1; i < str.size(); i++) {
         if (!isHex(str[i])) return false;
     }
-
     return true;
 }
 
@@ -86,7 +76,7 @@ inline static void pushHex(u16& n, char c) {
 u16 evalDec(int line, string str) {
     u16 num = stoi(str);
     if (str.size() > 5 || num >= (1 << 16)) {
-        lerror(line) << "Number is too large (returning " << (uint16_t)num << ')' << endl;
+        lerror(line) << "Number is too large (using " << (uint16_t)num << ')' << endl;
     }
     return num;
 }
@@ -145,7 +135,7 @@ u16 evalHex(int line, string str) {
 u16 evalDecImm(int line, string str) {
     u32 num = stoi(str);
     if (str.size() > 3 || num >= (1 << 7)) {
-        lerror(line) << "Number is too large (returning " << (u32)num << ')' << endl;
+        lerror(line) << "Number is too large (using " << (u32)num << ')' << endl;
     }
     return num;
 }
@@ -201,57 +191,101 @@ u16 evalHexImm(int line, string str) {
     return num;
 }
 
+u16 evalEscapedChar(int line, char c) {
+    switch (c) {
+        case '0': return '\0';
+        case 'a': return '\a';
+        case 'b': return '\b';
+        case 't': return '\t';
+        case 'n': return '\n';
+        case 'v': return '\v';
+        case 'f': return '\f';
+        case 'r': return '\r';
+        case 'e': return 27;
+        case '\'': return '\'';
+        case '\"': return '\"';
+        default:
+            lerror(line) << "Invalid char '\\" << c << "' (using '" << c << "')" << endl;
+            return c;
+    }
+}
+
 u16 evalChar(int line, string str) {
     str.erase(0, 1);
     str.pop_back();
 
-    if (str.size() == 2) {
-        if (str[0] == '\'') {
-            switch (str[1]) {
-                case '0': return '\0';
-                case 'a': return '\a';
-                case 'b': return '\b';
-                case 't': return '\t';
-                case 'n': return '\n';
-                case 'v': return '\v';
-                case 'f': return '\f';
-                case 'r': return '\r';
-                case 'e': return 27;
-                case '\'': return '\'';
-                case '\"': return '\"';
-                default:
-                    lerror(line) << "Invalid char '" << str << "', using '" << str[1] << '\'' << endl;
-                    return str[1];
-            }
-        } else {
-            lerror(line) << "Char is too long, using " << str[0] << endl;
-            return str[1];
-        }
+    if (str.size() == 2 && str[0] == '\'') {
+        return evalEscapedChar(line, str[0]);
     } else if (str.size() == 1) {
         return str[0];
     } else if (str.size() == 0) {
-        lerror(line) << "Empty char, using '\0'" << endl;
+        lerror(line) << "Empty char (using '\\0')" << endl;
         return '\0';
     } else {
-        lerror(line) << "Char is too long, using " << str[0] << endl;
+        lerror(line) << "Char is too long  (using '" << str[0] << "')" << endl;
         return str[0];
+    }
+}
+
+static void trim(string& str) {
+    unsigned i = 0;
+    while (isSpace(str[i])) {
+        i++;
+    }
+
+    str.erase(0, i);
+
+    while (isSpace(str.back())) {
+        str.pop_back();
     }
 }
 
 static pair<string, string> split(string str) {
     unsigned i = 0;
-    while (str[i != ',']) {
+    while (i < str.size() && str[i] != ',') {
         i++;
     }
 
-    return pair<string, string>(str.substr(0, i - 1), str.substr(i + 1));
+    pair<string, string> splited;
+    if (i < str.size() - 1) {
+        splited = pair<string, string>(str.substr(0, i), str.substr(i + 1));
+        trim(splited.first);
+        trim(splited.second);
+    } else {
+        splited = pair<string, string>(str, "");
+        trim(splited.first);
+    }
+    return splited;
+}
+
+static u16 evalNum(int line, string str) {
+    if (isDec(str)) {
+        return evalDec(line, str);
+    } else if (isPos(str)) {
+        return evalPos(line, str);
+    } else if (isNeg(str)) {
+        return evalNeg(line, str);
+    } else if (isBin(str)) {
+        return evalBin(line, str);
+    } else if (isOct(str)) {
+        return evalOct(line, str);
+    } else if (isHex(str)) {
+        return evalHex(line, str);
+    } else {
+        lerror(line) << "Expected a number, get `" << str << "` (using 0)" << endl;
+        return 0;
+    }
 }
 
 pair<u16, u16> evalArr(int line, string str) {
     str.erase(0, 1);
     str.pop_back();
-    int val, len;
-    return { 0, 0 }
+
+    pair<string, string> p = split(str);
+
+    u16 second = (p.second.empty() ? 0 : evalNum(line, p.second));
+
+    return pair<u16, u16>(evalNum(line, p.first), second);
 }
 
 vector<u16> evalStr(int line, string str) {

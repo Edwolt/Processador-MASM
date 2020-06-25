@@ -9,7 +9,7 @@ void writeMIF(string path, vector<u16> memory) {
     file << "DATA_RADIX=BIN;" << endl;
     file << "CONTENT BEGIN" << endl;
 
-    for (unsigned i = 0; i < memory.size(); i++) {
+    for (unsigned i = 0; i < memory.size() && i < MEM_DEPTH; i++) {
         file << i << ':';
         for (int j = 15; j >= 0; j--) {
             file << ((memory[i] >> j) % 2);
@@ -29,16 +29,31 @@ void writeMIF(string path, vector<u16> memory) {
 }
 
 void writeBinary(string path, vector<u16> memory) {
-    cass << "Assemble to Binary not supported yet: " << path << endl;
+    cass << "Assembled to Binary (not supported yet): " << path << endl;
 }
 
+const char* hexDigit = "0123456789ABCDEF";
+inline static char printable(char c) { return (20 <= c && c <= 0x7F ? c : '.'); }
 void writeText(string path, vector<u16> memory) {
     ofstream file(path);
+    file.fill(' ');
+
+    if (!file) {
+        cerror << "NOT FILE" << endl;
+        return;
+    }
     for (u16 i : memory) {
         for (int j = 15; j >= 0; j--) {
-            file << ((memory[i] >> j) % 2);
+            file << ((i >> j) % 2);
         }
-        file << "\t#" << hex << memory[i] << dec << memory[i] << endl;
+        file << "        #";
+        for (int j = 0; j < 4; j++) {
+            file << hexDigit[(i >> j * 4) & 0x000F];
+        }
+        file << "    '" << printable((char)(i >> 8)) << printable((char)i) << "'    ";
+        file.width(5);
+        file << i;
+        file << endl;
     }
     file << "----------------" << endl;
 

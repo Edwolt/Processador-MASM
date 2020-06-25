@@ -11,9 +11,13 @@ SRC      := $(wildcard *.cpp)
 OBJ      := $(SRC:.cpp=.o)
 HEADER   := $(wildcard *.hpp)
 
+#If you want to optimize the compilation
+#CEXTRA   := -O3 -march=native 
+
 #Flags
-CFLAGS   := -Wall
+CFLAGS   := -Wall -std=c++17  $(CEXTRA)
 RMFLAGS  := -f -v
+
 
 
 #Actions
@@ -25,7 +29,6 @@ test: $(EXEC)
 	echo "----- Testing code -----"
 	echo "------------------------"
 	echo ""
-
 	for i in $(TEST); do \
 		echo "\033[1m===== Test $$i =====\033[0m"; \
 		./$(EXEC) $$i.masm -m $$i.mif -1 $$i.txt -o $$i.bin; \
