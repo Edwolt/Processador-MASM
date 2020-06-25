@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 
+#include "code.hpp"
 #include "const.hpp"
 #include "util.hpp"
 

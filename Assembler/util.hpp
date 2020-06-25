@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <iostream>
 
 //* ============================ *//
 //* ===== Global variables ===== *//
@@ -22,7 +23,7 @@ const int MEM_DEPTH = 1 << 16;
 
 #define lerror(line)   cout << "\033[1;31m!! Line " << (line) << ":\033[0m "
 #define lwarning(line) cout << "\033[1;35m## Line " << (line) << ":\033[0m "
-#define ldebug(line)   if(debug) cout << "\033[1;32m??\033[0;1m Line " << (line) << ":\033[0m "
+#define ldebug(line)   if (debug) cout << "\033[1;32m??\033[0;1m Line " << (line) << ":\033[0m "
 
 //* ==================== *//
 //* ===== Typedefs ===== *//

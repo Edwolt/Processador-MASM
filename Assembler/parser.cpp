@@ -185,7 +185,7 @@ struct Parser {
             } else if (isEnter(c)) {
                 line++;
                 break;
-            } else if (c == ';' || c == '\'' || c == '"' || c == '[' || (c == '#' && !token.empty())) {
+            } else if (c == ';' || c == '\'' || c == '"' || c == '[' || c == ']' || (c == '#' && !token.empty())) {
                 file.unget();
                 return token;
             } else if (c == ':') {
@@ -300,12 +300,13 @@ struct Parser {
                 if (labelsVal.find(token) != labelsVal.end()) {  // Token found
                     lerror(line) << "Duplicated label: `" << token << "` Conidering the last declaration" << endl;
                 }
-                labelsVal.insert(pair<string, u16>(token, memory.size()));
+                labelsVal[token] = memory.size();
 
                 ldebug(line) << "Token: LAB\t | `" << token << "` ";
                 cdebugr << token << " = " << memory.size() << endl;
 
             } else if (type == CODE) {
+                ldebug(line) << "Token: CODE\t | `" << token << '`' << endl;
                 // TODO
 
             } else if (type == NOTHING) {
@@ -323,6 +324,16 @@ struct Parser {
         }
         cdebugr << "Parsed all tokens" << endl;
     }
+
+    void resolveLabels() {
+        for (pair<string, vector<u16>> i : labelsRef) {
+            int val = labelsVal[i.first];
+            for (u16 j : i.second) {
+                cdebug << "Memory[" << j << "] <- " << i.first << " = " << val;
+                memory[j] = val;
+            }
+        }
+    }
 };
 
 vector<u16> assembleCode(string path) {
@@ -333,6 +344,6 @@ vector<u16> assembleCode(string path) {
     }
 
     parser.parseAll();
-    // parser.labels();
+    // parser.resolveLabels();
     return parser.memory;
 }

@@ -1,3 +1,5 @@
+// TODO reaname all types to turn its name more significative
+
 #include <string.h>
 
 #include <cstdint>
@@ -42,6 +44,7 @@ int main(int argc, char const *argv[]) {
                 textPath = string(argv[++i]);
             } else if (argv[i][1] == 'h' || ((argv[i][1] == '-') && strcmp(argv[i], "--help") == 0)) {
                 printHelp();
+                return EXIT_SUCCESS;
             } else if (argv[i][1] == 'v') {
                 debug = true;
             } else {
