@@ -14,33 +14,37 @@ Este é um processador de 16 bits com 16 registradores
 
 O opcode de cada instrução será de 4 bits
 
-| Opcode | Instrução          |
-| ------ | ------------------ |
-| 0      | jif(n,e,l,p,m) rx  |
-| 1      | cmp rx ry          |
-| 2      | store/load rx ry   |
-| 3      | in/out rx ry       |
-| 4      | move rx ry         |
-| 5      | set rx num         |
-| 6      | addi/subi rx num   |
-| 7      | add rx ry rz       |
-| 8      | sub rx ry rz       |
-| 9      | mul rx ry rz       |
-| 10     | div rx ry rz       |
-| 11     | and rx ry rz       |
-| 12     | or rx ry rz        |
-| 13     | xor rx ry rz       |
-| 14     | not rx ry          |
-| 15     | shift(t,d,b) rx ry |
+| Opcode | Instrução        |
+| ------ | ---------------- |
+| 0      | jif(nelpm) rx    |
+| 1      | cmp rx ry        |
+| 2      | store/load rx ry |
+| 3      | in/out rx ry     |
+| 4      | move rx ry       |
+| 5      | set rx num       |
+| 6      | addi/subi rx num |
+| 7      | add rx ry rz     |
+| 8      | sub rx ry rz     |
+| 9      | mul rx ry rz     |
+| 10     | div rx ry rz     |
+| 11     | shift(tdb) rx ry |
+| 12     | and rx ry rz     |
+| 13     | or rx ry rz      |
+| 14     | xor rx ry rz     |
+| 15     | not rx ry        |
 
-## Instruções de manipulação da memória
+---
+
+# Instruções de manipulação da memória
 
 | instrução       | opcode | ?   | xxx | source | dest | ação          |
 | --------------- | ------ | --- | --- | ------ | ---- | ------------- |
 | **load rx ry**  | 0010   | 0   | xxx | ry     | rx   | rx <- Mem(ry) |
 | **store rx ry** | 0010   | 1   | xxx | ry     | rx   | Mem(rx) <- ry |
 
-## Instruções para definir o valor do registrador
+---
+
+# Instruções para definir o valor do registrador
 
 | instrução      | opcode | xxxx | source | dest | ação                                               |
 | -------------- | ------ | ---- | ------ | ---- | -------------------------------------------------- |
@@ -48,14 +52,16 @@ O opcode de cada instrução será de 4 bits
 | **set rx num** | 0101   | xxxx | xxxx   | rx   | rx <- num (Pega num na próxima posição da memória) |
 |                | nnnn   | nnnn | nnnn   | nnnn | Esse é o valor de num para a instrução set         |
 
-### Operações imediata
+## Operações imediata
 
 | instrução       | opcode | ?   | num     | dest | ação                                  |
 | --------------- | ------ | --- | ------- | ---- | ------------------------------------- |
 | **addi rx num** | 0110   | 0   | nnnnnnn | rx   | rx <- ry + num (O overflow é perdido) |
 | **subi rx num** | 0110   | 1   | nnnnnnn | rx   | rx <- ry + num (O overflow é perdido) |
 
-## Operações da ULA
+---
+
+# Operações da ULA
 
 | instrução        | opcode | op2  | op1 | dest | ação                                   |
 | ---------------- | ------ | ---- | --- | ---- | -------------------------------------- |
@@ -68,7 +74,7 @@ O opcode de cada instrução será de 4 bits
 | **xor rx ry rz** | 1110   | rz   | ry  | rx   | rx <- ry xor rz                        |
 | **not rx ry**    | 1111   | xxxx | ry  | rx   | rx <- not ry                           |
 
-### Operações de shift:
+## Operações de shift:
 
 Essa operação leva em conta apenas os 4 primeiros bits do ry\
 O shift é feito usando 3 sinais para definir qual tipo de shift deve ser feito:
@@ -86,7 +92,9 @@ O shift é feito usando 3 sinais para definir qual tipo de shift deve ser feito:
 | **rotr rx ry**    | 1011   | 10x   | x   | ry       | rx             | rx <- rx << ry preenchendo com 1 |
 | **rotl rx ry**    | 1011   | 11x   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
 
-## Comparação
+---
+
+# Comparação
 
 | instrução | opcode | xxxx | op1 | op2 | ação                           |
 | --------- | ------ | ---- | --- | --- | ------------------------------ |
@@ -135,12 +143,15 @@ A instrução possui 5 sinais para definir em qual conndição o jump deve ser f
 
 Obs: é possível fazer outras combinações de jump, mas essas são as mais importantes
 
-## Entrada e Saida
+---
+
+# Entrada e Saida
+
+TODO: verificar se essa é a melhor abordagem\
 
 Manda os dados dos dois registradores\
 O dispositivo pode escrever o resultado no registrador ou na memória\
-Uma operação in só permite o processador voltar a processar quando o dispositivo avisar que a instrução terminou\
-TODO: verificar se essa é a melhor abordagem
+Uma operação in só permite o processador voltar a processar quando o dispositivo avisar que a instrução terminou
 
 | instrução         | opcode | ?   | num | src | dest | ação                       |
 | ----------------- | ------ | --- | --- | --- | ---- | -------------------------- |
