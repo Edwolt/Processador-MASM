@@ -326,16 +326,29 @@ struct Parser {
     }
 
     void resolveLabels() {
+        // Special labels
+        if (labelsVal.find("@end") != labelsVal.end()) {
+            cwarning << "You can't override the special label `@end`, that is reserved to save the last used position" << endl;
+        }
+        for (u16 i : labelsRef["@end"]) {
+            memory[i] = memory.size();
+            cdebug << "Memory[" << i << "] <- @end = " << memory.size() << endl;
+        }
+
+        if (labelsVal.find("@here") != labelsVal.end()) {
+            cwarning << "You can't override the special label `@here`, that is reserved to refer to the position where it's put" << endl;
+        }
+        for (u16 i : labelsRef["@here"]) {
+            memory[i] = i;
+            cdebug << "Memory[" << i << "] <- @here = " << i << endl;
+        }
+
         for (pair<string, vector<u16>> i : labelsRef) {
-            if (labelsVal.find(i.first) == labelsVal.end()) {
+            if (labelsVal.find(i.first) != labelsVal.end()) {  // Label was declared
+                int val = labelsVal[i.first];
+                cdebug << "Label " << i.first << " is " << val << endl;
+            } else {
                 cerror << i.first << " was referred, but not declared" << endl;
-                continue;
-            }
-            int val = labelsVal[i.first];
-            cdebug << "Label " << i.first << " is " << val << endl;
-            for (u16 j : i.second) {
-                cdebug << "Memory[" << j << "] <- " << i.first << " = " << val << endl;
-                memory[j] = val;
             }
         }
     }

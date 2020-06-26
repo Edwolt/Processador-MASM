@@ -36,7 +36,20 @@ void writeMIF(string path, vector<u16> memory) {
 }
 
 void writeBinary(string path, vector<u16> memory) {
-    cstep << "Assembled to Binary (not supported yet): " << path << endl;
+    fstream file(path, ios::out | ios::binary);
+    if (!file) {
+        cerror << "Can't open the text file: " << path << endl;
+        return;
+    }
+
+    char aux[2];
+    for (u16 i : memory) {
+        aux[1] = i >> 8;
+        aux[0] = i;
+        file.write(aux, 2);
+    }
+
+    cstep << "Assembled to Binary: " << path << endl;
 }
 
 const char* hexDigit = "0123456789ABCDEF";
