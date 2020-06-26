@@ -29,7 +29,7 @@ mul r13 aux sp
 #9FED
 -1
 
-div r0, r5, r10
+div r0, r5 r10
 #AA50
 -1
 

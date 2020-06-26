@@ -1,5 +1,3 @@
-// TODO reaname all types to turn its name more significative
-
 #include <string.h>
 
 #include <cstdint>
@@ -81,7 +79,6 @@ int main(int argc, char const *argv[]) {
     }
 
     // Write compiled files
-    cout << endl;
     if (!mifPath.empty()) writeMIF(mifPath, memory);
     if (!binaryPath.empty()) writeBinary(binaryPath, memory);
     if (!textPath.empty()) writeText(textPath, memory);

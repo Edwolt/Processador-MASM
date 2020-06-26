@@ -32,11 +32,11 @@ void writeMIF(string path, vector<u16> memory) {
     file << "END;" << endl;
 
     file.close();
-    cass << "Assembled to MIF: " << path << endl;
+    cstep << "Assembled to MIF: " << path << endl;
 }
 
 void writeBinary(string path, vector<u16> memory) {
-    cass << "Assembled to Binary (not supported yet): " << path << endl;
+    cstep << "Assembled to Binary (not supported yet): " << path << endl;
 }
 
 const char* hexDigit = "0123456789ABCDEF";
@@ -65,5 +65,5 @@ void writeText(string path, vector<u16> memory) {
     file << "----------------" << endl;
 
     file.close();
-    cass << "Assembled to Text: " << path << endl;
+    cstep << "Assembled to Text: " << path << endl;
 }

@@ -7,13 +7,7 @@ inline static void vecConcat(vector<T>& vec1, vector<T>& vec2) {
 }
 
 enum TokenType {
-    DECIMAL,
-    POSITIVE,
-    NEGATIVE,
-    BINARY,
-    OCTAL,
-    HEXADECIMAL,
-    CHAR,
+    NUM,
     ARRAY,
     STRING,
     LABEL,
@@ -205,33 +199,16 @@ struct Parser {
             return LABEL;
         } else if (token.front() == '"') {
             return STRING;
-        } else if (token.front() == '\'') {
-            return CHAR;
         } else if (token.front() == '[') {
             return ARRAY;
-        } else if (isDec(token)) {
-            return DECIMAL;
-        } else if (isPos(token)) {
-            return POSITIVE;
-        } else if (token.front() == '+') {
-            lerror(line) << "Invalid number: " << token << endl;
+        } else if (isNum(token)) {
+            return NUM;
+        } else if (isInvalidNum(token)) {
+            lerror(line) << "Invalid number: `" << token << '`' << endl;
             return NOTHING;
-        } else if (isNeg(token)) {
-            return NEGATIVE;
-        } else if (token.front() == '-') {
-            lerror(line) << "Invalid number: " << token << endl;
-            return NOTHING;
-        } else if (isBin(token)) {
-            return BINARY;
-        } else if (isOct(token)) {
-            return OCTAL;
-        } else if (isHex(token)) {
-            return HEXADECIMAL;
-        } else if (token.front() == '#') {
-            lerror(line) << "Invalid number: " << token << endl;
-            return NOTHING;
+        } else {
+            return CODE;
         }
-        return CODE;
     }
 
     void parseAll() {
@@ -240,47 +217,11 @@ struct Parser {
             string token = getToken();
             TokenType type = categorizeToken(token);
 
-            if (type == DECIMAL) {
-                memory.push_back(evalDec(line, token));
+            if (type == NUM) {
+                memory.push_back(evalNum(line, token));
 
                 ldebug(line) << "Token: DEC\t | `" << token << "` ";
                 cdebugr << memory.back() << endl;
-
-            } else if (type == POSITIVE) {
-                memory.push_back(evalPos(line, token));
-
-                ldebug(line) << "Token: POS\t | `" << token << "` ";
-                cdebugr << memory.back() << endl;
-
-            } else if (type == NEGATIVE) {
-                memory.push_back(evalNeg(line, token));
-
-                ldebug(line) << "Token: NEG\t | `" << token << "` ";
-                cdebugr << memory.back() << endl;
-
-            } else if (type == BINARY) {
-                memory.push_back(evalBin(line, token));
-
-                ldebug(line) << "Token: BIN\t | `" << token << "` ";
-                cdebugr << memory.back() << endl;
-
-            } else if (type == OCTAL) {
-                memory.push_back(evalOct(line, token));
-
-                ldebug(line) << "Token: OCT\t | `" << token << "` ";
-                cdebugr << memory.back() << endl;
-
-            } else if (type == HEXADECIMAL) {
-                memory.push_back(evalHex(line, token));
-
-                ldebug(line) << "Token: HEX\t | `" << token << "` ";
-                cdebugr << memory.back() << endl;
-
-            } else if (type == CHAR) {
-                memory.push_back(evalChar(line, token));
-
-                ldebug(line) << "Token: CHAR\t | `" << token << "` ";
-                cdebugr << memory.back() << " (" << (char)memory.back() << ')' << endl;
 
             } else if (type == ARRAY) {
                 arr = evalArr(line, token);
@@ -306,8 +247,67 @@ struct Parser {
                 cdebugr << token << " = " << memory.size() << endl;
 
             } else if (type == CODE) {
+                pair<u16, CodeType> code = createCode(line, token);
+                u16 cval = code.first;
+                CodeType ctype = code.second;
                 ldebug(line) << "Token: CODE\t | `" << token << '`' << endl;
-                // TODO
+
+                if (ctype == NOT) {  // It's means thats is a label reference
+                    labelsRef[token].push_back(memory.size());
+                    memory.push_back(0);
+                } else if (ctype == NOOP) {
+                    memory.push_back(cval);
+                } else if (ctype == RX) {
+                    cval |= createRegister(line, getToken());
+                    memory.push_back(cval);
+                } else if (ctype == RY) {
+                    cval |= createRegister(line, getToken());
+                    cval |= createRegister(line, getToken()) << 4;
+                    memory.push_back(cval);
+                } else if (ctype == RZ) {
+                    cval |= createRegister(line, getToken());
+                    cval |= createRegister(line, getToken()) << 4;
+                    cval |= createRegister(line, getToken()) << 8;
+                    memory.push_back(cval);
+                } else if (ctype == SET) {
+                    cval |= createRegister(line, getToken());
+                    memory.push_back(cval);
+
+                    string arg = getToken();
+                    u16 num;
+                    if (isNum(arg)) {
+                        num = evalNum(line, arg);
+                    } else if (isInvalidNum(arg)) {
+                        lerror(line) << "Invalid number: `" << token << "` (using 0)" << endl;
+                        num = 0;
+                    } else {
+                        lerror(line) << "Expected a number, get `" << token << "` (using 0)" << endl;
+                        num = 0;
+                    }
+                    memory.push_back(num);
+                } else if (ctype == INOUT) {
+                    // TODO
+                } else if (ctype == IMM) {
+                    cval |= createRegister(line, getToken());
+                    memory.push_back(cval);
+
+                    string arg = getToken();
+                    u16 num;
+                    if (isNum(arg)) {
+                        num = evalNumImm(line, arg);
+                    } else if (isInvalidNum(arg)) {
+                        lerror(line) << "Invalid number: `" << token << "` (using 0)" << endl;
+                        num = 0;
+                    } else {
+                        lerror(line) << "Expected a number, get `" << token << "` (using 0)" << endl;
+                        num = 0;
+                    }
+                    memory.push_back(num);
+                } else {
+                    cbug << "parseAll() CODE: `" << token << '`' << endl;
+                }
+
+                cdebugr << hex << code.first << " with args " << cval << dec << ' ' << ctype << endl;
 
             } else if (type == NOTHING) {
                 ldebug(line) << "Token: NOT\t | `" << token << "` " << endl;
@@ -318,18 +318,22 @@ struct Parser {
 
             if (memory.size() > MEM_DEPTH) {
                 memory.resize(MEM_DEPTH);
-                cerror << "The program is more large than memory, assembler stoped on line " << line << endl;
+                cerror << "The program don't fit on the memory, assembler stoped on line " << line << endl;
                 break;
             }
         }
-        cdebugr << "Parsed all tokens" << endl;
     }
 
     void resolveLabels() {
         for (pair<string, vector<u16>> i : labelsRef) {
+            if (labelsVal.find(i.first) == labelsVal.end()) {
+                cerror << i.first << " was referred, but not declared" << endl;
+                continue;
+            }
             int val = labelsVal[i.first];
+            cdebug << "Label " << i.first << " is " << val << endl;
             for (u16 j : i.second) {
-                cdebug << "Memory[" << j << "] <- " << i.first << " = " << val;
+                cdebug << "Memory[" << j << "] <- " << i.first << " = " << val << endl;
                 memory[j] = val;
             }
         }
@@ -344,6 +348,11 @@ vector<u16> assembleCode(string path) {
     }
 
     parser.parseAll();
-    // parser.resolveLabels();
+    cstep << "Parsed all tokens" << endl
+          << endl;
+
+    parser.resolveLabels();
+    cstep << "Label finished" << endl
+          << endl;
     return parser.memory;
 }
