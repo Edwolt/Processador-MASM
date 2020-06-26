@@ -36,11 +36,29 @@ void writeMIF(string path, vector<u16> memory) {
 }
 
 void writeBinary(string path, vector<u16> memory) {
-    cstep << "Assembled to Binary (not supported yet): " << path << endl;
+    fstream file(path, ios::out | ios::binary);
+    if (!file) {
+        cerror << "Can't open the text file: " << path << endl;
+        return;
+    }
+
+    char aux[2];
+    aux[0] = memory.size() >> 8;
+    aux[1] = memory.size();
+    file.write(aux, 2);  // Write the file size
+
+    for (u16 i : memory) { // Write the file data
+        aux[0] = i >> 8;
+        aux[1] = i;
+        file.write(aux, 2);
+    }
+
+    file.close();
+    cstep << "Assembled to Binary: " << path << endl;
 }
 
 const char* hexDigit = "0123456789ABCDEF";
-inline static char printable(char c) { return (20 <= c && c <= 0x7F ? c : '.'); }
+inline static char printable(char c) { return (0x20 <= c && c <= 0x7E ? c : '.'); }
 void writeText(string path, vector<u16> memory) {
     ofstream file(path);
     if (!file) {
@@ -54,7 +72,7 @@ void writeText(string path, vector<u16> memory) {
             file << ((i >> j) % 2);
         }
         file << "        #";
-        for (int j = 0; j < 4; j++) {
+        for (int j = 4 - 1; j >= 0; j--) {
             file << hexDigit[(i >> j * 4) & 0x000F];
         }
         file << "    '" << printable((char)(i >> 8)) << printable((char)i) << "'    ";

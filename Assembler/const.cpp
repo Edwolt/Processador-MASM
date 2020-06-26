@@ -143,7 +143,6 @@ inline static void removeLastAndFirst(string& str) {
     str.pop_back();
 }
 
-
 //* ====================== *//
 //* ===== Eval Const ===== *//
 //* ====================== *//
@@ -188,7 +187,7 @@ static u16 evalOct(int line, string str) {
     u16 num = 0;
     for (unsigned i = 1; i < str.size(); i++) pushOct(num, str[i]);
 
-    if (str.size() > 7 || num >= (1 << 15)) {
+    if (str.size() > 7 || num >= (1 << 16)) {
         lerror(line) << "Number is too large (using " << num << ')' << endl;
     }
     return num;
@@ -352,10 +351,10 @@ pair<u16, u16> evalArr(int line, string str) {
     } else if (isNum(p.first)) {
         first = evalNum(line, p.first);
     } else if (isInvalidNum(p.first)) {
-        lerror(line) << "Invalid Number: `" << str << '`';
+        lerror(line) << "Invalid Number: `" << str << '`' << endl;
         first = 0;
     } else {
-        lerror(line) << "Expected a Number, get `" << str << '`';
+        lerror(line) << "Expected a Number, get `" << str << '`' << endl;
         first = 0;
     }
 
@@ -365,10 +364,10 @@ pair<u16, u16> evalArr(int line, string str) {
     } else if (isNum(p.second)) {
         second = evalNum(line, p.second);
     } else if (isInvalidNum(p.second)) {
-        lerror(line) << "Invalid Number: `" << str << '`';
+        lerror(line) << "Invalid Number: `" << str << '`' << endl;
         first = 0;
     } else {
-        lerror(line) << "Expected a Number, get `" << str << '`';
+        lerror(line) << "Expected a Number, get `" << str << '`' << endl;
         first = 0;
     }
 

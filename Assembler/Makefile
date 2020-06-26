@@ -33,6 +33,7 @@ test: $(EXEC)
 		echo "\033[1m===== $$i =====\033[0m"; \
 		./$(EXEC) $$i.masm -m $$i.mif -1 $$i.txt -o $$i.bin; \
 	    echo "\033[1m________________________\033[0m"; \
+		hexdump -Cv $$i.bin > $$i.hexdump; \
 		echo ""; \
 	done;
 
@@ -46,9 +47,15 @@ testd: $(EXEC)
 	for i in $(TEST); do \
 		echo ">> Test $$i"; \
 		./$(EXEC) $$i.masm -v -m $$i.mif -1 $$i.txt -o $$i.bin; \
+		hexdump -Cv $$i.bin > $$i.hexdump; \
 	    echo "\033[1m________________________\033[0m"; \
 		echo ""; \
 	done;
+	echo ""
+
+	echo "Diff expected instructions"
+	diff Test/expected.txt Test/instructions.txt
+
 
 compile: clean $(EXEC)
 
@@ -58,6 +65,7 @@ clean:
 	rm $(FOLDER)/*.mif $(RMFLAGS)
 	rm $(FOLDER)/*.txt $(RMFLAGS)
 	rm $(FOLDER)/*.bin $(RMFLAGS)
+	rm $(FOLDER)/*.hexdump $(RMFLAGS)
 
 #Compile
 $(EXEC): $(OBJ)

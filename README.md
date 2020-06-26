@@ -18,7 +18,7 @@ O opcode de cada instrução será de 4 bits
 | ------ | ---------------- |
 | 0      | jif(nelpm) rx    |
 | 1      | cmp rx ry        |
-| 2      | store/load rx ry |
+| 2      | load/store rx ry |
 | 3      | in/out rx ry     |
 | 4      | move rx ry       |
 | 5      | set rx num       |
@@ -87,7 +87,7 @@ O shift é feito usando 3 sinais para definir qual tipo de shift deve ser feito:
 | ------------------ | ------ | ----- | --- | -------- | -------------- | -------------------------------- |
 | **shiftl0 rx ry**  | 1011   | 000   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
 | **shiftr0 rx ry**  | 1011   | 010   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
-| **shiftl0 rx ry**  | 1011   | 001   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
+| **shiftl1 rx ry**  | 1011   | 001   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
 | **shiftr1 rx ry**  | 1011   | 011   | x   | ry       | rx             | rx <- rx << ry preenchendo com 1 |
 | **rotl rx ry**     | 1011   | 10x   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
 | **rotr rx ry**     | 1011   | 11x   | x   | ry       | rx             | rx <- rx << ry preenchendo com 1 |
@@ -125,8 +125,8 @@ A instrução possui 5 sinais para definir em qual conndição o jump deve ser f
 
 | jif(nelpm) rx | opcode | n e l p m | xxx | rx   | ação                            |
 | ------------- | ------ | --------- | --- | ---- | ------------------------------- |
-| **noop**      | 0000   | 00000     | xxx | xxxx | Um jump impossivel de acontecer |
-| **jn rx**     | 0000   | 00000     | xxx | rx   | Um jump impossivel de acontecer |
+| **noop**      | 0000   | 00000     | xxx | xxxx | Um jump impossível de acontecer |
+| **jn rx**     | 0000   | 00000     | xxx | rx   | Um jump impossível de acontecer |
 | **j rx**      | 0000   | 10000     | xxx | rx   | jump incondicional              |
 | **je rx**     | 0000   | 01000     | xxx | rx   | jump se igual                   |
 | **jne rx**    | 0000   | 11000     | xxx | rx   | jump se diferente               |
@@ -147,11 +147,7 @@ Obs: é possível fazer outras combinações de jump, mas essas são as mais imp
 
 # Entrada e Saida
 
-TODO: verificar se essa é a melhor abordagem\
-
-Manda os dados dos dois registradores\
-O dispositivo pode escrever o resultado no registrador ou na memória\
-Uma operação in só permite o processador voltar a processar quando o dispositivo avisar que a instrução terminou
+Instrução in espera a execição da operação terminar
 
 | instrução         | opcode | ?   | num | src | dest | ação                       |
 | ----------------- | ------ | --- | --- | --- | ---- | -------------------------- |

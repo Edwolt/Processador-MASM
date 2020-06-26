@@ -1,0 +1,72 @@
+; The expected values for instructions.masm
+
+; Jumps
+#0A8E ; jif(10101) aux
+#0000 ; noop
+#0001 ; jn r1
+#0800 ; j   r0
+#0402 ; je  r2
+#0C03 ; jne r3
+#0204 ; jl  r4
+#0E05 ; jg  r5
+#0606; jle r6
+#0A07 ; jge r7
+#0988 ; jz  r8
+#0189 ; jnz r9
+#010A ; jp  r10
+#088B ; jpz r11
+#008C ; jm  r12
+#090D ; jmz r13
+
+; CMP
+#10FE; cmp aux sp
+
+; load/store
+#2095 ; load r5 r9
+#2870 ; store r0 r7
+
+; in/out TODO
+
+; move
+#400C ; move rc r0
+
+; set
+#5005 #FFFF ;set r5 o177777
+
+; addi/subi
+#605F ; addi sp 5
+#6FFF ; subi sp 5
+
+; ULA operations
+; add
+#75AA ; add ra r10 r5
+
+; sub
+#8E65 ; sub r5 r6 aux
+
+; mul
+#9321 ; mul r1 r2 r3
+
+; div
+#A480 ; div r0 r8 r4
+
+; shift
+#BE00 ; shift(111) r0 r0
+#B021 ; shiftl0 r1 r2
+#B4B9 ; shiftr0 r9 rb
+#B2E6 ; shiftl1 r6 aux
+#B60F ; shiftr1 sp r0
+#B810 ; rotl r0 r1
+#BCFE; rotr aux sp
+
+; and
+#C80D ; and rd r0 r8;
+
+; or
+#DA85 ; or r5 r8 ra
+
+; xor
+#EAD0 ; xor r0 r13 r10
+
+; not
+#F051 ; not r1 r5

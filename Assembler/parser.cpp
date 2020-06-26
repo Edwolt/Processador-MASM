@@ -243,7 +243,7 @@ struct Parser {
                 }
                 labelsVal[token] = memory.size();
 
-                ldebug(line) << "Token: LAB\t | `" << token << "` ";
+                ldebug(line) << "Token: LAB\t | `" << token << '`';
                 cdebugr << token << " = " << memory.size() << endl;
 
             } else if (type == CODE) {
@@ -289,7 +289,6 @@ struct Parser {
                     // TODO
                 } else if (ctype == IMM) {
                     cval |= createRegister(line, getToken());
-                    memory.push_back(cval);
 
                     string arg = getToken();
                     u16 num;
@@ -302,12 +301,14 @@ struct Parser {
                         lerror(line) << "Expected a number, get `" << token << "` (using 0)" << endl;
                         num = 0;
                     }
-                    memory.push_back(num);
+                    cval |= num << 4;
+
+                    memory.push_back(cval);
                 } else {
                     cbug << "parseAll() CODE: `" << token << '`' << endl;
                 }
 
-                cdebugr << hex << code.first << " with args " << cval << dec << ' ' << ctype << endl;
+                cdebugr << hex << code.first << " with args " << cval << dec << " marked as " << ctype << endl;
 
             } else if (type == NOTHING) {
                 ldebug(line) << "Token: NOT\t | `" << token << "` " << endl;
@@ -325,16 +326,31 @@ struct Parser {
     }
 
     void resolveLabels() {
+        // Special labels
+        if (labelsVal.find("@end") != labelsVal.end()) {
+            cwarning << "You can't override the special label `@end`, that is reserved to save the last used position" << endl;
+        }
+        for (u16 i : labelsRef["@end"]) {
+            memory[i] = memory.size();
+            cdebug << "Memory[" << i << "] <- @end = " << memory.size() << endl;
+        }
+        labelsRef.erase("@end");
+
+        if (labelsVal.find("@here") != labelsVal.end()) {
+            cwarning << "You can't override the special label `@here`, that is reserved to refer to the position where it's put" << endl;
+        }
+        for (u16 i : labelsRef["@here"]) {
+            memory[i] = i;
+            cdebug << "Memory[" << i << "] <- @here = " << i << endl;
+        }
+        labelsRef.erase("@here");
+
         for (pair<string, vector<u16>> i : labelsRef) {
-            if (labelsVal.find(i.first) == labelsVal.end()) {
+            if (labelsVal.find(i.first) != labelsVal.end()) {  // Label was declared
+                int val = labelsVal[i.first];
+                cdebug << "Label " << i.first << " is " << val << endl;
+            } else {
                 cerror << i.first << " was referred, but not declared" << endl;
-                continue;
-            }
-            int val = labelsVal[i.first];
-            cdebug << "Label " << i.first << " is " << val << endl;
-            for (u16 j : i.second) {
-                cdebug << "Memory[" << j << "] <- " << i.first << " = " << val << endl;
-                memory[j] = val;
             }
         }
     }
