@@ -1,13 +1,18 @@
 #include "code.hpp"
 
+// TODO Compare with many strings can be more efficient using map
+
 /**
  * Compare two string until the first reach a opening parenthesis
  */
 inline static bool cmp2(string a, string b) {
-    for (unsigned i = 0; a[i] != '('; i++) {
-        if (a.size() >= i || b.size() >= i || a[i] != b[i]) return false;
+    if (a.size() <= b.size()) return false;
+    unsigned i;
+    for (i = 0; a[i] != '('; i++) {
+        if (i >= b.size() || a[i] != b[i]) return false;
     }
-    return true;
+
+    return a[i] == '(';
 }
 
 inline static string noSpace(string str) {
@@ -28,11 +33,11 @@ pair<u16, CodeType> createCode(int line, string str) {
         str = noSpace(str);
 
         if (str.size() != 5) {
-            lwarning(line) << '`' << backup << " was considered a label, but it really looks like jif instruction" << endl;
+            lwarning(line) << '`' << backup << "` was considered a label, but it really looks like jif instruction" << endl;
             return puc(0, NOT);
         }
 
-        u16 arg;
+        u16 arg = 0;
         for (char i : str) {
             arg <<= 1;
             if (i == '1') {
@@ -88,9 +93,9 @@ pair<u16, CodeType> createCode(int line, string str) {
     } else if (str == "set") {  // set
         return puc(0x5000, SET);
     } else if (str == "addi") {  // addi subi
-        return puc(0x6000, SET);
+        return puc(0x6000, IMM);
     } else if (str == "subi") {
-        return puc(0x6800, SET);
+        return puc(0x6800, IMM);
     } else if (str == "add") {  // add
         return puc(0x7000, RZ);
     } else if (str == "sub") {  // sub
@@ -101,17 +106,17 @@ pair<u16, CodeType> createCode(int line, string str) {
         return puc(0xA000, RZ);
     } else if (cmp2(str, "shift")) {  // shift
         string backup = str;
-        str.erase(0, 5);
+        str.erase(0, 6);
         str.pop_back();
 
         str = noSpace(str);
 
         if (str.size() != 3) {
-            lwarning(line) << '`' << backup << " was considered a label, but it really looks like shift instruction" << endl;
+            lwarning(line) << '`' << backup << "` was considered a label, but it really looks like shift instruction" << endl;
             return puc(0, NOT);
         }
 
-        u16 arg;
+        u16 arg = 0;
         for (char i : str) {
             arg <<= 1;
             if (i == '1') {
@@ -134,6 +139,7 @@ pair<u16, CodeType> createCode(int line, string str) {
         return puc(0xB800, RY);
     } else if (str == "rotr") {
         return puc(0xBC00, RY);
+
     } else if (str == "and") {  // and
         return puc(0xC000, RZ);
     } else if (str == "or") {  // or
@@ -148,8 +154,6 @@ pair<u16, CodeType> createCode(int line, string str) {
 }
 
 u16 createRegister(int line, string str) {
-    // TODO Make this code more eficient
-
     if (str == "r0") {
         return 0x0000;
     } else if (str == "r1") {
@@ -176,11 +180,11 @@ u16 createRegister(int line, string str) {
         return 0x000B;
     } else if (str == "r12" || str == "rc") {
         return 0x000C;
-    } else if (str == "r13" || str == "re") {
+    } else if (str == "r13" || str == "rd") {
         return 0x000D;
-    } else if (str == "aux") {
+    } else if (str == "aux" || str == "re") {
         return 0x000E;
-    } else if (str == "sp") {
+    } else if (str == "sp" || str == "rf") {
         return 0x000F;
     } else {
         lerror(line) << "Invalid register `" << str << "` (using aux)" << endl;

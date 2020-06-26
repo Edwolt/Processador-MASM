@@ -243,7 +243,7 @@ struct Parser {
                 }
                 labelsVal[token] = memory.size();
 
-                ldebug(line) << "Token: LAB\t | `" << token << "` ";
+                ldebug(line) << "Token: LAB\t | `" << token << '`';
                 cdebugr << token << " = " << memory.size() << endl;
 
             } else if (type == CODE) {
@@ -289,7 +289,6 @@ struct Parser {
                     // TODO
                 } else if (ctype == IMM) {
                     cval |= createRegister(line, getToken());
-                    memory.push_back(cval);
 
                     string arg = getToken();
                     u16 num;
@@ -302,12 +301,14 @@ struct Parser {
                         lerror(line) << "Expected a number, get `" << token << "` (using 0)" << endl;
                         num = 0;
                     }
-                    memory.push_back(num);
+                    cval |= num << 4;
+
+                    memory.push_back(cval);
                 } else {
                     cbug << "parseAll() CODE: `" << token << '`' << endl;
                 }
 
-                cdebugr << hex << code.first << " with args " << cval << dec << ' ' << ctype << endl;
+                cdebugr << hex << code.first << " with args " << cval << dec << " marked as " << ctype << endl;
 
             } else if (type == NOTHING) {
                 ldebug(line) << "Token: NOT\t | `" << token << "` " << endl;

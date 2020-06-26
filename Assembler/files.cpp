@@ -40,7 +40,7 @@ void writeBinary(string path, vector<u16> memory) {
 }
 
 const char* hexDigit = "0123456789ABCDEF";
-inline static char printable(char c) { return (20 <= c && c <= 0x7F ? c : '.'); }
+inline static char printable(char c) { return (0x20 <= c && c <= 0x7E ? c : '.'); }
 void writeText(string path, vector<u16> memory) {
     ofstream file(path);
     if (!file) {
@@ -54,7 +54,7 @@ void writeText(string path, vector<u16> memory) {
             file << ((i >> j) % 2);
         }
         file << "        #";
-        for (int j = 0; j < 4; j++) {
+        for (int j = 4 - 1; j >= 0; j--) {
             file << hexDigit[(i >> j * 4) & 0x000F];
         }
         file << "    '" << printable((char)(i >> 8)) << printable((char)i) << "'    ";

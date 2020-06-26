@@ -18,7 +18,7 @@ O opcode de cada instrução será de 4 bits
 | ------ | ---------------- |
 | 0      | jif(nelpm) rx    |
 | 1      | cmp rx ry        |
-| 2      | store/load rx ry |
+| 2      | load/store rx ry |
 | 3      | in/out rx ry     |
 | 4      | move rx ry       |
 | 5      | set rx num       |
@@ -87,7 +87,7 @@ O shift é feito usando 3 sinais para definir qual tipo de shift deve ser feito:
 | ------------------ | ------ | ----- | --- | -------- | -------------- | -------------------------------- |
 | **shiftl0 rx ry**  | 1011   | 000   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
 | **shiftr0 rx ry**  | 1011   | 010   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
-| **shiftl0 rx ry**  | 1011   | 001   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
+| **shiftl1 rx ry**  | 1011   | 001   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
 | **shiftr1 rx ry**  | 1011   | 011   | x   | ry       | rx             | rx <- rx << ry preenchendo com 1 |
 | **rotl rx ry**     | 1011   | 10x   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
 | **rotr rx ry**     | 1011   | 11x   | x   | ry       | rx             | rx <- rx << ry preenchendo com 1 |

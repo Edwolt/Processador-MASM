@@ -49,6 +49,11 @@ testd: $(EXEC)
 	    echo "\033[1m________________________\033[0m"; \
 		echo ""; \
 	done;
+	echo ""
+
+	echo "Diff expected instructions"
+	diff Test/expected.txt Test/instructions.txt
+
 
 compile: clean $(EXEC)
 
