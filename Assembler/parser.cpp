@@ -334,6 +334,7 @@ struct Parser {
             memory[i] = memory.size();
             cdebug << "Memory[" << i << "] <- @end = " << memory.size() << endl;
         }
+        labelsRef.erase("@end");
 
         if (labelsVal.find("@here") != labelsVal.end()) {
             cwarning << "You can't override the special label `@here`, that is reserved to refer to the position where it's put" << endl;
@@ -342,6 +343,7 @@ struct Parser {
             memory[i] = i;
             cdebug << "Memory[" << i << "] <- @here = " << i << endl;
         }
+        labelsRef.erase("@here");
 
         for (pair<string, vector<u16>> i : labelsRef) {
             if (labelsVal.find(i.first) != labelsVal.end()) {  // Label was declared

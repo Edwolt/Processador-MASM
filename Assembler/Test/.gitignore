@@ -2,3 +2,4 @@ assembler
 *.mif
 *.txt
 *.bin
+*.hexdump

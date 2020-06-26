@@ -43,12 +43,17 @@ void writeBinary(string path, vector<u16> memory) {
     }
 
     char aux[2];
-    for (u16 i : memory) {
-        aux[1] = i >> 8;
-        aux[0] = i;
+    aux[0] = memory.size() >> 8;
+    aux[1] = memory.size();
+    file.write(aux, 2);  // Write the file size
+
+    for (u16 i : memory) { // Write the file data
+        aux[0] = i >> 8;
+        aux[1] = i;
         file.write(aux, 2);
     }
 
+    file.close();
     cstep << "Assembled to Binary: " << path << endl;
 }
 
