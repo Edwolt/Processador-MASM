@@ -1,6 +1,7 @@
 #include "code.hpp"
 
 // TODO Compare with many strings can be more efficient using map
+// TODO Pseudoinstruções
 
 /**
  * Compare two string until the first reach a opening parenthesis

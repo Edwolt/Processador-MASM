@@ -1,5 +1,15 @@
 # Assembler
 
+# Arquivos gerados
+
+## MIF
+
+## Binário
+
+## Texto
+
+# O que o assembler entende
+
 Montador para o processador
 
 ## Instruções verdadeiras
@@ -138,6 +148,18 @@ Possui todas as intruções verdadeiras do processador como esperado
   |                              | 0000000000000001 | 1        |
 
 ## Labels
+
+Uma label é declarada colocando dois pontos (:)\
+Se você declara uma label usando constatantes `#0000:` o resultado é imprevisível (Pode ser que ela seja
+declarada mas ser impossível de se referir a ela, ou pode ser que a constante seja montada)\
+Você pode declara um label como `&#L$$A:`, mas eu recomendo fortemente usar apenas letras underlines e numeros de forma que o numero nao seja o primeiro caracter\
+Atenção: `x`, `b` e `o` são começo de constantes, então tome cuidado ao nomear labels como `o3:`, `x1` ou `b10`\
+Existem algumas labels que são especias:
+
+| Label | Função                                                                                       |
+| ----- | -------------------------------------------------------------------------------------------- |
+| @end  | Seu valor é a próxima posição depois da última posição usada damemória criada pelo assembler |
+| @here | Refere a posição de memória onde está                                                        |
 
 ## Pseudo Instruções
 
