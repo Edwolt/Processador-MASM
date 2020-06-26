@@ -12,8 +12,9 @@
 
 using namespace std;
 
-bool debug;
-
+/**
+ * Print the help menssage
+ */
 void printHelp() {
     cout << "./assembler <source> [options]..." << endl;
     cout << "Options:" << endl;
@@ -41,6 +42,7 @@ int main(int argc, char const *argv[]) {
                 textPath = string(argv[++i]);
             } else if (argv[i][1] == 'h' || ((argv[i][1] == '-') && strcmp(argv[i], "--help") == 0)) {
                 printHelp();
+                return EXIT_SUCCESS;
             } else if (argv[i][1] == 'v') {
                 debug = true;
             } else {
@@ -62,7 +64,7 @@ int main(int argc, char const *argv[]) {
     cout << (debug ? "Debug mode on\n" : "Debug mode off") << endl;
 
     // Parse code
-    vector<uint16_t> memory = parseCode(sourcePath);
+    vector<u16> memory = assembleCode(sourcePath);
 
     // Calculates memory tam
     while (!memory.empty()) {
@@ -77,7 +79,6 @@ int main(int argc, char const *argv[]) {
     }
 
     // Write compiled files
-    cout << endl;
     if (!mifPath.empty()) writeMIF(mifPath, memory);
     if (!binaryPath.empty()) writeBinary(binaryPath, memory);
     if (!textPath.empty()) writeText(textPath, memory);

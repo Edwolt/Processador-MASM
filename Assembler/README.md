@@ -8,8 +8,8 @@ Possui todas as intruções verdadeiras do processador como esperado
 
 ## Constantes
 
-- Decimal: Composto por digitos decimais\
-   Caso aconteça um overflow, o montador deve acusar um erro
+- Decimal: Salva na memória o valor decimal\
+  Emite um **Erro** se ocorrer overflow
 
   | Exemplo | Resultado        |
   | ------- | ---------------- |
@@ -19,8 +19,8 @@ Possui todas as intruções verdadeiras do processador como esperado
   | 65535   | 1111111111111111 |
   | 9999999 | **Erro**         |
 
-- Positivo: Composto por digitos decimais precedido por um +\ O montador deve verificar se o número é positivo em complemento de 2 (o bit mais significativo deve ser 0)\
-  Caso aconteça um overflow ou o número não possa ser escrito em complemento de 2, o montador deve acusar um erro
+- Positivo: Salva na memória o valor decimal iniciando com '+'\
+  Emite um **Erro** se ocorrer overoflow ou se o bit mais significativo for 1 (nesse caso o númeor seria negativo em complemento de 2)
 
   | Exemplo  | Resultado        |
   | -------- | ---------------- |
@@ -30,8 +30,8 @@ Possui todas as intruções verdadeiras do processador como esperado
   | +65535   | **Erro**         |
   | +9999999 | **Erro**         |
 
-- Negativo: Composto por digitos decimais precedido por um +\ O montador escreve o número em complemento de 2\
-  Caso aconteça um overflow ou o número não possa ser escrito em complemento de 2, o montador deve acusar um erro
+- Negativo: Salva na memória o valor decimal iniciando com '-'\
+  Emite um **Erro** se ocorrer overoflow ou se o bit mais significativo for 0 (nesse caso o númeor seria positivo em complemento de 2)
 
   | Exemplo  | Resultado        |
   | -------- | ---------------- |
@@ -42,9 +42,8 @@ Possui todas as intruções verdadeiras do processador como esperado
   | -65535   | **Erro**         |
   | -9999999 | **Erro**         |
 
-- Binário: Composto por digitos binario\
-  Caso aconteça um overflow o montador deve acusar erro\
-  Esperasse que o número de digitos não seja maior que 16
+- Binário: Salva na memória o valor binário que procede o 'b'\
+  Emite um **Erro** se ocorrer overflow
 
   | Exemplo                | Resultado        |
   | ---------------------- | ---------------- |
@@ -56,7 +55,10 @@ Possui todas as intruções verdadeiras do processador como esperado
   | b000000000000000000000 | **Erro**         |
   | b111111111111111111111 | **Erro**         |
 
-- Hexadecimal:
+- TODO Octal
+
+- Hexadecimal:Salva na memória o valor hexadecima que procede o 'b'\
+  Emite um **Erro** se ocorrer overflow
 
   | Exemplo | Resultado        |
   | ------- | ---------------- |
@@ -68,7 +70,7 @@ Possui todas as intruções verdadeiras do processador como esperado
   | #FFFF   | 1111111111111111 |
   | xFFFFF  | **Erro**         |
 
-- TODO Caracter: Retorna um valor ascii de um caracter\
+- Caracter: Salva o valor ascii do caracter na memoria
 
   | Exemplo | Resultado        |
   | ------- | ---------------- |
@@ -84,9 +86,7 @@ Possui todas as intruções verdadeiras do processador como esperado
   | '\0'    | 0000000000000000 |
   | 'ab'    | **Erro**         |
 
-- String: Um sequencia de caracteres terminando no caracter nulo\
-   A string tem que estar entre aspas duplas
-  O resultado será um vetor de caracter com os valores hexadecimais de cada um do caracteres
+- String: Salva um sequência de caracteres na memória
 
   | Exemplo         | Resultado        | Caracter |
   | --------------- | ---------------- | -------- |
@@ -103,28 +103,26 @@ Possui todas as intruções verdadeiras do processador como esperado
   |                 | 0000000001100100 | d        |
   |                 | 0000000000001010 | '\n'     |
   |                 | 0000000000000000 | '\0'     |
+  | "Hello World    | **Error**        |          |
 
-- TODO Espaço: Aloca um um determinado numero de espaco
-
-  | Exemplo | Resultado        |
-  | ------- | ---------------- |
-  | \[5\]   | 0000000000000000 |
-  |         | 0000000000000000 |
-  |         | 0000000000000000 |
-  |         | 0000000000000000 |
-  |         | 0000000000000000 |
-
-- TODO Espaço: inicializado: Aloca o espaco inicializando com um determinado valor:
+- Vetor: Salva na memória um valor várias vezes\
+  \[x\] : 0 será salvo na memória x vezes
+  \[x, y\] : o valor y será salvo na memória x vezes
 
   | Exemplo    | Resultado        |
   | ---------- | ---------------- |
+  | \[5\]      | 0000000000000000 |
+  |            | 0000000000000000 |
+  |            | 0000000000000000 |
+  |            | 0000000000000000 |
+  |            | 0000000000000000 |
   | \[5, b10\] | 0000000000000010 |
   |            | 0000000000000010 |
   |            | 0000000000000010 |
   |            | 0000000000000010 |
   |            | 0000000000000010 |
 
-- Vetor: O montador não possui uma keyword para vetor, basta colocar os valores separados por espaço
+- Observação: Se você quer criar um vetor com valores diferentes, e, vez de usar \[ \] pode se colocar os valores em sequência como está abaixo
 
   | Exemplo                      | Resultado        | Elemento |
   | ---------------------------- | ---------------- | -------- |
@@ -141,22 +139,27 @@ Possui todas as intruções verdadeiras do processador como esperado
 
 ## Labels
 
-TODO
-
 ## Pseudo Instruções
 
-TODO
-
 - push rx
-  store rx
-  set aux 1
 
+  ```
+  store rx
+  subi sp 1
+  ```
 
 - pop rx
-- rts rx
 
-- inchar
-- outchar
+  ```
+  load rx
+  addi sp 1
+  ```
 
-- halt
-  in aux aux 0
+- mod rx ry rz
+
+  ```
+  div rx ry rz
+  move rx aux
+  ```
+
+- TODO quando os in/out tiver definido cada dispositivo vai ter sua pseudo instrução

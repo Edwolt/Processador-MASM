@@ -1,16 +1,13 @@
 #include "parser.hpp"
 
-inline static bool isSpace(char c) { return c == '\t' || c == '\v' || c == ' '; }
-inline static bool isEnter(char c) { return c == '\n' || c == '\f' || c == '\r'; }
+template <typename T>
+inline static void vecConcat(vector<T>& vec1, vector<T>& vec2) {
+    vec1.reserve(vec1.size() + vec2.size());
+    vec1.insert(vec1.end(), vec2.begin(), vec2.end());
+}
 
 enum TokenType {
-    DECIMAL,
-    POSITIVE,
-    NEGATIVE,
-    BINARY,
-    OCTAL,
-    HEXADECIMAL,
-    CHAR,
+    NUM,
     ARRAY,
     STRING,
     LABEL,
@@ -21,12 +18,28 @@ enum TokenType {
 struct Parser {
     ifstream file;
     int line = 0;
-    map<string, vector<int>> labelsRef;
-    map<string, int> labelsVal;
-    vector<uint16_t> memory;
+    map<string, vector<u16>> labelsRef;
+    map<string, u16> labelsVal;
+    vector<u16> memory;
 
     Parser(string path) {
         file = ifstream(path);
+    }
+    ~Parser() {
+        file.close();
+    }
+
+    //* ========================== *//
+    //* ===== Read Functions ===== *//
+    //* ========================== *//
+
+   private:
+    void readComment() {
+        char c;
+        while (file.get(c)) {
+            if (isEnter(c)) break;
+        }
+        line++;
     }
 
     string readChar() {
@@ -47,13 +60,13 @@ struct Parser {
                 break;
             } else if (c == ';') {
                 file.unget();
-                lerror(line) << "Char without close" << endl;
-                token.clear();
+                lwarning(line) << "Char without close, closing for you" << endl;
+                token.push_back('\'');
                 return token;
             } else if (isEnter(c)) {
                 line++;
-                lerror(line) << "Char without close" << endl;
-                token.clear();
+                lwarning(line) << "Char without close, closing for you" << endl;
+                token.push_back('\'');
                 return token;
             }
 
@@ -81,13 +94,13 @@ struct Parser {
                 break;
             } else if (c == ';') {
                 file.unget();
-                lerror(line) << "String without close" << endl;
-                token.clear();
+                lwarning(line) << "String without close, closing it for you" << endl;
+                token.push_back('"');
                 return token;
             } else if (isEnter(c)) {
                 line++;
-                lerror(line) << "String without close" << endl;
-                token.clear();
+                lwarning(line) << "String without close, closing it for you" << endl;
+                token.push_back('"');
                 return token;
             }
 
@@ -115,13 +128,13 @@ struct Parser {
                 break;
             } else if (c == ';') {
                 file.unget();
-                lerror(line) << "Array without close" << endl;
-                token.clear();
+                lwarning(line) << "Array without close, closing it for you" << endl;
+                token.push_back(']');
                 return token;
             } else if (isEnter(c)) {
                 line++;
-                lerror(line) << "Array without close" << endl;
-                token.clear();
+                lwarning(line) << "Array without close, closing it for you" << endl;
+                token.push_back(']');
                 return token;
             }
 
@@ -131,6 +144,7 @@ struct Parser {
         return token;
     }
 
+   public:
     string getToken() {
         string token;
         char c;
@@ -165,7 +179,7 @@ struct Parser {
             } else if (isEnter(c)) {
                 line++;
                 break;
-            } else if (c == ';' || c == '\'' || c == '"' || c == '[' || (c == '#' && !token.empty())) {
+            } else if (c == ';' || c == '\'' || c == '"' || c == '[' || c == ']' || (c == '#' && !token.empty())) {
                 file.unget();
                 return token;
             } else if (c == ':') {
@@ -185,116 +199,160 @@ struct Parser {
             return LABEL;
         } else if (token.front() == '"') {
             return STRING;
-        } else if (token.front() == '\'') {
-            return CHAR;
         } else if (token.front() == '[') {
             return ARRAY;
-        } else if (token.front() == '+') {
-            return POSITIVE;
-        } else if (token.front() == '-') {
-            return NEGATIVE;
-        } else if (token.front() == '#') {
-            return HEXADECIMAL;
-        } else if (token.front() == 'b' && isBin(token)) {
-            return BINARY;
-        } else if (token.front() == 'o' && isOct(token)) {
-            return OCTAL;
-        } else if (token.front() == 'x' && isHex(token)) {
-            return HEXADECIMAL;
-        } else if (isDec(token)) {
-            return DECIMAL;
+        } else if (isNum(token)) {
+            return NUM;
+        } else if (isInvalidNum(token)) {
+            lerror(line) << "Invalid number: `" << token << '`' << endl;
+            return NOTHING;
+        } else {
+            return CODE;
         }
-        return CODE;
     }
 
     void parseAll() {
         while (!file.eof()) {
+            pair<u16, u16> arr;
             string token = getToken();
-            switch (categorizeToken(token)) {
-                case DECIMAL:
-                    memory.push_back(evalDec(line, token));
-                    cdebug << "Token: DEC\t | `" << token << '`' << endl;
-                    cdebugr << memory.back() << endl;
-                    break;
+            TokenType type = categorizeToken(token);
 
-                case POSITIVE:
-                    memory.push_back(evalPos(line, token));
-                    cdebug << "Token: POS\t | `" << token << '`' << endl;
-                    cdebugr << memory.back() << endl;
-                    break;
+            if (type == NUM) {
+                memory.push_back(evalNum(line, token));
 
-                case NEGATIVE:
-                    memory.push_back(evalNeg(line, token));
-                    cdebug << "Token: NEG\t | `" << token << '`' << endl;
-                    cdebugr << memory.back() << endl;
-                    break;
+                ldebug(line) << "Token: DEC\t | `" << token << "` ";
+                cdebugr << memory.back() << endl;
 
-                case BINARY:
-                    memory.push_back(evalBin(line, token));
-                    cdebug << "Token: BIN\t | `" << token << '`' << endl;
-                    cdebugr << memory.back() << endl;
-                    break;
+            } else if (type == ARRAY) {
+                arr = evalArr(line, token);
+                memory.resize(memory.size() + arr.first, arr.second);
 
-                case OCTAL:
-                    memory.push_back(evalOct(line, token));
-                    cdebug << "Token: OCT\t | `" << token << '`' << endl;
-                    cdebugr << memory.back() << endl;
-                    break;
+                ldebug(line) << "Token: ARR\t | `" << token << "` ";
+                cdebugr << '[' << arr.first << ',' << arr.second << ']' << endl;
 
-                case HEXADECIMAL:
-                    memory.push_back(evalHex(line, token));
-                    cdebug << "Token: HEX\t | `" << token << '`' << endl;
-                    cdebugr << memory.back() << endl;
-                    break;
+            } else if (type == STRING) {
+                vector<u16> vec = evalStr(line, token);
+                vecConcat(memory, vec);
 
-                case CHAR:
-                    memory.push_back(evalChar(line, token));
-                    cdebug << "Token: CHAR\t | `" << token << '`' << endl;
-                    cdebugr << memory.back() << " (" << (char)memory.back() << ')' << endl;
-                    break;
+                ldebug(line) << "Token: ARR\t | `" << token << '`' << endl;
 
-                case ARRAY:
-                    // type = string("ARR");
-                    break;
+            } else if (type == LABEL) {
+                token.pop_back();
+                if (labelsVal.find(token) != labelsVal.end()) {  // Token found
+                    lerror(line) << "Duplicated label: `" << token << "` Conidering the last declaration" << endl;
+                }
+                labelsVal[token] = memory.size();
 
-                case STRING:
-                    // type = string("STR");
-                    break;
+                ldebug(line) << "Token: LAB\t | `" << token << "` ";
+                cdebugr << token << " = " << memory.size() << endl;
 
-                case LABEL:
-                    // type = string("LABEL");
-                    break;
+            } else if (type == CODE) {
+                pair<u16, CodeType> code = createCode(line, token);
+                u16 cval = code.first;
+                CodeType ctype = code.second;
+                ldebug(line) << "Token: CODE\t | `" << token << '`' << endl;
 
-                case CODE:
-                    // type = string("CODE");
-                    break;
+                if (ctype == NOT) {  // It's means thats is a label reference
+                    labelsRef[token].push_back(memory.size());
+                    memory.push_back(0);
+                } else if (ctype == NOOP) {
+                    memory.push_back(cval);
+                } else if (ctype == RX) {
+                    cval |= createRegister(line, getToken());
+                    memory.push_back(cval);
+                } else if (ctype == RY) {
+                    cval |= createRegister(line, getToken());
+                    cval |= createRegister(line, getToken()) << 4;
+                    memory.push_back(cval);
+                } else if (ctype == RZ) {
+                    cval |= createRegister(line, getToken());
+                    cval |= createRegister(line, getToken()) << 4;
+                    cval |= createRegister(line, getToken()) << 8;
+                    memory.push_back(cval);
+                } else if (ctype == SET) {
+                    cval |= createRegister(line, getToken());
+                    memory.push_back(cval);
 
-                case NOTHING:
-                    // type = string("NOT");
-                    break;
+                    string arg = getToken();
+                    u16 num;
+                    if (isNum(arg)) {
+                        num = evalNum(line, arg);
+                    } else if (isInvalidNum(arg)) {
+                        lerror(line) << "Invalid number: `" << token << "` (using 0)" << endl;
+                        num = 0;
+                    } else {
+                        lerror(line) << "Expected a number, get `" << token << "` (using 0)" << endl;
+                        num = 0;
+                    }
+                    memory.push_back(num);
+                } else if (ctype == INOUT) {
+                    // TODO
+                } else if (ctype == IMM) {
+                    cval |= createRegister(line, getToken());
+                    memory.push_back(cval);
 
-                default:
-                    // type = string("DEF");
-                    break;
+                    string arg = getToken();
+                    u16 num;
+                    if (isNum(arg)) {
+                        num = evalNumImm(line, arg);
+                    } else if (isInvalidNum(arg)) {
+                        lerror(line) << "Invalid number: `" << token << "` (using 0)" << endl;
+                        num = 0;
+                    } else {
+                        lerror(line) << "Expected a number, get `" << token << "` (using 0)" << endl;
+                        num = 0;
+                    }
+                    memory.push_back(num);
+                } else {
+                    cbug << "parseAll() CODE: `" << token << '`' << endl;
+                }
+
+                cdebugr << hex << code.first << " with args " << cval << dec << ' ' << ctype << endl;
+
+            } else if (type == NOTHING) {
+                ldebug(line) << "Token: NOT\t | `" << token << "` " << endl;
+
+            } else {
+                cbug << "The assembler isn't prepared to read this token: " << token << endl;
+            }
+
+            if (memory.size() > MEM_DEPTH) {
+                memory.resize(MEM_DEPTH);
+                cerror << "The program don't fit on the memory, assembler stoped on line " << line << endl;
+                break;
             }
         }
     }
 
-    void readComment() {
-        char c;
-        while (file.get(c)) {
-            if (isEnter(c)) break;
+    void resolveLabels() {
+        for (pair<string, vector<u16>> i : labelsRef) {
+            if (labelsVal.find(i.first) == labelsVal.end()) {
+                cerror << i.first << " was referred, but not declared" << endl;
+                continue;
+            }
+            int val = labelsVal[i.first];
+            cdebug << "Label " << i.first << " is " << val << endl;
+            for (u16 j : i.second) {
+                cdebug << "Memory[" << j << "] <- " << i.first << " = " << val << endl;
+                memory[j] = val;
+            }
         }
-
-        line++;
     }
-
-    vector<uint16_t> getMemory() { return memory; }
 };
 
-vector<uint16_t> parseCode(string path) {
+vector<u16> assembleCode(string path) {
     Parser parser(path);
+    if (!parser.file.is_open()) {
+        cerror << "Can't open the source file: " << path << endl;
+        return vector<u16>(0);
+    }
+
     parser.parseAll();
-    // parser.labels();
-    return parser.getMemory();
+    cstep << "Parsed all tokens" << endl
+          << endl;
+
+    parser.resolveLabels();
+    cstep << "Label finished" << endl
+          << endl;
+    return parser.memory;
 }

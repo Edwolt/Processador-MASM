@@ -1,0 +1,9 @@
+; This code is larger than memory
+
+[#EEEE, #E]
+[#AAAA, #A]
+[#DDDD, #D]
+
+[#E, #EEEE]
+[#A, #AAAA]
+[#D, #DDDD]

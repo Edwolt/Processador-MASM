@@ -1,3 +1,5 @@
+; Command, Expected value, -1
+; TODO update the expected values
 store r1 r0
 #2001
 -1
@@ -27,7 +29,7 @@ mul r13 aux sp
 #9FED
 -1
 
-div r0, r5, r10
+div r0, r5 r10
 #AA50
 -1
 
