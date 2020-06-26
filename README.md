@@ -125,8 +125,8 @@ A instrução possui 5 sinais para definir em qual conndição o jump deve ser f
 
 | jif(nelpm) rx | opcode | n e l p m | xxx | rx   | ação                            |
 | ------------- | ------ | --------- | --- | ---- | ------------------------------- |
-| **noop**      | 0000   | 00000     | xxx | xxxx | Um jump impossivel de acontecer |
-| **jn rx**     | 0000   | 00000     | xxx | rx   | Um jump impossivel de acontecer |
+| **noop**      | 0000   | 00000     | xxx | xxxx | Um jump impossível de acontecer |
+| **jn rx**     | 0000   | 00000     | xxx | rx   | Um jump impossível de acontecer |
 | **j rx**      | 0000   | 10000     | xxx | rx   | jump incondicional              |
 | **je rx**     | 0000   | 01000     | xxx | rx   | jump se igual                   |
 | **jne rx**    | 0000   | 11000     | xxx | rx   | jump se diferente               |
@@ -147,11 +147,7 @@ Obs: é possível fazer outras combinações de jump, mas essas são as mais imp
 
 # Entrada e Saida
 
-TODO: verificar se essa é a melhor abordagem\
-
-Manda os dados dos dois registradores\
-O dispositivo pode escrever o resultado no registrador ou na memória\
-Uma operação in só permite o processador voltar a processar quando o dispositivo avisar que a instrução terminou
+Instrução in espera a execição da operação terminar
 
 | instrução         | opcode | ?   | num | src | dest | ação                       |
 | ----------------- | ------ | --- | --- | --- | ---- | -------------------------- |
