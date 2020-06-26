@@ -18,7 +18,7 @@ HEADER   := $(wildcard *.hpp)
 CFLAGS   := -Wall -std=c++17  $(CEXTRA)
 RMFLAGS  := -f -v
 
-
+.PHONY: all test testd compile clean
 
 #Actions
 all: $(EXEC)
@@ -30,7 +30,7 @@ test: $(EXEC)
 	echo "------------------------"
 	echo ""
 	for i in $(TEST); do \
-		echo "\033[1m===== Test $$i =====\033[0m"; \
+		echo "\033[1m===== $$i =====\033[0m"; \
 		./$(EXEC) $$i.masm -m $$i.mif -1 $$i.txt -o $$i.bin; \
 	    echo "\033[1m________________________\033[0m"; \
 		echo ""; \
