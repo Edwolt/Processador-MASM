@@ -158,14 +158,14 @@ Instrução in espera a execição da operação terminar
 | -------- | ------------------- | ----------------------------------------------------------------------- |
 | 000      | halt                | Não faz nada e nunca termina                                            |
 | 001      | teclado             | Le qual tecla está sendo apertada no teclado                            |
-| 010      | memoria gigante?    | Le 4kb na posição ry da memoria gigante e salva a partir do endereço rx |
+| 010      | memoria externa     | Le 4kb na posição ry da memoria gigante e salva a partir do endereço rx |
 | 111      | sleep               | Não faz nada e só termina depois de ry cilcos de clocks                 |
 
 | Endereço | Dispositivo Saida | Ação                                                              |
 | -------- | ----------------- | ----------------------------------------------------------------- |
 | 000      | LEDs              | Acende os leds de usando como base os bits em src                 |
 | 001      | Video             | Desenha um pixel da cor ry na posição rx                          |
-| 010      | memoria gigante?  | Escreve 4kb na posição rx da memória gigante lendo a partir de ry |
+| 010      | memoria externa   | Escreve 4kb na posição rx da memória gigante lendo a partir de ry |
 
 Obs: in 000 causa um halt
 Obs: in 111 causa sleep de ry ciclos de clocks
