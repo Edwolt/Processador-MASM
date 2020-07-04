@@ -14,6 +14,6 @@
 using namespace std;
 
 /**
- * Assemble the code in the file on the path
+ * Assemble the code on the file
  */
 vector<u16> assembleCode(string path);
