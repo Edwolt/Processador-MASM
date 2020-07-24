@@ -183,9 +183,9 @@ u16 createRegister(int line, string str) {
         return 0x000C;
     } else if (str == "r13" || str == "rd") {
         return 0x000D;
-    } else if (str == "aux" || str == "re") {
-        return 0x000E;
     } else if (str == "sp" || str == "rf") {
+        return 0x000E;
+    } else if (str == "aux" || str == "re") {
         return 0x000F;
     } else {
         lerror(line) << "Invalid register `" << str << "` (using aux)" << endl;
