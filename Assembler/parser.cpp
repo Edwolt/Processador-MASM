@@ -277,7 +277,7 @@ struct Parser {
                     u16 num;
                     if (isNum(arg)) {
                         num = evalNum(line, arg);
-                    } else if (isInvalidNum(arg)) {
+                    } else if (isInvalidNum(arg)) {  // TODO label
                         lerror(line) << "Invalid number: `" << token << "` (using 0)" << endl;
                         num = 0;
                     } else {
