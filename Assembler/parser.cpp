@@ -277,16 +277,13 @@ struct Parser {
                     u16 num;
                     if (isNum(arg)) {
                         num = evalNum(line, arg);
-                    } else if (isInvalidNum(arg)) {  // TODO label
-                        lerror(line) << "Invalid number: `" << token << "` (using 0)" << endl;
-                        num = 0;
-                    } else {
-                        lerror(line) << "Expected a number, get `" << token << "` (using 0)" << endl;
+                    } else if (isInvalidNum(arg)) {
+                        labelsRef[arg].push_back(memory.size());
                         num = 0;
                     }
                     memory.push_back(num);
                 } else if (ctype == INOUT) {
-                    // TODO
+                    // TODO in/out
                 } else if (ctype == IMM) {
                     cval |= createRegister(line, getToken());
 
