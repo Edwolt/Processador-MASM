@@ -1,7 +1,7 @@
 ; The expected values for instructions.masm
 
 ; Jumps
-#0A8E ; jif(10101) aux
+#0A8F ; jif(10101) aux
 #0000 ; noop
 #0001 ; jn r1
 #0800 ; j   r0
@@ -19,7 +19,7 @@
 #090D ; jmz r13
 
 ; CMP
-#10FE; cmp aux sp
+#10EF; cmp aux sp
 
 ; load/store
 #2095 ; load r5 r9
@@ -34,15 +34,15 @@
 #5005 #FFFF ;set r5 o177777
 
 ; addi/subi
-#605F ; addi sp 5
-#6FFF ; subi sp 5
+#605E ; addi sp 5
+#6FFE ; subi sp 5
 
 ; ULA operations
 ; add
 #75AA ; add ra r10 r5
 
 ; sub
-#8E65 ; sub r5 r6 aux
+#8F65 ; sub r5 r6 aux
 
 ; mul
 #9321 ; mul r1 r2 r3
@@ -54,10 +54,10 @@
 #BE00 ; shift(111) r0 r0
 #B021 ; shiftl0 r1 r2
 #B4B9 ; shiftr0 r9 rb
-#B2E6 ; shiftl1 r6 aux
-#B60F ; shiftr1 sp r0
+#B2F6 ; shiftl1 r6 aux
+#B60E ; shiftr1 sp r0
 #B810 ; rotl r0 r1
-#BCFE; rotr aux sp
+#BCEF; rotr aux sp
 
 ; and
 #C80D ; and rd r0 r8;

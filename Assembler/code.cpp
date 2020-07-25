@@ -3,6 +3,76 @@
 // TODO Compare with many strings can be more efficient using map
 // TODO Pseudoinstruções
 
+typedef pair<u16, CodeType> puc;
+
+map<string, puc> codes = {
+    {"noop", puc(0x0000, NOOP)},  // Jump
+    {"jn", puc(0x0000, RX)},
+    {"j", puc(0x0800, RX)},
+    {"je", puc(0x0400, RX)},
+    {"jne", puc(0x0C00, RX)},
+    {"jl", puc(0x0200, RX)},
+    {"jg", puc(0x0E00, RX)},
+    {"jle", puc(0x0600, RX)},
+    {"jge", puc(0x0A00, RX)},
+    {"jz", puc(0x0980, RX)},
+    {"jnz", puc(0x0180, RX)},
+    {"jp", puc(0x0100, RX)},
+    {"jpz", puc(0x0880, RX)},
+    {"jm", puc(0x0080, RX)},
+    {"jmz", puc(0x0900, RX)},
+    {"cmp", puc(0x1000, RY)},   // cmp
+    {"load", puc(0x2000, RY)},  // load store
+    {"store", puc(0x2800, RY)},
+    {"in", puc(0x3000, INOUT)},  // in out
+    {"out", puc(0x3800, INOUT)},
+    {"move", puc(0x4000, RY)},   // move
+    {"set", puc(0x5000, SET)},   // set
+    {"addi", puc(0x6000, IMM)},  // addi subi
+    {"subi", puc(0x6800, IMM)},
+    {"add", puc(0x7000, RZ)},  // add
+    {"sub", puc(0x8000, RZ)},  // sub
+    {"mul", puc(0x9000, RZ)},  // mul
+    {"div", puc(0xA000, RZ)},  // div
+    {"shiftl0", puc(0xB000, RY)},
+    {"shiftr0", puc(0xB400, RY)},
+    {"shiftl1", puc(0xB200, RY)},
+    {"shiftr1", puc(0xB600, RY)},
+    {"rotl", puc(0xB800, RY)},
+    {"rotr", puc(0xBC00, RY)},
+    {"and", puc(0xC000, RZ)},  // and
+    {"or", puc(0xD000, RZ)},   // or
+    {"xor", puc(0xE000, RZ)},  // xor
+    {"not", puc(0xF000, RY)}   // not
+};
+
+map<string, u16> regs = {
+    {"r0", 0x0000},
+    {"r1", 0x0001},
+    {"r2", 0x0002},
+    {"r3", 0x0003},
+    {"r4", 0x0004},
+    {"r5", 0x0005},
+    {"r6", 0x0006},
+    {"r7", 0x0007},
+    {"r8", 0x0008},
+    {"r9", 0x0009},
+    {"r10", 0x000A},
+    {"r11", 0x000B},
+    {"r12", 0x000C},
+    {"r13", 0x000D},
+    {"r14", 0x000E},
+    {"r15", 0x000F},
+    {"ra", 0x000A},
+    {"rb", 0x000B},
+    {"rc", 0x000C},
+    {"rd", 0x000D},
+    {"re", 0x000E},
+    {"rf", 0x000F},
+    {"sp", 0x000E},
+    {"aux", 0x000F},
+};
+
 /**
  * Compare two string until the first reach a opening parenthesis
  */
@@ -24,7 +94,6 @@ inline static string noSpace(string str) {
     return newStr;
 }
 
-typedef pair<u16, CodeType> puc;
 pair<u16, CodeType> createCode(int line, string str) {
     if (cmp2(str, "jif")) {  // jump
         string backup = str;
@@ -49,62 +118,6 @@ pair<u16, CodeType> createCode(int line, string str) {
 
         u16 instruction = 0x0000 | arg;
         return puc(instruction, RX);
-    } else if (str == "noop") {
-        return puc(0x0000, NOOP);
-    } else if (str == "jn") {
-        return puc(0x0000, RX);
-    } else if (str == "j") {
-        return puc(0x0800, RX);
-    } else if (str == "je") {
-        return puc(0x0400, RX);
-    } else if (str == "jne") {
-        return puc(0x0C00, RX);
-    } else if (str == "jl") {
-        return puc(0x0200, RX);
-    } else if (str == "jg") {
-        return puc(0x0E00, RX);
-    } else if (str == "jle") {
-        return puc(0x0600, RX);
-    } else if (str == "jge") {
-        return puc(0x0A00, RX);
-    } else if (str == "jz") {
-        return puc(0x0980, RX);
-    } else if (str == "jnz") {
-        return puc(0x0180, RX);
-    } else if (str == "jp") {
-        return puc(0x0100, RX);
-    } else if (str == "jpz") {
-        return puc(0x0880, RX);
-    } else if (str == "jm") {
-        return puc(0x0080, RX);
-    } else if (str == "jmz") {
-        return puc(0x0900, RX);
-    } else if (str == "cmp") {  // cmp
-        return puc(0x1000, RY);
-    } else if (str == "load") {  // load store
-        return puc(0x2000, RY);
-    } else if (str == "store") {
-        return puc(0x2800, RY);
-    } else if (str == "in") {  // in out
-        return puc(0x3000, INOUT);
-    } else if (str == "out") {
-        return puc(0x3800, INOUT);
-    } else if (str == "move") {  // move
-        return puc(0x4000, RY);
-    } else if (str == "set") {  // set
-        return puc(0x5000, SET);
-    } else if (str == "addi") {  // addi subi
-        return puc(0x6000, IMM);
-    } else if (str == "subi") {
-        return puc(0x6800, IMM);
-    } else if (str == "add") {  // add
-        return puc(0x7000, RZ);
-    } else if (str == "sub") {  // sub
-        return puc(0x8000, RZ);
-    } else if (str == "mul") {  // mul
-        return puc(0x9000, RZ);
-    } else if (str == "div") {  // div
-        return puc(0xA000, RZ);
     } else if (cmp2(str, "shift")) {  // shift
         string backup = str;
         str.erase(0, 6);
@@ -128,67 +141,18 @@ pair<u16, CodeType> createCode(int line, string str) {
 
         u16 instruction = 0xB000 | arg;
         return puc(instruction, RY);
-    } else if (str == "shiftl0") {
-        return puc(0xB000, RY);
-    } else if (str == "shiftr0") {
-        return puc(0xB400, RY);
-    } else if (str == "shiftl1") {
-        return puc(0xB200, RY);
-    } else if (str == "shiftr1") {
-        return puc(0xB600, RY);
-    } else if (str == "rotl") {
-        return puc(0xB800, RY);
-    } else if (str == "rotr") {
-        return puc(0xBC00, RY);
-
-    } else if (str == "and") {  // and
-        return puc(0xC000, RZ);
-    } else if (str == "or") {  // or
-        return puc(0xD000, RZ);
-    } else if (str == "xor") {  // xor
-        return puc(0xE000, RZ);
-    } else if (str == "not") {  // not
-        return puc(0xF000, RY);
+    } else if (codes.find(str) != codes.end()) {
+        return codes[str];
     } else {
         return puc(0, NOT);
     }
 }
 
 u16 createRegister(int line, string str) {
-    if (str == "r0") {
-        return 0x0000;
-    } else if (str == "r1") {
-        return 0x0001;
-    } else if (str == "r2") {
-        return 0x0002;
-    } else if (str == "r3") {
-        return 0x0003;
-    } else if (str == "r4") {
-        return 0x0004;
-    } else if (str == "r5") {
-        return 0x0005;
-    } else if (str == "r6") {
-        return 0x0006;
-    } else if (str == "r7") {
-        return 0x0007;
-    } else if (str == "r8") {
-        return 0x0008;
-    } else if (str == "r9") {
-        return 0x0009;
-    } else if (str == "r10" || str == "ra") {
-        return 0x000A;
-    } else if (str == "r11" || str == "rb") {
-        return 0x000B;
-    } else if (str == "r12" || str == "rc") {
-        return 0x000C;
-    } else if (str == "r13" || str == "rd") {
-        return 0x000D;
-    } else if (str == "aux" || str == "re") {
-        return 0x000E;
-    } else if (str == "sp" || str == "rf") {
-        return 0x000F;
+    if (regs.find(str) != regs.end()) {
+        return regs[str];
     } else {
         lerror(line) << "Invalid register `" << str << "` (using aux)" << endl;
-        return 0x000E;
+        return 0x000F;
     }
 }
