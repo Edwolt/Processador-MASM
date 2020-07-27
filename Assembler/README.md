@@ -184,4 +184,59 @@ Existem algumas labels que são especias:
   move rx aux
   ```
 
-- TODO quando os in/out tiver definido cada dispositivo vai ter sua pseudo instrução
+### Entrada e Saida
+
+- halt
+  ```
+  in aux aux 0
+  ```
+
+- inbutton rx
+  ```
+  in rx aux 1
+  ```
+
+- insw rx
+  ```
+  in rx aux 2
+  ```
+
+- inchar rx
+  ```
+  in rx aux 2
+  ```
+
+- inmem rx ry
+  ```
+  in rx ry 4
+  ```
+
+- sleep rx
+  ```
+  in aux rx 7
+  ```
+
+- outled rx
+  ```
+  out aux rx 0
+  ```
+
+- outseg1 rx
+  ```
+  out aux rx 1
+  ```
+
+- outseg2 rx
+  ```
+  out aux rx 2
+  ```
+
+- outpx rx ry
+  ```
+  out rx ry 3
+  ```
+
+- outmem rx ry
+  ```
+  out rx ry 4
+  ```
