@@ -160,15 +160,19 @@ TODO Chaves e botões
 | Endereço | Dispositivo entrada | Ação                                                                    |
 | -------- | ------------------- | ----------------------------------------------------------------------- |
 | 000      | halt                | Não faz nada e nunca termina                                            |
-| 001      | teclado             | Le qual tecla está sendo apertada no teclado                            |
-| 010      | memoria externa     | Le 4kb na posição ry da memoria gigante e salva a partir do endereço rx |
+| 001      | Botões              | Devolve em bits qual botões estão sendo apertados                       |
+| 010      | Chaves              | Devolve em bits qual chaves estão sendo apertados                       |
+| 011      | teclado             | Le qual tecla está sendo apertada no teclado                            |
+| 100      | memoria externa     | Le 4kb na posição ry da memoria gigante e salva a partir do endereço rx |
 | 111      | sleep               | Não faz nada e só termina depois de ry cilcos de clocks                 |
 
-| Endereço | Dispositivo Saida | Ação                                                              |
-| -------- | ----------------- | ----------------------------------------------------------------- |
-| 000      | LEDs              | Acende os leds de usando como base os bits em src                 |
-| 001      | Video             | Desenha um pixel da cor ry na posição rx                          |
-| 010      | memoria externa   | Escreve 4kb na posição rx da memória gigante lendo a partir de ry |
+| Endereço | Dispositivo Saida   | Ação                                                              |
+| -------- | ------------------- | ----------------------------------------------------------------- |
+| 000      | LEDs                | Acende os leds de usando como base os bits em src                 |
+| 001      | 7 segmentos parte 1 | Acende o display 7 segmentos usando como base os bits em src      |
+| 010      | 7 segmentos parte 2 | Acende o display 7 segmentos usando como base os bits em src      |
+| 011      | Video               | Desenha um pixel da cor ry na posição rx                          |
+| 100      | memoria externa     | Escreve 4kb na posição rx da memória gigante lendo a partir de ry |
 
 Obs: in 000 causa um halt
 Obs: in 111 causa sleep de ry ciclos de clocks
