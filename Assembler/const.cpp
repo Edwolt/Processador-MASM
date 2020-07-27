@@ -37,27 +37,35 @@ static bool isNeg(string str) {
 }
 
 static bool isBin(string str) {
-    if (str.front() != 'b') return false;
-    for (unsigned i = 1; i < str.size(); i++) {
+    if (str.back() != 'b') return false;
+    for (unsigned i = 0; i < str.size() - 1; i++) {
         if (!isBin(str[i])) return false;
     }
     return true;
 }
 
 static bool isOct(string str) {
-    if (str.front() != 'o') return false;
-    for (unsigned i = 1; i < str.size(); i++) {
+    if (str.back() != 'o') return false;
+    for (unsigned i = 0; i < str.size() - 1; i++) {
         if (!isOct(str[i])) return false;
     }
     return true;
 }
 
 static bool isHex(string str) {
-    if (str.front() != 'x' && str.front() != '#') return false;
-    for (unsigned i = 1; i < str.size(); i++) {
-        if (!isHex(str[i])) return false;
+    if (str.front() == '#') {
+        for (unsigned i = 1; i < str.size(); i++) {
+            if (!isHex(str[i])) return false;
+        }
+        return true;
+    } else if (str.back() == 'x') {
+        for (unsigned i = 0; i < str.size() - 1; i++) {
+            if (!isHex(str[i])) return false;
+        }
+        return true;
+    } else {
+        return false;
     }
-    return true;
 }
 
 //* ============================== *//
@@ -175,7 +183,7 @@ static u16 evalNeg(int line, string str) {
 
 static u16 evalBin(int line, string str) {
     u16 num = 0;
-    for (unsigned i = 1; i < str.size(); i++) pushBin(num, str[i]);
+    for (unsigned i = 0; i < str.size() - 1; i++) pushBin(num, str[i]);
 
     if (str.size() > 16) {
         lerror(line) << "Number is too large (using " << num << ')' << endl;
@@ -185,7 +193,7 @@ static u16 evalBin(int line, string str) {
 
 static u16 evalOct(int line, string str) {
     u16 num = 0;
-    for (unsigned i = 1; i < str.size(); i++) pushOct(num, str[i]);
+    for (unsigned i = 0; i < str.size() - 1; i++) pushOct(num, str[i]);
 
     if (str.size() > 7 || num >= (1 << 16)) {
         lerror(line) << "Number is too large (using " << num << ')' << endl;
@@ -195,11 +203,17 @@ static u16 evalOct(int line, string str) {
 
 static u16 evalHex(int line, string str) {
     u16 num = 0;
-    for (unsigned i = 1; i < str.size(); i++) pushHex(num, str[i]);
+
+    if (str.front() == '#') {
+        for (unsigned i = 1; i < str.size(); i++) pushHex(num, str[i]);
+    } else if (str.back() == 'x') {
+        for (unsigned i = 0; i < str.size() - 1; i++) pushHex(num, str[i]);
+    }
 
     if (str.size() > 5) {
         lerror(line) << "Number is too large (using " << num << ')' << endl;
     }
+
     return num;
 }
 
@@ -235,7 +249,7 @@ static u16 evalNegImm(int line, string str) {
 
 static u16 evalBinImm(int line, string str) {
     u16 num = 0;
-    for (unsigned i = 1; i < str.size(); i++) pushBin(num, str[i]);
+    for (unsigned i = 0; i < str.size() - 1; i++) pushBin(num, str[i]);
 
     if (str.size() > 7) {
         lerror(line) << "Number is too large (using " << num << ')' << endl;
@@ -245,7 +259,7 @@ static u16 evalBinImm(int line, string str) {
 
 static u16 evalOctImm(int line, string str) {
     u16 num = 0;
-    for (unsigned i = 1; i < str.size(); i++) pushOct(num, str[i]);
+    for (unsigned i = 0; i < str.size() - 1; i++) pushOct(num, str[i]);
 
     if (str.size() > 4 || num >= (1 << 7)) {
         lerror(line) << "Number is too large (using " << num << ')' << endl;
@@ -255,7 +269,11 @@ static u16 evalOctImm(int line, string str) {
 
 static u16 evalHexImm(int line, string str) {
     u16 num = 0;
-    for (unsigned i = 1; i < str.size(); i++) pushHex(num, str[i]);
+    if (str.front() == '#') {
+        for (unsigned i = 1; i < str.size(); i++) pushHex(num, str[i]);
+    } else if (str.back() == 'x') {
+        for (unsigned i = 0; i < str.size() - 1; i++) pushHex(num, str[i]);
+    }
 
     if (str.size() > 3 || num >= (1 << 7)) {
         lerror(line) << "Number is too large (using " << num << ')' << endl;

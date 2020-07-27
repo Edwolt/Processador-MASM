@@ -6,7 +6,7 @@
 ; Things without space
 "5"5#5[5];Test
 1x1
-5"string"'c'#A[1]5"string"'c'xA[1]
+5"string"'c'#A[1]5"string"'c'Ax[1]
 [5]
 
 ; Inverted array
@@ -37,6 +37,7 @@ o3:
 10]
 [5]
 
+'\''
 ; Testing escaped char
 "\"
 "\""
@@ -71,7 +72,7 @@ o3:
 [5]
 
 ; Binary number
-b1010101010101010
+1010101010101010b
 [5]
 
 ; Out of range signed decimal 
@@ -83,10 +84,10 @@ b1010101010101010
 ; Some constants
 60
 5
-b101
-xFFFF
+101b
+FFFFx
 #FFFF
-o7777
+7777o
 -2
 [5]
 

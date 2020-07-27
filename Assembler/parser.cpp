@@ -17,7 +17,7 @@ enum TokenType {
 
 struct Parser {
     ifstream file;
-    int line = 0;
+    int line = 1;
     map<string, vector<u16>> labelsRef;
     map<string, u16> labelsVal;
     vector<u16> memory;

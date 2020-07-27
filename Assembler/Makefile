@@ -45,7 +45,7 @@ testd: $(EXEC)
 	echo ""
 
 	for i in $(TEST); do \
-		echo ">> Test $$i"; \
+		echo "\033[1m===== $$i =====\033[0m"; \
 		./$(EXEC) $$i.masm -v -m $$i.mif -1 $$i.txt -o $$i.bin; \
 		hexdump -Cv $$i.bin > $$i.hexdump; \
 	    echo "\033[1m________________________\033[0m"; \
