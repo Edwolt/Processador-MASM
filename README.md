@@ -149,9 +149,6 @@ Obs: é possível fazer outras combinações de jump, mas essas são as mais imp
 
 Instrução in espera a execição da operação terminar
 
-TODO 7 Segmentos
-TODO Chaves e botões
-
 | instrução         | opcode | ?   | num | src | dest | ação                       |
 | ----------------- | ------ | --- | --- | --- | ---- | -------------------------- |
 | **in rx ry num**  | 0011   | 0   | nnn | ry  | rx   | Usa dispositivo de entrada |

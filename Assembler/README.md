@@ -185,6 +185,7 @@ Existem algumas labels que são especias:
   ```
 
 ### Entrada e Saida
+TODO implementar
 
 - halt
   ```
