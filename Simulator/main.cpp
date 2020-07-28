@@ -28,23 +28,11 @@ enum Opcodes {
     NOT = 0xF
 };
 
-enum Regs {
-    R1 = 0,
-    R2,
-    R3,
-    R4,
-    R5,
-    R6,
-    R7,
-    R8,
-    R9,
-    RA,
-    RB,
-    RC,
-    RD,
-    SP,
-    AUX
-};
+#define RX  REGS[IR & 0x000F]
+#define RY  REGS[(IR >> 4) & 0x000F]
+#define RZ  REGS[(IR >> 8) & 0x000F]
+#define SP  REGS[14]
+#define AUX REGS[15]
 
 inline static pair<bool, u16> jifParams(u16 num) {
     bool n = num & (1 << 11);
@@ -58,12 +46,6 @@ inline static trio<bool, bool, bool> shiftParams(u16 num) {
     return trio<bool, bool, bool>(t, d, b);
 }
 
-inline static u16 calcRX(u16 num) { return num & 0x000F; }
-inline static u16 calcRY(u16 num) { return (num >> 4) & 0x000F; }
-inline static u16 calcRZ(u16 num) { return (num >> 8) & 0x000F; }
-
-
-
 inline static u16 getOpcode(u16 num) { return (num >> 12) & 0x000F; }
 inline static u16 getBitAfterOpcode(u16 num) { return (num << 4) >> 15; }
 
@@ -73,128 +55,127 @@ int main(int argc, char const* argv[]) {
         return EXIT_FAILURE;
     }
 
-    unsigned long long counter = 0, a = 0, jumps = 0, jumps2 = 0;
-
-    u16 regs[16];
-    for (int i = 0; i < 16; i++) regs[i] = 0;
-    regs[15] = MEM_DEPTH - 1;
-
     string path(argv[1]);
     vector<u16> memory = readBinary(path);
 
-    u16 pc = 0;
+    u16 REGS[16];
+    for (int i = 0; i < 16; i++) REGS[i] = 0;
+    SP = MEM_DEPTH - 1;
+    u16 PC = 0;
+    u16 IR = memory[PC];
+
+    unsigned long long counter = 0, a = 0, jumps = 0, jumps2 = 0;
+
     while (true) {
-        u16 instruction = memory[pc++];
-        switch (getOpcode(instruction)) {
+        IR = memory[PC++];
+        switch (getOpcode(IR)) {
             case JIF:
-                if (instruction == 0) break;
+                if (IR == 0) break;
                 jumps++;
 
-                pair<bool, u16> params = jifParams(instruction);
-                bool a = (regs[AUX] & 0x000F) & params.second;
+                pair<bool, u16> params = jifParams(IR);
+                bool a = (AUX & 0x000F) & params.second;
                 if (params.first) a = !a;
                 if (a) {
                     jumps2++;
-                    regs[AUX] = pc;
-                    pc = regs[calcRX(instruction)];
+                    AUX = PC;
+                    PC = RX;
                 }
                 break;
 
             case CMP:
-                u16 rx = getRX(regs, instruction);
-                u16 ry = getRY(regs, instruction);
-
                 bool e, l, p, m;
-                e = rx == ry;
-                l = rx < ry;
-                p = (rx != 0 ? !(rx >> 15) : false);
-                m = rx >> 15;
+                e = RX == RY;
+                l = RX < RY;
+                p = (RX != 0 ? !(RX >> 15) : false);
+                m = RX >> 15;
 
-                regs[AUX] = 0;
-                if (e) regs[AUX] |= 0xb1000;
-                if (l) regs[AUX] |= 0xb0100;
-                if (p) regs[AUX] |= 0xb0010;
-                if (m) regs[AUX] |= 0xb0001;
-
+                AUX = 0;
+                if (e) AUX |= 0xb1000;
+                if (l) AUX |= 0xb0100;
+                if (p) AUX |= 0xb0010;
+                if (m) AUX |= 0xb0001;
                 break;
 
             case LOADSTORE:
+                if (!getBitAfterOpcode(IR)) {  // Load
+                    RX = memory[RY];
+                } else {  // Store
+                    memory[RX] = RY;
+                }
                 break;
 
             case INOUT:
-                // TODO
+                if (!getBitAfterOpcode(IR)) {  // In
+
+                    //TODO
+                } else {  // Out
+
+                    // TODO
+                }
                 break;
 
             case MOVE:
+                RX = RY;
                 break;
 
             case SET:
+                RX = memory[PC++];
                 break;
 
             case ADDISUBI:
                 break;
 
             case ADD:
-                u32 aux = regs[endRY(instruction)];
-                aux += regs[endRZ(instruction)];
+                u32 val = RY;
+                val += RZ;
 
-                u16 value = aux;
-                u16 overflow = aux >> 16;
-
-                regs[endRX(instruction)] = value;
-                regs[AUX] = overflow;
+                RX = val;
+                AUX = val >> 16;
                 break;
 
             case SUB:
-                u32 aux = getRY(regs, instruction);
-                aux -= getRZ(regs, instruction);
+                u32 val = RY;
+                val -= RZ;
 
-                u16 value = aux;
-                u16 overflow = aux >> 16;
-
-                regs[endRX(instruction)] = value;
-                regs[AUX] = overflow;
+                RX = val;
+                AUX = val >> 16;
                 break;
 
             case MUL:
-                u32 aux = getRY(regs, instruction);
-                aux *= getRZ(regs, instruction);
+                u32 val = RY;
+                val *= RZ;
 
-                u16 value = aux;
-                u16 overflow = aux >> 16;
-
-                regs[endRX(instruction)] = value;
-                regs[AUX] = overflow;
+                RX = val;
+                AUX = val >> 16;
                 break;
 
             case DIV:
-                u16 ry = getRY(regs, instruction);
-                u16 rz = getRZ(regs, instruction);
-                regs[endRX(instruction)] = ry / rz;
-                regs[endRX(instruction)] = ry % rz;
+                RX = RY / RZ;
+                AUX = RY % RZ;
                 break;
 
             case SHIFT:
                 break;
 
             case AND:
-                regs[endRX(instruction)] = getRY(regs, instruction) & getRZ(regs, instruction);
+                RX = RY & RZ;
                 break;
 
             case OR:
-                regs[endRX(instruction)] = getRY(regs, instruction) | getRZ(regs, instruction);
+                RX = RY | RZ;
                 break;
 
             case XOR:
-                regs[endRX(instruction)] = getRY(regs, instruction) ^ getRZ(regs, instruction);
+                RX = RY ^ RZ;
                 break;
 
             case NOT:
-                regs[endRX(instruction)] = ~getRY(regs, instruction);
+                RX = ~RY;
                 break;
         }
         counter++;
-        a += (getOpcode(instruction) != 0);
+        a += (getOpcode(IR) != 0);
     }
 
     return EXIT_SUCCESS;
