@@ -9,14 +9,23 @@
 
 using namespace std;
 
-const int MEM_DEPTH = 1 << 16;
+const char* hexDigit = "0123456789ABCDEF";
+int main(int argc, char const* argv[]) {
+    if (argc < 2) {
+        cout << "Missing source" << endl;
+        return EXIT_FAILURE;
+    }
 
-int main(int argc, char const *argv[]) {
-    string path = "";
+    string path(argv[1]);
     vector<u16> memory = readBinary(path);
 
     for (u16 i : memory) {
-        cout << hex << i << endl;
+        if (i != 0) {
+            for (int j = 4 - 1; j >= 0; j--) {
+                cout << hexDigit[(i >> j * 4) & 0x000F];
+            }
+            cout << endl;
+        }
     }
     return 0;
 }
