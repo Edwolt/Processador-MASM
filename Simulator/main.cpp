@@ -68,112 +68,99 @@ int main(int argc, char const* argv[]) {
 
     while (true) {
         IR = memory[PC++];
-        switch (getOpcode(IR)) {
-            case JIF:
-                if (IR == 0) break;
-                jumps++;
+        u16 opcode = getOpcode(IR);
+        if (opcode == JIF) {
+            if (IR == 0) break;
+            jumps++;
 
-                pair<bool, u16> params = jifParams(IR);
-                bool a = (AUX & 0x000F) & params.second;
-                if (params.first) a = !a;
-                if (a) {
-                    jumps2++;
-                    AUX = PC;
-                    PC = RX;
-                }
-                break;
+            pair<bool, u16> params = jifParams(IR);
+            bool a = (AUX & 0x000F) & params.second;
+            if (params.first) a = !a;
+            if (a) {
+                jumps2++;
+                AUX = PC;
+                PC = RX;
+            }
 
-            case CMP:
-                bool e, l, p, m;
-                e = RX == RY;
-                l = RX < RY;
-                p = (RX != 0 ? !(RX >> 15) : false);
-                m = RX >> 15;
+        } else if (opcode == CMP) {
+            bool e, l, p, m;
+            e = RX == RY;
+            l = RX < RY;
+            p = (RX != 0 ? !(RX >> 15) : false);
+            m = RX >> 15;
 
-                AUX = 0;
-                if (e) AUX |= 0xb1000;
-                if (l) AUX |= 0xb0100;
-                if (p) AUX |= 0xb0010;
-                if (m) AUX |= 0xb0001;
-                break;
+            AUX = 0;
+            if (e) AUX |= 0xb1000;
+            if (l) AUX |= 0xb0100;
+            if (p) AUX |= 0xb0010;
+            if (m) AUX |= 0xb0001;
 
-            case LOADSTORE:
-                if (!getBitAfterOpcode(IR)) {  // Load
-                    RX = memory[RY];
-                } else {  // Store
-                    memory[RX] = RY;
-                }
-                break;
+        } else if (opcode == LOADSTORE) {
+            if (!getBitAfterOpcode(IR)) {  // Load
+                RX = memory[RY];
+            } else {  // Store
+                memory[RX] = RY;
+            }
 
-            case INOUT:
-                if (!getBitAfterOpcode(IR)) {  // In
+        } else if (opcode == INOUT) {
+            if (!getBitAfterOpcode(IR)) {  // In
 
-                    //TODO
-                } else {  // Out
+                //TODO
+            } else {  // Out
 
-                    // TODO
-                }
-                break;
+                // TODO
+            }
 
-            case MOVE:
-                RX = RY;
-                break;
+        } else if (opcode == MOVE) {
+            RX = RY;
 
-            case SET:
-                RX = memory[PC++];
-                break;
+        } else if (opcode == SET) {
+            RX = memory[PC++];
 
-            case ADDISUBI:
-                break;
+        } else if (opcode == ADDISUBI) {
+            // TODO
 
-            case ADD:
-                u32 val = RY;
-                val += RZ;
+        } else if (opcode == ADD) {
+            u32 val = RY;
+            val += RZ;
 
-                RX = val;
-                AUX = val >> 16;
-                break;
+            RX = val;
+            AUX = val >> 16;
 
-            case SUB:
-                u32 val = RY;
-                val -= RZ;
+        } else if (opcode == SUB) {
+            u32 val = RY;
+            val -= RZ;
 
-                RX = val;
-                AUX = val >> 16;
-                break;
+            RX = val;
+            AUX = val >> 16;
 
-            case MUL:
-                u32 val = RY;
-                val *= RZ;
+        } else if (opcode == MUL) {
+            u32 val = RY;
+            val *= RZ;
 
-                RX = val;
-                AUX = val >> 16;
-                break;
+            RX = val;
+            AUX = val >> 16;
 
-            case DIV:
-                RX = RY / RZ;
-                AUX = RY % RZ;
-                break;
+        } else if (opcode == DIV) {
+            RX = RY / RZ;
+            AUX = RY % RZ;
 
-            case SHIFT:
-                break;
+        } else if (opcode == SHIFT) {
+            // TODO
 
-            case AND:
-                RX = RY & RZ;
-                break;
+        } else if (opcode == AND) {
+            RX = RY & RZ;
 
-            case OR:
-                RX = RY | RZ;
-                break;
+        } else if (opcode == OR) {
+            RX = RY | RZ;
 
-            case XOR:
-                RX = RY ^ RZ;
-                break;
+        } else if (opcode == XOR) {
+            RX = RY ^ RZ;
 
-            case NOT:
-                RX = ~RY;
-                break;
+        } else if (opcode == NOT) {
+            RX = ~RY;
         }
+
         counter++;
         a += (getOpcode(IR) != 0);
     }
