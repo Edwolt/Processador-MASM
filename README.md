@@ -101,12 +101,12 @@ O shift é feito usando 3 sinais para definir qual tipo de shift deve ser feito:
 | **cmp**   | 0001   | xxxx | ry  | rx  | Compara rx e ry e salva em aux |
 
 Depois da comparação aux recebe 4 valores:
-aux: 0000 0000 0000 elzs\
+aux: 0000 0000 0000 elpm\
 Onde:
 
 - e (igual): 1 se rx = ry
 - l (menor): 1 se rx < ry
-- p (plus): 1 se o bit mais significativo de rx for 1 e rx for diferente de zero
+- p (plus): 1 se o bit mais significativo de rx for 0 e rx for diferente de zero
 - m (minus): 1 se o bit mais significativo de rx for 1
 
 ## Desvio
