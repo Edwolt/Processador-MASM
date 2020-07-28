@@ -2,8 +2,7 @@
 CC       := g++
 
 #Output and test
-FOLDER   := Test
-EXEC     := $(FOLDER)/assembler
+EXEC     := simulator
 
 #Files
 SRC      := $(wildcard *.cpp)
@@ -27,6 +26,9 @@ compile: clean $(EXEC)
 clean:
 	rm $(OBJ) $(RMFLAGS)
 	rm $(EXEC) $(RMFLAGS)
+
+test: compile
+	./$(EXEC) example.bin
 
 #Compile
 $(EXEC): $(OBJ)
