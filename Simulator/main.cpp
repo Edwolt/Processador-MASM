@@ -48,6 +48,7 @@ inline static trio<bool, bool, bool> shiftParams(u16 num) {
 
 inline static u16 getOpcode(u16 num) { return (num >> 12) & 0x000F; }
 inline static u16 getBitAfterOpcode(u16 num) { return (num << 4) >> 15; }
+inline static bool isNoop(u16 num) { return (num << 7) == 0; }
 
 int main(int argc, char const* argv[]) {
     if (argc < 2) {
@@ -64,20 +65,19 @@ int main(int argc, char const* argv[]) {
     u16 PC = 0;
     u16 IR = memory[PC];
 
-    unsigned long long counter = 0, a = 0, jumps = 0, jumps2 = 0;
+    unsigned long long numInstructions = 0, numExecuted = 0, numJumps = 0, numJumpsExecuted = 0;
 
     while (true) {
         IR = memory[PC++];
         u16 opcode = getOpcode(IR);
         if (opcode == JIF) {
-            if (IR == 0) break;
-            jumps++;
+            if (!isNoop(IR)) numJumps++;
 
             pair<bool, u16> params = jifParams(IR);
             bool a = (AUX & 0x000F) & params.second;
             if (params.first) a = !a;
             if (a) {
-                jumps2++;
+                numJumpsExecuted++;
                 AUX = PC;
                 PC = RX;
             }
@@ -161,9 +161,14 @@ int main(int argc, char const* argv[]) {
             RX = ~RY;
         }
 
-        counter++;
-        a += (getOpcode(IR) != 0);
+        numInstructions++;
+        if (!isNoop(IR)) numExecuted++;
     }
+
+    cout << "Number of instruction read: " << numInstructions << endl;
+    cout << "Number of instructions that isn't noop: " << numExecuted << endl;
+    cout << "Number of jumps read: " << numJumps << endl;
+    cout << "Number of jumps executed: " << numJumpsExecuted << endl;
 
     return EXIT_SUCCESS;
 }
