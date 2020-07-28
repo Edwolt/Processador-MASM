@@ -10,7 +10,5 @@
 using namespace std;
 
 void writeMIF(string path, vector<u16> memory);
-
 void writeBinary(string path, vector<u16> memory);
-
 void writeText(string path, vector<u16> memory);
