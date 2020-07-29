@@ -13,16 +13,16 @@ int main(int argc, char const* argv[]) {
     }
 
     string path(argv[1]);
-    Processor* processor = createProcessor(path);
+    Processor processor(path);
 
-    while (hasNext(processor)) {
-        next(processor);
+    while (processor.hasNext()) {
+        processor.next();
     }
 
-    cout << "Number of instruction read: " << numInstructions(processor) << endl
-         << "Number of instructions that isn't noop: " << numExecuted(processor) << endl
-         << "Number of jumps read: " << numJumps(processor) << endl
-         << "Number of jumps executed: " << numJumpsExecuted(processor) << endl;
+    cout << "Number of instruction read: " << processor.numInstructions << endl
+         << "Number of instructions that isn't noop: " << processor.numExecuted << endl
+         << "Number of jumps read: " << processor.numJumps << endl
+         << "Number of jumps executed: " << processor.numJumpsExecuted << endl;
 
     return EXIT_SUCCESS;
 }
