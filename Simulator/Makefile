@@ -5,9 +5,9 @@ CC       := g++
 EXEC     := simulator
 
 #Files
-SRC      := $(wildcard *.cpp)
+SRC      := $(wildcard *.cpp) $(wildcard View/*.cpp)
 OBJ      := $(SRC:.cpp=.o)
-HEADER   := $(wildcard *.hpp)
+HEADER   := $(wildcard *.hpp) $(wildcard View/*.hpp)
 
 #If you want to optimize the compilation
 #CEXTRA   := -O3 -march=native 

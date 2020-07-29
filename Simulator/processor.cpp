@@ -134,5 +134,5 @@ void Processor::next() {
 }
 
 bool Processor::hasNext() {
-    return !halted;
+    return true;
 }

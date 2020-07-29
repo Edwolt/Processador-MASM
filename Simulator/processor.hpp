@@ -15,7 +15,6 @@ struct Processor {
     u16 REGS[16];
     u16 PC;
     u16 IR;
-    bool halted = false;
 
     inline pair<bool, u16> jifParams() {
         bool n = IR & (1 << 11);
@@ -33,11 +32,12 @@ struct Processor {
     inline bool isNoop() { return (IR << 7) == 0; }
     inline u16 getOpcode() { return (IR >> 12) & 0x000F; }
 
-    ull numInstructions;
-    ull numExecuted;
-    ull numJumps;
-    ull numJumpsExecuted;
+    ull numInstructions = 0;
+    ull numExecuted = 0;
+    ull numJumps = 0;
+    ull numJumpsExecuted = 0;
 
+    Processor() {}
     Processor(string path);
 
     void next();
