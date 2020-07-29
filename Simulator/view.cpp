@@ -81,7 +81,7 @@ void draw() {
     glutSwapBuffers();
 }
 
-int main(int argc, char const *argv[]) {
+int main2(int argc, char const *argv[]) {
     setup();
 
     glutInit(&argc, (char **)argv);

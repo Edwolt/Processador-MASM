@@ -13,7 +13,8 @@ HEADER   := $(wildcard *.hpp)
 #CEXTRA   := -O3 -march=native 
 
 #Flags
-CFLAGS   := -Wall -std=c++17  $(CEXTRA)
+LIBS     := -lglut -lGLU -lGL 
+CFLAGS   := -Wall -std=c++17  $(CEXTRA) $(LIBS)
 RMFLAGS  := -f -v
 
 .PHONY: all compile clean
