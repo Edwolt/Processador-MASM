@@ -57,13 +57,13 @@ Possui todas as intruções verdadeiras do processador como esperado
 
   | Exemplo                | Resultado        |
   | ---------------------- | ---------------- |
-  | b0                     | 0000000000000000 |
-  | b1                     | 0000000000000001 |
-  | b101                   | 0000000000000101 |
-  | b0001000110            | 0000000001000110 |
-  | b1111111111111111      | 1111111111111111 |
-  | b000000000000000000000 | **Erro**         |
-  | b111111111111111111111 | **Erro**         |
+  | 0b                     | 0000000000000000 |
+  | 1b                     | 0000000000000001 |
+  | 101b                   | 0000000000000101 |
+  | 0001000110b            | 0000000001000110 |
+  | 1111111111111111b      | 1111111111111111 |
+  | 000000000000000000000b | **Erro**         |
+  | 111111111111111111111b | **Erro**         |
 
 - TODO Octal
 
@@ -72,13 +72,13 @@ Possui todas as intruções verdadeiras do processador como esperado
 
   | Exemplo | Resultado        |
   | ------- | ---------------- |
-  | x0      | 0000000000000000 |
+  | 0x      | 0000000000000000 |
   | #1      | 0000000000000001 |
-  | x20     | 0000000000100000 |
+  | 20x     | 0000000000100000 |
   | #50     | 0000000001010000 |
-  | xBB     | 0000000010111011 |
+  | BBx     | 0000000010111011 |
   | #FFFF   | 1111111111111111 |
-  | xFFFFF  | **Erro**         |
+  | FFFFFx  | **Erro**         |
 
 - Caracter: Salva o valor ascii do caracter na memoria
 
@@ -126,7 +126,7 @@ Possui todas as intruções verdadeiras do processador como esperado
   |            | 0000000000000000 |
   |            | 0000000000000000 |
   |            | 0000000000000000 |
-  | \[5, b10\] | 0000000000000010 |
+  | \[5, 10b\] | 0000000000000010 |
   |            | 0000000000000010 |
   |            | 0000000000000010 |
   |            | 0000000000000010 |
@@ -136,7 +136,7 @@ Possui todas as intruções verdadeiras do processador como esperado
 
   | Exemplo                      | Resultado        | Elemento |
   | ---------------------------- | ---------------- | -------- |
-  | 70 -1 b101 x0 #AA 50 "He" 90 | 1111111110111010 | 70       |
+  | 70 -1 101b 0x #AA 50 "He" 90 | 1111111110111010 | 70       |
   |                              | 1111111111111111 | -1       |
   |                              | 0000000000000101 | b101     |
   |                              | 0000000000000000 | x0       |
@@ -184,4 +184,60 @@ Existem algumas labels que são especias:
   move rx aux
   ```
 
-- TODO quando os in/out tiver definido cada dispositivo vai ter sua pseudo instrução
+### Entrada e Saida
+TODO implementar
+
+- halt
+  ```
+  in aux aux 0
+  ```
+
+- inbutton rx
+  ```
+  in rx aux 1
+  ```
+
+- insw rx
+  ```
+  in rx aux 2
+  ```
+
+- inchar rx
+  ```
+  in rx aux 2
+  ```
+
+- inmem rx ry
+  ```
+  in rx ry 4
+  ```
+
+- sleep rx
+  ```
+  in aux rx 7
+  ```
+
+- outled rx
+  ```
+  out aux rx 0
+  ```
+
+- outseg1 rx
+  ```
+  out aux rx 1
+  ```
+
+- outseg2 rx
+  ```
+  out aux rx 2
+  ```
+
+- outpx rx ry
+  ```
+  out rx ry 3
+  ```
+
+- outmem rx ry
+  ```
+  out rx ry 4
+  ```
