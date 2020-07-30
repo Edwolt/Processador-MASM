@@ -11,6 +11,7 @@ using namespace std;
 
 static View view = View();
 static Processor processor;
+static IO io;
 
 void draw() {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -19,11 +20,7 @@ void draw() {
 }
 
 void timer(int val) {
-    for (int i = 0; i < 100; i++) {
-        if (processor.hasNext()) processor.next();
-        view.video.set((val + i) % (80 * 45), 0);
-    }
-    cout << val << endl;
+    for (int i = 0; i < 100; i++) processor.next();
 
     glutPostRedisplay();
     glutTimerFunc(1000 / 60, timer, val + 100);
@@ -61,7 +58,8 @@ int main(int argc, char const* argv[]) {
     setup(argc, (char**)argv);
 
     string path(argv[1]);
-    processor = Processor(path);
+    io = IO(&view);
+    processor = Processor(path, &io);
 
     glutTimerFunc(0, timer, 0);
     glutFullScreen();

@@ -25,7 +25,8 @@ enum Opcodes {
 #define SP  REGS[14]
 #define AUX REGS[15]
 
-Processor::Processor(string path) {
+Processor::Processor(string path, IO* io) {
+    this->io = io;
     memory = readBinary(path);
 
     for (int i = 0; i < 16; i++) REGS[i] = 0;
@@ -71,12 +72,13 @@ void Processor::next() {
         }
 
     } else if (opcode == INOUT) {
-        if (!getBitAfterOpcode()) {  // In
-
-            //TODO
-        } else {  // Out
-
-            // TODO
+        u16 address = (IR << 5) >> 13;
+        if (!getBitAfterOpcode()) {
+            u16 val;
+            bool attribute = io->in(address, RX, RY, val);
+            if (attribute) RX = val;
+        } else {
+            io->out(address, RX, RY);
         }
 
     } else if (opcode == MOVE) {
@@ -86,7 +88,11 @@ void Processor::next() {
         RX = memory[PC++];
 
     } else if (opcode == ADDISUBI) {
-        // TODO
+        if (!getBitAfterOpcode()) {  // addi
+            RX += getImm();
+        } else {  // subi
+            RX -= getImm();
+        }
 
     } else if (opcode == ADD) {
         u32 val = RY;
@@ -114,7 +120,20 @@ void Processor::next() {
         AUX = RY % RZ;
 
     } else if (opcode == SHIFT) {
-        // TODO
+        u16 params = shiftParams();
+        if (params == 0) {  // shiftl0
+            RX = RX << RY;
+        } else if (params == 2) {  // shiftt0
+            RX = RX >> RY;
+        } else if (params == 1) {  // shiftl1
+            RX = ~((~RX) << RY);
+        } else if (params == 3) {  // shiftr1
+            RX = ~((~RX) >> RY);
+        } else if (params == 4 || params == 5) {  // rotl
+            RX = (RX << RY) | (RX >> (16 - RY));
+        } else if (params == 6 || params == 7) {  // rotr
+            RX = (RX >> RY) | (RX << (16 - RY));
+        }
 
     } else if (opcode == AND) {
         RX = RY & RZ;
@@ -131,8 +150,4 @@ void Processor::next() {
 
     numInstructions++;
     if (!isNoop()) numExecuted++;
-}
-
-bool Processor::hasNext() {
-    return true;
 }
