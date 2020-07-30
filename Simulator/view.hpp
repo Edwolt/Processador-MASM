@@ -5,15 +5,16 @@
 #include <vector>
 
 #include "View/led.hpp"
+#include "View/video.hpp"
 
 typedef void Loop();
 
 struct View {
-    Led led;
+    Led led[10];
+    Video video = Video(80, 45, 0, 0);
 
     View();
-    ~View();
-    void setup();
 
+    void setup();
     void draw();
 };

@@ -13,14 +13,20 @@ static View view = View();
 static Processor processor;
 
 void draw() {
+    glClear(GL_COLOR_BUFFER_BIT);
     view.draw();
+    glutSwapBuffers();
 }
 
 void timer(int val) {
-    if (processor.hasNext()) processor.next();
+    for (int i = 0; i < 100; i++) {
+        if (processor.hasNext()) processor.next();
+        view.video.set((val + i) % (80 * 45), 0);
+    }
+    cout << val << endl;
 
     glutPostRedisplay();
-    glutTimerFunc(1000 / 60, timer, 0);
+    glutTimerFunc(1000 / 60, timer, val + 100);
 }
 
 void setup(int argc, char** argv) {
@@ -28,7 +34,7 @@ void setup(int argc, char** argv) {
 
     glutInit(&argc, argv);
 
-    glutInitDisplayMode(GLUT_RGB);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
     glutInitWindowSize(1600, 900);
 
     glutInitWindowPosition(0, 0);
@@ -58,6 +64,7 @@ int main(int argc, char const* argv[]) {
     processor = Processor(path);
 
     glutTimerFunc(0, timer, 0);
+    glutFullScreen();
     atexit(onExit);
     glutMainLoop();
 
