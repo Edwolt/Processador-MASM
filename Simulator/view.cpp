@@ -13,27 +13,17 @@ struct Switch {
 struct Button {
 };
 
-struct Video {
-};
-
 View::View() {
-    ledSetup();
-
-    led = Led(5, 136);
-}
-View::~View() {
 }
 
 void View::setup() {
-    ledSetup();
+    for (int i = 0; i < 10; i++) led[i] = Led(1 + 5 * i, 52 - 5);
 
-    led = Led(5, 136);
+    ledSetup();
+    video.setup();
 }
 
 void View::draw() {
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    led.draw();
-
-    glutSwapBuffers();
+    video.draw();
+    for (int i = 0; i < 10; i++) led[i].draw();
 }

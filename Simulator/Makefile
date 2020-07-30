@@ -11,6 +11,7 @@ HEADER   := $(wildcard *.hpp) $(wildcard View/*.hpp)
 
 #If you want to optimize the compilation
 #CEXTRA   := -O3 -march=native 
+#CEXTRA   := -fsanitize=address -g
 
 #Flags
 LIBS     := -lglut -lGLU -lGL 
