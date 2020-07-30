@@ -5,7 +5,7 @@
 typedef pair<u16, CodeType> puc;
 
 map<string, puc> codes = {
-    {"noop", puc(0x0000, NOOP)},  // Jump
+    {"noop", puc(0x0000, NONE)},  // Jump
     {"jn", puc(0x0000, RX)},
     {"j", puc(0x0800, RX)},
     {"je", puc(0x0400, RX)},
@@ -23,8 +23,19 @@ map<string, puc> codes = {
     {"cmp", puc(0x1000, RY)},   // cmp
     {"load", puc(0x2000, RY)},  // load store
     {"store", puc(0x2800, RY)},
-    {"in", puc(0x3000, INOUT)},  // in out
-    {"out", puc(0x3800, INOUT)},
+    {"in", puc(0x3000, INOUT)},  // in
+    {"halt", puc(0x30FF, NONE)},
+    {"inbutton", puc(0x31F0, RX)},
+    {"insw", puc(0x32F0, RX)},
+    {"inchar", puc(0x33F0, RX)},
+    {"inmem", puc(0x34F0, RY)},
+    {"sleep", puc(0x37F0, RX)},
+    {"out", puc(0x3800, INOUT)},  // out
+    {"outled", puc(0x38F0, RX)},
+    {"outseg1", puc(0x39F0, RX)},
+    {"outseg2", puc(0x3AF0, RX)},
+    {"outpx", puc(0x3B000, RY)},
+    {"outpx", puc(0x3C000, RY)},
     {"move", puc(0x4000, RY)},   // move
     {"set", puc(0x5000, SET)},   // set
     {"addi", puc(0x6000, IMM)},  // addi subi

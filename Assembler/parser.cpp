@@ -255,7 +255,7 @@ struct Parser {
                 if (ctype == NOT) {  // It's means thats is a label reference
                     labelsRef[token].push_back(memory.size());
                     memory.push_back(0);
-                } else if (ctype == NOOP) {
+                } else if (ctype == NONE) {
                     memory.push_back(cval);
                 } else if (ctype == RX) {
                     cval |= createRegister(line, getToken());

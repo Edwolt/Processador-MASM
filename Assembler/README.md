@@ -169,6 +169,7 @@ Existem algumas labels que são especias:
 | @here | Refere a posição de memória onde está                                                        |
 
 ## Pseudo Instruções
+TODO implementar
 
 - push rx
 
@@ -192,7 +193,6 @@ Existem algumas labels que são especias:
   ```
 
 ### Entrada e Saida
-TODO implementar
 
 - halt
   ```
@@ -211,7 +211,7 @@ TODO implementar
 
 - inchar rx
   ```
-  in rx aux 2
+  in rx aux 3
   ```
 
 - inmem rx ry
