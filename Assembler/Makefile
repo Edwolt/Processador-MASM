@@ -2,7 +2,7 @@
 CC       := g++
 
 #Output and test
-FOLDER   := Test
+FOLDER   := ../examples
 TEST     := $(patsubst %.masm,%,$(wildcard $(FOLDER)/*.masm))
 EXEC     := $(FOLDER)/assembler
 

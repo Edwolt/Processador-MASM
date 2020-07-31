@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "util.hpp"
 #include "view.hpp"
 
@@ -11,6 +13,6 @@ struct IO {
     IO() {}
     IO(View* view);
 
-    bool in(u16 address, u16 src, u16 dest, u16& val);
+    bool in(u16 address, u16 src, u16 dest, u16& val, i32& delay);
     void out(u16 address, u16 src, u16 dest);
 };

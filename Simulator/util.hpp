@@ -5,6 +5,7 @@
 
 typedef uint16_t u16;
 typedef uint32_t u32;
+typedef int32_t i32;
 
 const int MEM_DEPTH = 1 << 16;
 

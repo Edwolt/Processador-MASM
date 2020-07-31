@@ -61,7 +61,7 @@ Video::~Video() {
 void Video::setup() {
     for (int i = 0; i < w; i++) {
         for (int j = 0; j < h; j++) {
-            pixels[i][j] = square(i + pos.x, j + pos.y, (i | j) / ((float)w + h), (i & j) / ((float)w + h), (i | j) / ((float)w + h));
+            pixels[i][j] = square(i + pos.x, j + pos.y, 0, 0, 0);
         }
     }
 }

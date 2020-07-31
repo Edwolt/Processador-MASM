@@ -15,7 +15,11 @@ Led::Led(float x, float y) {
 }
 
 void Led::draw() {
-    glColor3f(1.0, 0, 0);
+    if (this->on) {
+        glColor3f(1.0, 0, 0);
+    } else {
+        glColor3f(0.3, 0, 0);
+    }
 
     glBegin(GL_POLYGON);
     for (point i : ledShape) {

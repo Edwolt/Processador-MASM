@@ -2,7 +2,8 @@
 CC       := g++
 
 #Output and test
-EXEC     := simulator
+FOLDER   := ../examples
+EXEC     := $(FOLDER)/simulator
 
 #Files
 SRC      := $(wildcard *.cpp) $(wildcard View/*.cpp)

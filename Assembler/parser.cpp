@@ -278,6 +278,9 @@ struct Parser {
                     if (isNum(arg)) {
                         num = evalNum(line, arg);
                     } else if (isInvalidNum(arg)) {
+                        lerror(line) << "Expected a number, get `" << arg << '`' << endl;
+                        num = 0;
+                    } else {
                         labelsRef[arg].push_back(memory.size());
                         num = 0;
                     }
@@ -346,6 +349,9 @@ struct Parser {
             if (labelsVal.find(i.first) != labelsVal.end()) {  // Label was declared
                 int val = labelsVal[i.first];
                 cdebug << "Label " << i.first << " is " << val << endl;
+                for (u16 j : i.second) {
+                    memory[j] = val;
+                }
             } else {
                 cerror << i.first << " was referred, but not declared" << endl;
             }
