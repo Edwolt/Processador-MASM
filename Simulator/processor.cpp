@@ -19,11 +19,27 @@ enum Opcodes {
     NOT = 0xF
 };
 
-#define RX  REGS[IR & 0x000F]
-#define RY  REGS[(IR >> 4) & 0x000F]
-#define RZ  REGS[(IR >> 8) & 0x000F]
+#define RX  REGS[calcRX()]
+#define RY  REGS[calcRY()]
+#define RZ  REGS[calcRZ()]
 #define SP  REGS[14]
 #define AUX REGS[15]
+
+void Processor::print(string str, int regCount) {
+    cout << str;
+    if (regCount >= 1) cout << " r" << calcRX() << '=' << RX;
+    if (regCount >= 2) cout << " r" << calcRY() << '=' << RY;
+    if (regCount >= 3) cout << " r" << calcRZ() << '=' << RZ;
+    cout << endl;
+}
+
+void Processor::print(string str, int regCount, string end) {
+    cout << str;
+    if (regCount >= 1) cout << " r" << calcRX() << '=' << RX;
+    if (regCount >= 2) cout << " r" << calcRY() << '=' << RY;
+    if (regCount >= 3) cout << " r" << calcRZ() << '=' << RZ;
+    cout << end;
+}
 
 Processor::Processor(string path, IO* io) {
     this->io = io;
@@ -50,8 +66,6 @@ void Processor::next() {
     if (opcode == JIF) {
         if (!isNoop()) {
             numJumps++;
-        } else {
-            cout << "noop" << endl;
         }
 
         pair<bool, u16> params = jifParams();
@@ -63,13 +77,20 @@ void Processor::next() {
             u16 aux = PC;
             PC = RX;
             AUX = aux;
-            cout << "jumped(" << (params.first ? '!' : ' ') << params.second << ") " << RX << endl;
+
+            cout << "jumped(" << (params.first ? '!' : ' ') << params.second << ")";
+            print(" ", 1);
         } else {
-            cout << "jump(" << (params.first ? '!' : ' ') << params.second << ") " << RX << endl;
+            if (isNoop()) {
+                print("noop", 0);
+            } else {
+                cout << "jump(" << (params.first ? '!' : ' ') << params.second << ")";
+                print(" ", 1);
+            }
         }
 
     } else if (opcode == CMP) {
-        cout << "cmp " << RX << ' ' << RY << endl;
+        print("cmp", 2, "");
 
         bool e, l, p, m;
         e = RX == RY;
@@ -82,15 +103,17 @@ void Processor::next() {
         if (l) AUX |= 4;
         if (p) AUX |= 2;
         if (m) AUX |= 1;
-        cout << "AUX: " << AUX << endl;
+
+        cout << " -> " << AUX << endl;
 
     } else if (opcode == LOADSTORE) {
         if (!getBitAfterOpcode()) {  // Load
-            cout << "load " << RX << ' ' << RY << endl;
+            print("load", 2, "");
 
             RX = memory[RY];
+            cout << " -> " << RX << endl;
         } else {  // Store
-            cout << "store " << RX << ' ' << RY << endl;
+            print("store", 2);
 
             memory[RX] = RY;
         }
@@ -98,41 +121,53 @@ void Processor::next() {
     } else if (opcode == INOUT) {
         u16 address = ((IR << 5) & 0xFFFF) >> 13;
         if (!getBitAfterOpcode()) {
-            cout << "in(" << address << ") " << RX << ' ' << RY << endl;
+            cout << "in(" << address << ")";
+            print(" ", 2, "");
 
             u16 val;
             bool attribute = io->in(address, RY, RX, val, delay);
-            if (attribute) RX = val;
+            if (attribute) {
+                RX = val;
+                cout << " -> " << RX << endl;
+            } else {
+                cout << endl;
+            }
         } else {
-            cout << "out(" << address << ") " << RX << ' ' << RY << endl;
+            cout << "out(" << address << ")";
+            print("", 2);
 
             io->out(address, RY, RX);
         }
 
     } else if (opcode == MOVE) {
-        cout << "move " << RX << ' ' << RY << endl;
-
+        print("move", 2);
         RX = RY;
 
     } else if (opcode == SET) {
-        cout << "set " << RX << ' ';
+        print("set", 1, " ");
         RX = memory[PC++];
         cout << memory[PC - 1] << endl;
 
     } else if (opcode == ADDISUBI) {
         u16 imm = getImm();
         if (!getBitAfterOpcode()) {  // addi
-            cout << "addi " << RX << ' ' << imm << endl;
+            string str = " ";
+            str += to_string(imm);
+            print("addi", 1, str);
+            cout << endl;
 
             RX += imm;
         } else {  // subi
-            cout << "subi " << RX << ' ' << imm << endl;
+            string str = " ";
+            str += to_string(imm);
+            print("subi", 1, str);
+            cout << endl;
 
             RX -= getImm();
         }
 
     } else if (opcode == ADD) {
-        cout << "add " << RX << ' ' << RY << ' ' << RZ << endl;
+        print("add", 3);
 
         u32 val = RY;
         val += RZ;
@@ -141,7 +176,7 @@ void Processor::next() {
         AUX = val >> 16;
 
     } else if (opcode == SUB) {
-        cout << "sub " << RX << ' ' << RY << ' ' << RZ << endl;
+        print("sub", 3);
 
         u32 val = RY;
         val -= RZ;
@@ -150,7 +185,7 @@ void Processor::next() {
         AUX = val >> 16;
 
     } else if (opcode == MUL) {
-        cout << "mul " << RX << ' ' << RY << ' ' << RZ << endl;
+        print("mul", 3);
 
         u32 val = RY;
         val *= RZ;
@@ -159,7 +194,7 @@ void Processor::next() {
         AUX = val >> 16;
 
     } else if (opcode == DIV) {
-        cout << "div " << RX << ' ' << RY << ' ' << RZ << endl;
+        print("div", 3);
 
         RX = RY / RZ;
         AUX = RY % RZ;
@@ -167,39 +202,39 @@ void Processor::next() {
     } else if (opcode == SHIFT) {
         u16 params = shiftParams();
         if (params == 0) {  // shiftl0
-            cout << "shiftl0 " << RX << ' ' << RY << endl;
+            print("shiftl0", 2);
             RX = RX << (RY & 0x000F);
         } else if (params == 2) {  // shiftr0
-            cout << "shiftr0 " << RX << ' ' << RY << endl;
+            print("shiftr0", 2);
             RX = RX >> (RY & 0x000F);
         } else if (params == 1) {  // shiftl1
-            cout << "shiftl1 " << RX << ' ' << RY << endl;
+            print("shiftl1", 2);
             RX = ~((~RX) << (RY & 0x000F));
         } else if (params == 3) {  // shiftr1
-            cout << "shiftr1" << RX << ' ' << RY << endl;
+            print("shiftr1", 2);
             RX = ~((~RX) >> (RY & 0x000F));
         } else if (params == 4 || params == 5) {  // rotl
+            print("rotl", 2);
             RX = (RX << (RY & 0x000F)) | (RX >> (16 - (RY & 0x000F)));
-            cout << "rotl " << RX << ' ' << RY << endl;
         } else if (params == 6 || params == 7) {  // rotr
+            print("rotr", 2);
             RX = (RX >> (RY & 0x000F)) | (RX << (16 - (RY & 0x000F)));
-            cout << "rotr " << RX << ' ' << RY << endl;
         }
 
     } else if (opcode == AND) {
-        cout << "and " << RX << ' ' << RY << ' ' << RZ << endl;
+        print("and", 3);
         RX = RY & RZ;
 
     } else if (opcode == OR) {
-        cout << "or " << RX << ' ' << RY << ' ' << RZ << endl;
+        print("or", 3);
         RX = RY | RZ;
 
     } else if (opcode == XOR) {
-        cout << "xor " << RX << ' ' << RY << ' ' << RZ << endl;
+        print("xor", 3);
         RX = RY ^ RZ;
 
     } else if (opcode == NOT) {
-        cout << "not " << RX << ' ' << RY << endl;
+        print("not", 3);
         RX = ~RY;
     }
 

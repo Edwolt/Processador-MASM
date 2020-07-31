@@ -19,6 +19,10 @@ struct Processor {
     u16 IR;
     IO* io;
 
+    inline u16 calcRX() { return IR & 0x000F; }
+    inline u16 calcRY() { return (IR >> 4) & 0x000F; }
+    inline u16 calcRZ() { return (IR >> 8) & 0x000F; }
+
     /**
      * if delay < 0: never go out the delay
      * if delay = 0: execute the instruction
@@ -49,6 +53,9 @@ struct Processor {
 
     Processor() {}
     Processor(string path, IO* io);
+
+    void print(string str, int regCount);
+    void print(string str, int regCount, string end);
 
     void next();
 };

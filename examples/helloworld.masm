@@ -66,28 +66,30 @@ main:
     halt
 
 
-screen_pos: ; (r0: i, r1: j, r4: hello.width) -> rd
+screen_pos: ; (r0: i, r1: j) -> rd
     ; 12: x_offser
     ; 20: y_offset
 
-    move aux aux
     push aux
     push r2
     push r3
+    push r4
+
+    set r4 80
 
     ; j + x_offset
     move r3 r1
-    addi r1 12
+    addi r3 12
 
-    ; (i + y_offset) * hello.width
+    ; (i + y_offset) * screen.width
     move r2 r0
     addi r2 20
     mul r2 r2 r4 
 
     add rd r2 r3
 
+    pop r4
     pop r3
     pop r2
     pop aux
-    move aux aux
     j aux
