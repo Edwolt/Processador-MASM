@@ -7,7 +7,7 @@
 		<string>masm</string>
 	</array>
 	<key>name</key>
-	<string>M Assembly</string>
+	<string>MASM</string>
 	<key>patterns</key>
 	<array>
 		<dict>
@@ -152,7 +152,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(?i:jif\(.*\)|noop|jn|j|je|jne|jl|jg|jle|jge|jz|jnz|jp|jpz|jm|jmz|cmp|in|halt|inbutton|insw|inchar|inmen|sleep|out|outled|outseg1|outseg2|outpx|outmem|move|set|addi|subi|add|sub|mul|div|shift\(.*\)|shiftl0|shiftr0|shiftl1|shiftr1|rotl|rotr|and|or|xor|not)\b</string>
+			<string>\b(?i:jif\(.*\)|noop|jn|j|je|jne|jl|jg|jle|jge|jz|jnz|jp|jpz|jm|jmz|load|store|cmp|in|halt|inbutton|insw|inchar|inmen|sleep|out|outled|outseg1|outseg2|outpx|outmem|move|set|addi|subi|add|sub|mul|div|shift\(.*\)|shiftl0|shiftr0|shiftl1|shiftr1|rotl|rotr|and|or|xor|not)\b</string>
 			<key>name</key>
 			<string>keyword.control</string>
 		</dict>

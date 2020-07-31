@@ -12,7 +12,7 @@
     "contributes": {
         "languages": [{
             "id": "masm",
-            "aliases": ["M Assembly", "masm"],
+            "aliases": ["MASM", "masm"],
             "extensions": [".masm"],
             "configuration": "./language-configuration.json"
         }],
