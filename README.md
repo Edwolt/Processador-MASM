@@ -149,11 +149,12 @@ Obs: é possível fazer outras combinações de jump, mas essas são as mais imp
 
 Instrução in espera a execição da operação terminar
 
-| instrução         | opcode | ?   | num | src | dest | ação                       |
-| ----------------- | ------ | --- | --- | --- | ---- | -------------------------- |
-| **in rx ry num**  | 0011   | 0   | nnn | ry  | rx   | Usa dispositivo de entrada |
-| **out rx ry num** | 0011   | 1   | nnn | ry  | rx   | Usa dispositivo de saida   |
+| instrução         | opcode | ?   | num | val1 | val2 | ação                       |
+| ----------------- | ------ | --- | --- | ---- | ---- | -------------------------- |
+| **in rx ry num**  | 0011   | 0   | nnn | ry   | rx   | Usa dispositivo de entrada |
+| **out rx ry num** | 0011   | 1   | nnn | ry   | rx   | Usa dispositivo de saida   |
 
+TODO troquei src e dest para val1 e val2
 | Endereço | Dispositivo entrada | Ação                                                                    |
 | -------- | ------------------- | ----------------------------------------------------------------------- |
 | 000      | halt                | Não faz nada e nunca termina                                            |
@@ -165,10 +166,10 @@ Instrução in espera a execição da operação terminar
 
 | Endereço | Dispositivo Saida   | Ação                                                              |
 | -------- | ------------------- | ----------------------------------------------------------------- |
-| 000      | LEDs                | Acende os leds de usando como base os bits em src                 |
-| 001      | 7 segmentos parte 1 | Acende o display 7 segmentos usando como base os bits em src      |
-| 010      | 7 segmentos parte 2 | Acende o display 7 segmentos usando como base os bits em src      |
-| 011      | Video               | Desenha um pixel da cor ry (#rgbx) na posição rx                          |
+| 000      | LEDs                | Acende os leds de usando como base os bits em src1                |
+| 001      | 7 segmentos parte 1 | Acende o display 7 segmentos usando como base os bits em src1     |
+| 010      | 7 segmentos parte 2 | Acende o display 7 segmentos usando como base os bits em src1     |
+| 011      | Video               | Desenha um pixel da cor ry (#rgbx) na posição rx                  |
 | 100      | memoria externa     | Escreve 4kb na posição rx da memória gigante lendo a partir de ry |
 
 Obs: in 000 causa um halt

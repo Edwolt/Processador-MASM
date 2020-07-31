@@ -54,13 +54,15 @@ Processor::Processor(string path, IO* io) {
 void Processor::next() {
     if (delay < 0) {
         return;
-    }
-    if (delay > 0) {
+    } else if (delay > 0) {
         delay--;
+        numClock++;
         return;
     }
 
     IR = memory[PC++];
+    numMemory++;
+
     u16 opcode = getOpcode();
 
     if (opcode == JIF) {
@@ -117,6 +119,7 @@ void Processor::next() {
 
             memory[RX] = RY;
         }
+        numMemoryRandom++;
 
     } else if (opcode == INOUT) {
         u16 address = ((IR << 5) & 0xFFFF) >> 13;
@@ -125,7 +128,7 @@ void Processor::next() {
             print(" ", 2, "");
 
             u16 val;
-            bool attribute = io->in(address, RY, RX, val, delay);
+            bool attribute = io->in(address, RX, RY, val, delay);
             if (attribute) {
                 RX = val;
                 cout << " -> " << RX << endl;
@@ -136,8 +139,9 @@ void Processor::next() {
             cout << "out(" << address << ")";
             print("", 2);
 
-            io->out(address, RY, RX);
+            io->out(address, RX, RY);
         }
+        numIO++;
 
     } else if (opcode == MOVE) {
         print("move", 2);
@@ -146,6 +150,7 @@ void Processor::next() {
     } else if (opcode == SET) {
         print("set", 1, " ");
         RX = memory[PC++];
+        numMemory++;
         cout << memory[PC - 1] << endl;
 
     } else if (opcode == ADDISUBI) {
@@ -196,8 +201,10 @@ void Processor::next() {
     } else if (opcode == DIV) {
         print("div", 3);
 
-        RX = RY / RZ;
-        AUX = RY % RZ;
+        u16 ry = RY, rz = RZ;
+
+        RX = ry / rz;
+        AUX = ry % rz;
 
     } else if (opcode == SHIFT) {
         u16 params = shiftParams();
@@ -238,6 +245,7 @@ void Processor::next() {
         RX = ~RY;
     }
 
+    numClock++;
     numInstructions++;
     if (!isNoop()) numExecuted++;
 }

@@ -11,7 +11,7 @@ void ledSetup();
 
 struct Led {
     point pos = point(0, 0);
-    bool on = true;
+    bool on = false;
 
     Led(){};
     Led(float x, float y);

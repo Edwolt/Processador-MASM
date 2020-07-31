@@ -42,14 +42,18 @@ struct Processor {
     u16 shiftParams() { return ((IR << 4) & 0xFFFF) >> 13; }
 
     inline u16 getBitAfterOpcode() { return ((IR << 4) & 0xFFFF) >> 15; }
-    inline bool isNoop() { return ((IR << 7) & 0xFFFF) == 0; }
+    inline bool isNoop() { return (IR >> 7) == 0; }
     inline u16 getOpcode() { return (IR >> 12) & 0x000F; }
     inline u16 getImm() { return ((IR << 5) & 0xFFFF) >> 9; }
 
+    ull numClock = 0;
     ull numInstructions = 0;
     ull numExecuted = 0;
     ull numJumps = 0;
     ull numJumpsExecuted = 0;
+    ull numMemory = 0;
+    ull numMemoryRandom = 0;
+    ull numIO = 0;
 
     Processor() {}
     Processor(string path, IO* io);

@@ -339,11 +339,13 @@ struct Parser {
                         cval |= rx;
                         cval |= ry << 4;
                         cval |= rz << 8;
+                        memory.push_back(cval);
 
                         // move rx aux
                         cval = createCode(line, "move").first;
                         cval |= rx;
                         cval |= createRegister(line, "aux") << 4;
+                        memory.push_back(cval);
                     }
                     cval = 0;  // It will be used later
                 } else {

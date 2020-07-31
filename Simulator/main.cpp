@@ -26,7 +26,7 @@ void timer(int val) {
     }
 
     glutPostRedisplay();
-    glutTimerFunc(1000 / 60, timer, val + 100);
+    glutTimerFunc(1000 / 60, timer, 0);
 }
 
 void keyboard(unsigned char key, int x, int y) {
@@ -34,6 +34,8 @@ void keyboard(unsigned char key, int x, int y) {
         processor.next();
     } else if (key == '-') {
         playing = !playing;
+    } else {
+        io.addChar(key);
     }
 }
 
@@ -54,10 +56,16 @@ void setup(int argc, char** argv) {
 }
 
 void onExit() {
-    cout << "Number of instruction read: " << processor.numInstructions << endl
-         << "Number of instructions that isn't noop: " << processor.numExecuted << endl
-         << "Number of jumps read: " << processor.numJumps << endl
-         << "Number of jumps executed: " << processor.numJumpsExecuted << endl;
+    cout << endl
+         << "=======================================" << endl
+         << "Cicles: " << processor.numClock << endl
+         << "Instruction read: " << processor.numInstructions << endl
+         << "Instructions that isn't noop: " << processor.numExecuted << endl
+         << "jumps read: " << processor.numJumps << endl
+         << "Jumps executed: " << processor.numJumpsExecuted << endl
+         << "Memory access: " << processor.numMemory << endl
+         << "Memory random access: " << processor.numMemoryRandom << endl
+         << "Input and output: " << processor.numIO << endl;
 }
 
 int main(int argc, char const* argv[]) {

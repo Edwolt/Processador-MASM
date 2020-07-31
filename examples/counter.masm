@@ -6,8 +6,7 @@ set r3 1024
 loop:
     outled r0
     addi r0 1
-    div r13 r0 r3
-    move r0 aux
-
+    mod r0 r0 r3
+   
     sleep r2
     j r1

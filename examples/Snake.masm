@@ -1,0 +1,229 @@
+set r0 main
+j r0
+
+seed: 0
+screen: [3600, 0]
+
+
+
+
+
+
+clear:
+    push aux
+    push r0
+    push r1
+    push r2
+    push r3
+
+    set r0 0
+    set r1 #0000
+    set r2 3601
+    set r3 clear_while
+
+    clear_while:
+        outpx r0 r1
+        addi r0 1
+
+        cmp r0 r2
+        jne r3
+    clear_while_end:
+
+    pop r3
+    pop r2
+    pop r1
+    pop r0
+    pop aux
+    j aux
+
+
+
+
+
+draw: ; (r0: sprite, r1: color, r2: x, r3: y, r4: w, r5: h)
+    push aux
+    push r0
+    push r6
+    push r7
+    push r8
+    push r9
+    push ra
+    push rb
+    push rc
+
+    ; *r0: sprite
+    ;  r1: color
+    ;  r2: x
+    ;  r3: y
+    ;  r4: width
+    ;  r5: height
+    ; *r6: i
+    ; *r7: j
+    ; *r8: for_i
+    ; *r9: for_j
+    ; *ra: screen_pos
+    ; *rb: if_0
+    ; *rc
+    ; *rd
+
+    set r8 for_i
+    set r9 for_j
+    set ra draw_screen_pos
+    set rb if_0
+
+    set r6 0
+    for_i:
+        set r7 0
+        for_j:
+            ; if *hello == 0: goto if_0
+            load rc r0
+            cmp rc aux
+            jz rb
+
+            if_1:
+                push r0
+                push r1
+                
+                move r0  r6
+                move r1  r7
+                j ra ; screen_pos(r0: i, r1: j, r2: x, r3: y, r4: width) -> rd
+
+                pop r1
+                pop r0
+
+                outpx rd r1
+
+
+            if_0:
+
+            addi r0 1 ; sprite++
+            addi r7 1 ; j++
+            cmp r7 r4 ; j != width
+            jne r9
+        end_j:
+
+        addi r6 1 ; i++
+        cmp r6 r5 ; i !=height
+        jne r8
+    end_i:
+
+    pop rc
+    pop rb
+    pop ra
+    pop r9
+    pop r8
+    pop r7
+    pop r6
+    pop r0
+    pop aux
+    j aux
+
+
+draw_screen_pos: ; (r0: i, r1: j, r2: x, r3: y) -> rd
+    push aux
+    push r0
+    push r1
+    push r4
+
+    ; j + x
+    add r1 r1 r2
+
+    set r4 80
+    ; (i + y) * width
+    add r0 r0 r3
+    mul r0 r0 r4
+
+    add rd r0 r1
+
+    pop r4
+    pop r1
+    pop r0
+    pop aux
+    j aux
+
+
+
+
+
+wait_message:
+1 1 1 1 1 0 0 1 1 1  1 0 1 1 1 1 0 0 0 0  1 0 0 0 0 1 1 1 1 0  0 1 1 1 1 0 0 0 0 0  1 1 1 1 0 0 0 0 1 0  0 0 1 1 1 1 0 0 0 0  1 0 0 0
+1 0 0 0 0 0 1 0 0 0  0 0 1 0 0 0 1 0 0 1  0 1 0 0 1 0 0 0 0 0  1 0 0 0 0 1 0 0 0 0  1 0 0 0 1 0 0 1 0 1  0 0 1 0 0 0 1 0 0 1  0 1 0 0
+1 0 0 0 0 0 1 0 0 0  0 0 1 0 0 0 1 0 1 0  0 0 1 0 1 0 0 0 0 0  1 0 0 0 0 1 0 0 0 0  1 0 0 0 1 0 1 0 0 0  1 0 1 0 0 0 1 0 1 0  0 0 1 0
+1 1 1 0 0 0 0 1 1 1  0 0 1 1 1 1 0 0 1 0  0 0 1 0 1 0 0 0 0 0  1 0 0 0 0 1 0 0 0 0  1 1 1 1 0 0 1 0 0 0  1 0 1 1 1 1 0 0 1 0  0 0 1 0
+1 0 0 0 0 0 0 0 0 0  1 0 1 0 0 0 0 0 1 1  1 1 1 0 1 0 0 0 0 0  1 0 0 0 0 1 0 0 0 0  1 0 0 0 0 0 1 1 1 1  1 0 1 0 0 1 0 0 1 1  1 1 1 0
+1 0 0 0 0 0 0 0 0 0  1 0 1 0 0 0 0 0 1 0  0 0 1 0 0 1 1 1 1 0  1 0 0 0 0 1 0 0 0 0  1 0 0 0 0 0 1 0 0 0  1 0 1 0 0 0 1 0 1 0  0 0 1 0
+1 1 1 1 1 0 1 1 1 1  0 0 1 0 0 0 0 0 1 0  0 0 1 0 0 0 1 0 0 0  0 1 1 1 1 0 0 0 0 0  1 0 0 0 0 0 1 0 0 0  1 0 1 0 0 0 1 0 1 0  0 0 1 0
+0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0
+0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0 0 0 0 0 0 0  0 0 0 0
+0 1 1 1 1 1 1 1 1 0  0 1 1 1 1 0 0 1 1 1  1 0 0 1 0 0 0 0 0 1  0 1 1 1 1 1 0 1 1 1  1 1 0 0 0 1 0 0 0 1  1 1 1 0 0 1 1 1 1 1  1 1 1 0
+
+0 0 0 0 0 0 0 0 0 0  1 0 0 0 0 0 1 0 0 0  0 1 0 1 1 0 0 0 1 1  0 1 0 0 0 0 0 1 0 0  0 0 0 0 1 0 1 0 0 1  0 0 0 1 0 0 0 0 0 0  0 0 0 0
+0 0 0 0 0 0 0 0 0 0  1 0 0 0 0 0 1 0 0 0  0 1 0 1 0 1 0 1 0 1  0 1 0 0 0 0 0 1 0 0  0 0 0 1 0 0 0 1 0 1  0 0 0 1 0 0 0 0 0 0  0 0 0 0
+0 0 0 0 0 0 0 0 0 0  1 0 0 0 0 0 1 0 0 0  0 1 0 1 0 0 1 0 0 1  0 1 1 1 0 0 0 1 0 0  0 0 0 1 0 0 0 1 0 1  1 1 1 0 0 0 0 0 0 0  0 0 0 0
+0 0 0 0 0 0 0 0 0 0  1 0 0 0 0 0 1 0 0 0  0 1 0 1 0 0 0 0 0 1  0 1 0 0 0 0 0 1 0 0  0 0 0 1 1 1 1 1 0 1  0 0 1 0 0 0 0 0 0 0  0 0 0 0
+0 0 0 0 0 0 0 0 0 0  1 0 0 0 0 0 1 0 0 0  0 1 0 1 0 0 0 0 0 1  0 1 0 0 0 0 0 1 1 1  1 1 0 1 0 0 0 1 0 1  0 0 0 1 0 0 0 0 0 0  0 0 0 0
+0 1 1 1 1 1 1 1 1 0  0 1 1 1 1 0 0 1 1 1  1 0 0 1 0 0 0 0 0 1  0 1 1 1 1 1 0 0 1 0  0 0 0 1 0 0 0 1 0 1  0 0 0 1 0 1 1 1 1 1  1 1 1 0 
+
+wait_space:
+    push aux
+    push r0
+    push r1
+    push r2
+    push r3
+    push r4
+    push r5
+    push r6
+
+    set r0 wait_message
+    set r1 #55F0
+    set r2 8
+    set r3 14
+    set r4 64
+    set r5 16
+    set r6 draw
+    j r6
+
+    set r1 0
+    set r2 ' '
+    set r3 wait_loop
+
+wait_loop:
+    addi r1 1
+    inchar r0    
+    cmp r0 r2
+    jne r3
+wait_loop_end:
+
+    set r3 seed
+    store r3 r1
+
+    set r0 clear
+    j r0
+
+    pop r6
+    pop r5
+    pop r4
+    pop r3
+    pop r2
+    pop r1
+    pop r0
+    pop aux
+    j aux
+
+
+
+
+
+main:
+    move r0 r0
+    set r0 wait_space
+    j r0
+
+    ; VOID  = 0
+    ; UP    = 1
+    ; LEFT  = 2
+    ; DOWN  = 3
+    ; RIGHT = 4
+    ; APPLE = 5
+
+    halt
