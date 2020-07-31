@@ -1,3 +1,5 @@
+; TODO Recreate the code (the registers was changed)
+
 set r0 main
 j r0
 
@@ -9,8 +11,20 @@ hello:
 1 0 0 1 0 1 1 1 1 0 1 1 1 1 0 1 1 1 1 0 1 1 1 1 0 0 0 0 0 1 0 1 0 0 1 1 1 1 0 1 0 0 1 0 1 1 1 1 0 1 1 1 0 0 1
 
 main:
-    ; 12: x center
-    ; 20: y center
+    set r0 0      ; zero
+    set r1 5      ; lines
+    set r2 55     ; Number of comlumns
+
+    set r3 hello  ;
+    set r4 1612   ; start of write
+
+    ; set r5 0
+    ; set r6 0
+    set r7 for_i 
+    set r8 for_j
+
+    set r9 #F0F0  ; Magenta, also knows as fuchsia
+
     ; 1612: start of write
 
     ; r0: 0
@@ -20,56 +34,77 @@ main:
     ; r4: screen pos
     ; r5: i
     ; r6: j
-    ; ra: window width
-    ; rc: color
-    ; rd: loop
+    ; r7: for_i
+    ; r8: for_j
+    ; r9: color
 
-    set r0 0      ; zero
-    set r1 5      ; lines
-    set r2 55     ; Number of comlumns
+    set r5 0  ; i = 0
+    for_i:    ; for i < lines
 
-    set r3 hello  ;
-    set r4 1612   ; start of write
+        set r6 0  ; j = 0
+        for_j:    ; for j < columns
 
-    set ra 80     ; window width
-    set rc #F0F0  ; Magenta, also knows as fuchsia
-    set rd loop
+            ; ra = *hello
+            load ra r3
 
+            ; if *hello != 0: print
+            set rb print
+            cmp ra aux
+            jnz rb
 
-set r5 0  ; i = 0
-for_i:    ; for i < lines
+            addi r4 1 ; pos++
+            addi r3 1 ; hello++
 
-    set r6 0  ; j = 0
-    for_j:    ; for j < columns
+            ; if j != collumns: continue the loop
+            cmp r6 r8
+            jne r7
 
-        ; r5 = *hello
-        load r5 r3
+        end_j:
+        addi r4 12
 
-        ; if *hello != 0: print
-        cmp r5 aux
-        set aux end_print
-        jz aux
+        ; if i != lines: continue the loop
+        cmp r5 r7
+        jne r8
 
-        print:
-            outpx r4 rc
-        end_print:
+    end_i:
 
-        addi r4 1 ; pos++
-        addi r3 1 ; hello++
+    halt
 
-        ; if j != collumns: continue the loop
-        set r7 for_j
-        cmp r6 r2
-        jne r7
+print: ; set color rc on pixel (r5, r6) with ra being the width
+    ;;;;; PUSH ;;;;;
+    store sp aux
+    subi sp 1
 
-    end_j:
-    addi r4 12
+    store sp r0
+    subi sp 1
 
-    ; if i != lines: continue the loop
-    set r8 for_i
-    cmp r5 r1
-    jne r8
+    store sp r1
+    subi sp 1
 
-end_i:
+    ;;;;; CODE ;;;;;
+    ; 12: x center
+    ; 20: y center
+    
+    move r0 r6 ; Collumn
+    move r1 r5 ; Line
 
-halt
+    ; Centralize
+    addi r0 12 ; x
+    addi r1 20 ; y
+
+    mul r1 ra
+    add r0 r0 r1
+
+    outpx r0 rc
+
+    ;;;;; POP ;;;;;
+
+    addi sp 1
+    load r1 sp
+
+    addi sp 1
+    load r0 sp
+
+    addi sp 1
+    load aux sp
+    j aux
