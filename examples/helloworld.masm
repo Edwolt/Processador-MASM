@@ -9,19 +9,6 @@ hello:
 1 0 0 1 0 1 1 1 1 0 1 1 1 1 0 1 1 1 1 0 1 1 1 1 0 0 0 0 0 1 0 1 0 0 1 1 1 1 0 1 0 0 1 0 1 1 1 1 0 1 1 1 0 0 1
 
 main:
-    set r0 0  ; zero
-    set r1 5  ; lines
-    set r2 55 ; Number of comlumns
-
-    set r3 hello;
-    set r4 1612; start of write
-
-    set ra 80 ; window width
-    set rc #F0F0 ; Magenta, also knows as fuchsia
-    set rd loop
-
-
-loop:
     ; 12: x center
     ; 20: y center
     ; 1612: start of write
@@ -32,38 +19,57 @@ loop:
     ; r3: i in hello
     ; r4: screen pos
     ; r5: i
-    ; r6:
+    ; r6: j
     ; ra: window width
     ; rc: color
     ; rd: loop
 
-    ; r5 = &hello[r4++]
-    add r5 r3 r4
-    addi r4 1
+    set r0 0      ; zero
+    set r1 5      ; lines
+    set r2 55     ; Number of comlumns
 
-    ; r5 = *r5
-    load r5 r5
+    set r3 hello  ;
+    set r4 1612   ; start of write
 
-    ; if r5 == 0
-    cmp r5 aux
-    jnz rd ; It's isn't 1
+    set ra 80     ; window width
+    set rc #F0F0  ; Magenta, also knows as fuchsia
+    set rd loop
 
-    ; r7, r5 = i / columns, r6 = i % columns
-    div r7 r4 r2
-    move r5 r7
-    move r6 aux
 
-    addi r6 12 ; x
-    addi r7 20 ; y
+set r5 0  ; i = 0
+for_i:    ; for i < lines
 
-    ; r8 = r7 * w + r6
-    mul r8 r7 ra
-    add r8 r8 r6
+    set r6 0  ; j = 0
+    for_j:    ; for j < columns
 
-    outpx r8 rc
+        ; r5 = *hello
+        load r5 r3
 
-    ; if line_count != lines: goto loop
+        ; if *hello != 0: print
+        cmp r5 aux
+        set aux end_print
+        jz aux
+
+        print:
+            outpx r4 rc
+        end_print:
+
+        addi r4 1 ; pos++
+        addi r3 1 ; hello++
+
+        ; if j != collumns: continue the loop
+        set r7 for_j
+        cmp r6 r2
+        jne r7
+
+    end_j:
+    addi r4 12
+
+    ; if i != lines: continue the loop
+    set r8 for_i
     cmp r5 r1
-    jne rd
+    jne r8
 
-end: halt
+end_i:
+
+halt
