@@ -48,7 +48,7 @@ void setup(int argc, char** argv) {
     glutInitWindowPosition(0, 0);
     glutCreateWindow("Simulator");
 
-    glClearColor(0.0, 0.0, 0.0, 1.0);
+    glClearColor(0.121, 0.415, 0.709, 1.0);
 
     glutDisplayFunc(draw);
 }

@@ -17,7 +17,7 @@ bool IO::in(u16 address, u16 src, u16 dest, u16& val, i32& delay) {
 
 void IO::out(u16 address, u16 src, u16 dest) {
     if (address == 0) {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < LED_COUNT; i++) {
             view->led[i].on = src & (1 << i);
         }
     } else if (address == 3) {

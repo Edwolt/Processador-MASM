@@ -3,11 +3,13 @@
 static vector<point> ledShape;
 
 void ledSetup() {
-    for (float i = 0; i < 360; i += 20) {
+    ledShape.push_back(point(2, 2));
+    for (float i = 0; i < 180; i += 1) {
         float x = 1 * cos(i / 180 * M_PI);
-        float y = 1 * sin(i / 180 * M_PI);
-        ledShape.push_back(point(x * 2 + 2, y * 2 + 2));
+        float y = 1 * sin(-i / 180 * M_PI);
+        ledShape.push_back(point(x + 1, y + 1));
     }
+    ledShape.push_back(point(0, 2));
 }
 
 Led::Led(float x, float y) {

@@ -11,8 +11,10 @@
 
 typedef void Loop();
 
+#define LED_COUNT 16
+
 struct View {
-    Led led[10];
+    Led led[LED_COUNT];
     Video video = Video(80, 45, 0, 0);
 
     View();
