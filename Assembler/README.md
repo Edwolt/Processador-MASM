@@ -3,10 +3,17 @@
 # Arquivos gerados
 
 ## MIF
+Arquivo de configuração da FPGA
 
 ## Binário
+Arquivo binário com uma sequência de números de 16 bits
+onde os bytes mais significativos vem antes são escritos primeiros
+
+O primeiro número diz quantos números tem no arquivo
+se tiver zero significa que o arquivo está cheio
 
 ## Texto
+Um arquivo com um texto mais simples de entende o que foi gerado pelo assembler
 
 # O que o assembler entende
 
@@ -162,6 +169,7 @@ Existem algumas labels que são especias:
 | @here | Refere a posição de memória onde está                                                        |
 
 ## Pseudo Instruções
+TODO implementar
 
 - push rx
 
@@ -185,7 +193,6 @@ Existem algumas labels que são especias:
   ```
 
 ### Entrada e Saida
-TODO implementar
 
 - halt
   ```
@@ -204,7 +211,7 @@ TODO implementar
 
 - inchar rx
   ```
-  in rx aux 2
+  in rx aux 3
   ```
 
 - inmem rx ry

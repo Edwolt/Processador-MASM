@@ -1,0 +1,10 @@
+set r0 1010101010101010b
+set r1 loop
+set r2 6000
+set r3 1
+
+loop:
+    outled r0
+    rotl r0 r3
+    sleep r2
+    j r1

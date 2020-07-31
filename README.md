@@ -83,14 +83,14 @@ O shift é feito usando 3 sinais para definir qual tipo de shift deve ser feito:
 - d: direção do shift, define se é um shift para direita ou para esquerda
 - b: define se deve preencher com 0 ou com 1
 
-| shift(t,d,b) rx ry | opcode | t d b | x   | operando | valor do shift | ação                             |
+| shift(tdb) rx ry | opcode | t d b | x   | operando | valor do shift | ação                             |
 | ------------------ | ------ | ----- | --- | -------- | -------------- | -------------------------------- |
 | **shiftl0 rx ry**  | 1011   | 000   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
-| **shiftr0 rx ry**  | 1011   | 010   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
+| **shiftr0 rx ry**  | 1011   | 010   | x   | ry       | rx             | rx <- rx >> ry preenchendo com 0 |
 | **shiftl1 rx ry**  | 1011   | 001   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
-| **shiftr1 rx ry**  | 1011   | 011   | x   | ry       | rx             | rx <- rx << ry preenchendo com 1 |
+| **shiftr1 rx ry**  | 1011   | 011   | x   | ry       | rx             | rx <- rx >> ry preenchendo com 1 |
 | **rotl rx ry**     | 1011   | 10x   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
-| **rotr rx ry**     | 1011   | 11x   | x   | ry       | rx             | rx <- rx << ry preenchendo com 1 |
+| **rotr rx ry**     | 1011   | 11x   | x   | ry       | rx             | rx <- rx >> ry preenchendo com 1 |
 
 ---
 
@@ -101,12 +101,12 @@ O shift é feito usando 3 sinais para definir qual tipo de shift deve ser feito:
 | **cmp**   | 0001   | xxxx | ry  | rx  | Compara rx e ry e salva em aux |
 
 Depois da comparação aux recebe 4 valores:
-aux: 0000 0000 0000 elzs\
+aux: 0000 0000 0000 elpm\
 Onde:
 
 - e (igual): 1 se rx = ry
 - l (menor): 1 se rx < ry
-- p (plus): 1 se o bit mais significativo de rx for 1 e rx for diferente de zero
+- p (plus): 1 se o bit mais significativo de rx for 0 e rx for diferente de zero
 - m (minus): 1 se o bit mais significativo de rx for 1
 
 ## Desvio
@@ -168,7 +168,7 @@ Instrução in espera a execição da operação terminar
 | 000      | LEDs                | Acende os leds de usando como base os bits em src                 |
 | 001      | 7 segmentos parte 1 | Acende o display 7 segmentos usando como base os bits em src      |
 | 010      | 7 segmentos parte 2 | Acende o display 7 segmentos usando como base os bits em src      |
-| 011      | Video               | Desenha um pixel da cor ry na posição rx                          |
+| 011      | Video               | Desenha um pixel da cor ry (#rgbx) na posição rx                          |
 | 100      | memoria externa     | Escreve 4kb na posição rx da memória gigante lendo a partir de ry |
 
 Obs: in 000 causa um halt

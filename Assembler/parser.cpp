@@ -255,7 +255,7 @@ struct Parser {
                 if (ctype == NOT) {  // It's means thats is a label reference
                     labelsRef[token].push_back(memory.size());
                     memory.push_back(0);
-                } else if (ctype == NOOP) {
+                } else if (ctype == NONE) {
                     memory.push_back(cval);
                 } else if (ctype == RX) {
                     cval |= createRegister(line, getToken());
@@ -278,6 +278,9 @@ struct Parser {
                     if (isNum(arg)) {
                         num = evalNum(line, arg);
                     } else if (isInvalidNum(arg)) {
+                        lerror(line) << "Expected a number, get `" << arg << '`' << endl;
+                        num = 0;
+                    } else {
                         labelsRef[arg].push_back(memory.size());
                         num = 0;
                     }
@@ -346,6 +349,9 @@ struct Parser {
             if (labelsVal.find(i.first) != labelsVal.end()) {  // Label was declared
                 int val = labelsVal[i.first];
                 cdebug << "Label " << i.first << " is " << val << endl;
+                for (u16 j : i.second) {
+                    memory[j] = val;
+                }
             } else {
                 cerror << i.first << " was referred, but not declared" << endl;
             }

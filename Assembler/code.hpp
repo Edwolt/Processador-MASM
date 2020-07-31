@@ -9,7 +9,7 @@ using namespace std;
 
 enum CodeType {
     NOT,    // Tells that the given token isn't a code token
-    NOOP,   // Tells that the instruction is complete
+    NONE,   // Tells that the instruction is complete
     RX,     // Tells that the instruction need a register rx
     RY,     // Tells that the instruction need the registers rx and ry
     RZ,     // Tells that the instruction need the registers rx, ry and rz
