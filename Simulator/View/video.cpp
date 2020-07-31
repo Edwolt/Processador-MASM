@@ -75,6 +75,8 @@ void Video::draw() {
 }
 
 void Video::set(u16 pos, u16 color) {
+
+    pos %= w * h;
     int i = pos % w;
     int j = pos / w;
     float r = (color >> 12) / 16.0;

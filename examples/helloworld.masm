@@ -1,0 +1,69 @@
+set r0 main
+j r0
+
+hello:
+1 0 0 1 0 1 1 1 1 0 1 0 0 0 0 1 0 0 0 0 1 1 1 1 0 0 0 0 1 0 0 0 1 0 1 1 1 1 0 1 1 1 0 0 1 0 0 0 0 1 1 1 0 0 1
+1 0 0 1 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 1 0 0 0 0 1 0 0 0 1 0 1 0 0 1 0 1 0 0 1 0 1 0 0 0 0 1 0 0 1 0 1
+1 1 1 1 0 1 1 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 1 0 0 0 0 1 0 1 0 1 0 1 0 0 1 0 1 1 1 0 0 1 0 0 0 0 1 0 0 1 0 1
+1 0 0 1 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 1 0 0 0 0 1 0 1 0 1 0 1 0 0 1 0 1 0 0 1 0 1 0 0 0 0 1 0 0 1 0 0
+1 0 0 1 0 1 1 1 1 0 1 1 1 1 0 1 1 1 1 0 1 1 1 1 0 0 0 0 0 1 0 1 0 0 1 1 1 1 0 1 0 0 1 0 1 1 1 1 0 1 1 1 0 0 1
+
+main:
+    set r0 0  ; zero
+    set r1 5  ; lines
+    set r2 55 ; Number of comlumns
+
+    set r3 hello;
+    set r4 1612; start of write
+
+    set ra 80 ; window width
+    set rc #F0F0 ; Magenta, also knows as fuchsia
+    set rd loop
+
+
+loop:
+    ; 12: x center
+    ; 20: y center
+    ; 1612: start of write
+
+    ; r0: 0
+    ; r1: lines
+    ; r2: columns
+    ; r3: i in hello
+    ; r4: screen pos
+    ; r5: i
+    ; r6:
+    ; ra: window width
+    ; rc: color
+    ; rd: loop
+
+    ; r5 = &hello[r4++]
+    add r5 r3 r4
+    addi r4 1
+
+    ; r5 = *r5
+    load r5 r5
+
+    ; if r5 == 0
+    cmp r5 aux
+    jnz rd ; It's isn't 1
+
+    ; r7, r5 = i / columns, r6 = i % columns
+    div r7 r4 r2
+    move r5 r7
+    move r6 aux
+
+    addi r6 12 ; x
+    addi r7 20 ; y
+
+    ; r8 = r7 * w + r6
+    mul r8 r7 ra
+    add r8 r8 r6
+
+    outpx r8 rc
+
+    ; if line_count != lines: goto loop
+    cmp r5 r1
+    jne rd
+
+end: halt

@@ -11,3 +11,6 @@ pisca-pisca:
 
 counter:
 	$(ASS) $F/counter.masm -o $F/counter.bin -1 $F/counter.txt -v && $(SIM) $F/counter.bin
+
+helloworld:
+	$(ASS) $F/helloworld.masm -o $F/helloworld.bin -1 $F/helloworld.txt -v && $(SIM) $F/helloworld.bin

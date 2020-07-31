@@ -34,8 +34,8 @@ map<string, puc> codes = {
     {"outled", puc(0x38F0, RX)},
     {"outseg1", puc(0x39F0, RX)},
     {"outseg2", puc(0x3AF0, RX)},
-    {"outpx", puc(0x3B000, RY)},
-    {"outpx", puc(0x3C000, RY)},
+    {"outpx", puc(0x3B00, RY)},
+    {"outmem", puc(0x3C00, RY)},
     {"move", puc(0x4000, RY)},   // move
     {"set", puc(0x5000, SET)},   // set
     {"addi", puc(0x6000, IMM)},  // addi subi

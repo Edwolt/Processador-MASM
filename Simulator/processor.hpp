@@ -26,9 +26,13 @@ struct Processor {
      */
     i32 delay = 0;
 
+    // Caution with bitshifts
+    // The behavior s undefined for signed vars
+    // And all bitshift return a int
+
     inline pair<bool, u16> jifParams() {
         bool n = IR & (1 << 11);
-        u16 elpm = (IR >> 23) & 0x00F;
+        u16 elpm = (IR >> 7) & 0x000F;
         return pair<bool, u16>(n, elpm);
     }
     u16 shiftParams() { return ((IR << 4) & 0xFFFF) >> 13; }
