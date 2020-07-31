@@ -304,6 +304,48 @@ struct Parser {
                     cval |= num << 4;
 
                     memory.push_back(cval);
+                } else if (ctype == PSEUDO) {
+                    if (token == "push") {
+                        // store sp rx
+                        cval = createCode(line, "store").first;
+                        cval |= createRegister(line, "sp");
+                        cval |= createRegister(line, getToken()) << 4;
+                        memory.push_back(cval);
+
+                        // subi sp 1
+                        cval = createCode(line, "subi").first;
+                        cval |= createRegister(line, "sp");
+                        cval |= 1 << 4;
+                        memory.push_back(cval);
+                    } else if (token == "pop") {
+                        // addi sp 1
+                        cval = createCode(line, "addi").first;
+                        cval |= createRegister(line, "sp");
+                        cval |= 1 << 4;
+                        memory.push_back(cval);
+
+                        // load rx sp
+                        cval = createCode(line, "load").first;
+                        cval |= createRegister(line, getToken());
+                        cval |= createRegister(line, "sp") << 4;
+                        memory.push_back(cval);
+                    } else if (token == "mod") {
+                        u16 rx = createRegister(line, getToken());
+                        u16 ry = createRegister(line, getToken());
+                        u16 rz = createRegister(line, getToken());
+
+                        // div rx ry rz
+                        cval = createCode(line, "div").first;
+                        cval |= rx;
+                        cval |= ry << 4;
+                        cval |= rz << 8;
+
+                        // move rx aux
+                        cval = createCode(line, "move").first;
+                        cval |= rx;
+                        cval |= createRegister(line, "aux") << 4;
+                    }
+                    cval = 0;  // It will be used later
                 } else {
                     cbug << "parseAll() CODE: `" << token << '`' << endl;
                 }

@@ -7,7 +7,7 @@
 		<string>masm</string>
 	</array>
 	<key>name</key>
-	<string>M Assembly</string>
+	<string>MASM</string>
 	<key>patterns</key>
 	<array>
 		<dict>
@@ -16,13 +16,13 @@
 				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>entity.name.function.reg</string>
+					<string>variable.parameter</string>
 				</dict>
 			</dict>
 			<key>match</key>
 			<string>\b(r0|r1|r2|r3|r4|r5|r6|r7|r8|r9|r10|r11|r12|r13|r14|r15|ra|rb|rc|rd|re|rf|sp|aux)\b</string>
 			<key>name</key>
-			<string>entity.name.function.reg</string>
+			<string>variable.parameter</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -78,7 +78,7 @@
 			<key>match</key>
 			<string>(;.*)$</string>
 			<key>name</key>
-			<string>comment.line</string>
+			<string>comment.line.character</string>
 		</dict>
 		<dict>
 			<key>captures</key>
@@ -132,7 +132,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>([0-9a-fA-F]+o)\W</string>
+			<string>([0-7]+o)\W</string>
 			<key>name</key>
 			<string>constant.numeric.hex</string>
 		</dict>
@@ -155,6 +155,12 @@
 			<string>\b(?i:jif\(.*\)|noop|jn|j|je|jne|jl|jg|jle|jge|jz|jnz|jp|jpz|jm|jmz|load|store|cmp|in|halt|inbutton|insw|inchar|inmen|sleep|out|outled|outseg1|outseg2|outpx|outmem|move|set|addi|subi|add|sub|mul|div|shift\(.*\)|shiftl0|shiftr0|shiftl1|shiftr1|rotl|rotr|and|or|xor|not)\b</string>
 			<key>name</key>
 			<string>keyword.control</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>\b(?i:push|pop|mod)\b</string>
+			<key>name</key>
+			<string>entity.name.function</string>
 		</dict>
 	</array>
 	<key>scopeName</key>

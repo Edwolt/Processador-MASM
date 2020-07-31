@@ -56,11 +56,13 @@ void Processor::next() {
 
         pair<bool, u16> params = jifParams();
         bool a = (AUX & 0x000F) & params.second;
+
         if (params.first) a = !a;
         if (a) {
             numJumpsExecuted++;
-            AUX = PC;
+            u16 aux = PC;
             PC = RX;
+            AUX = aux;
             cout << "jumped(" << (params.first ? '!' : ' ') << params.second << ") " << RX << endl;
         } else {
             cout << "jump(" << (params.first ? '!' : ' ') << params.second << ") " << RX << endl;
@@ -72,14 +74,15 @@ void Processor::next() {
         bool e, l, p, m;
         e = RX == RY;
         l = RX < RY;
-        p = (RX != 0 ? !(RX >> 15) : false);
-        m = RX >> 15;
+        p = (RX != 0 ? !(RX & 0x8000) : false);
+        m = RX & 0x8000;
 
         AUX = 0;
-        if (e) AUX |= 0xb1000;
-        if (l) AUX |= 0xb0100;
-        if (p) AUX |= 0xb0010;
-        if (m) AUX |= 0xb0001;
+        if (e) AUX |= 8;
+        if (l) AUX |= 4;
+        if (p) AUX |= 2;
+        if (m) AUX |= 1;
+        cout << "AUX: " << AUX << endl;
 
     } else if (opcode == LOADSTORE) {
         if (!getBitAfterOpcode()) {  // Load

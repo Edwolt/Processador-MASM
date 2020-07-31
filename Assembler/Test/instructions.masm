@@ -31,11 +31,11 @@ store r0 r7
 move rc r0;
 
 ; set
-set r5 o177777
+set r5 177777o
 
 ; addi/subi
 addi sp 5
-subi sp x7F
+subi sp 7Fx
 
 ; ULA operations
 ; add
@@ -70,3 +70,9 @@ xor r0 r13 r10
 
 ; not
 not r1 r5
+
+; pseudo-instructions
+; TODO update expected
+push r5
+pop sp
+mod r1 r2 r3

@@ -169,7 +169,6 @@ Existem algumas labels que são especias:
 | @here | Refere a posição de memória onde está                                                        |
 
 ## Pseudo Instruções
-TODO implementar
 
 - push rx
 
@@ -181,8 +180,8 @@ TODO implementar
 - pop rx
 
   ```
-  load rx
   addi sp 1
+  load rx
   ```
 
 - mod rx ry rz

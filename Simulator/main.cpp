@@ -12,6 +12,7 @@ using namespace std;
 static View view = View();
 static Processor processor;
 static IO io;
+bool playing = false;
 
 void draw() {
     glClear(GL_COLOR_BUFFER_BIT);
@@ -20,10 +21,20 @@ void draw() {
 }
 
 void timer(int val) {
-    for (int i = 0; i < 100; i++) processor.next();
+    if (playing) {
+        for (int i = 0; i < 100; i++) processor.next();
+    }
 
     glutPostRedisplay();
     glutTimerFunc(1000 / 60, timer, val + 100);
+}
+
+void keyboard(unsigned char key, int x, int y) {
+    if (key == '+' && !playing) {
+        processor.next();
+    } else if (key == '-') {
+        playing = !playing;
+    }
 }
 
 void setup(int argc, char** argv) {
@@ -61,8 +72,9 @@ int main(int argc, char const* argv[]) {
     io = IO(&view);
     processor = Processor(path, &io);
 
+    glutKeyboardFunc(keyboard);
     glutTimerFunc(0, timer, 0);
-    glutFullScreen();
+    // glutFullScreen();
     atexit(onExit);
     glutMainLoop();
 

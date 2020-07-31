@@ -50,11 +50,13 @@ map<string, puc> codes = {
     {"shiftr1", puc(0xB600, RY)},
     {"rotl", puc(0xB800, RY)},
     {"rotr", puc(0xBC00, RY)},
-    {"and", puc(0xC000, RZ)},  // and
-    {"or", puc(0xD000, RZ)},   // or
-    {"xor", puc(0xE000, RZ)},  // xor
-    {"not", puc(0xF000, RY)}   // not
-};
+    {"and", puc(0xC000, RZ)},       // and
+    {"or", puc(0xD000, RZ)},        // or
+    {"xor", puc(0xE000, RZ)},       // xor
+    {"not", puc(0xF000, RY)},       // not
+    {"push", puc(0x0000, PSEUDO)},  // psudo-instructions
+    {"pop", puc(0x0000, PSEUDO)},
+    {"mod", puc(0x0000, PSEUDO)}};
 
 map<string, u16> regs = {
     {"r0", 0x0000},
