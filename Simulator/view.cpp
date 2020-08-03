@@ -27,6 +27,7 @@ void View::draw() {
     video.draw();
     for (int i = 0; i < LED_COUNT; i++) led[i].draw();
 
+    // Esta desenhando a linha cinza
     point p(0, 45.3);
     glColor3f(0.7, 0.7, 0.7);
     glBegin(GL_POLYGON);
