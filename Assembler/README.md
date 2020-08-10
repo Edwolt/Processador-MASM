@@ -158,7 +158,7 @@ Uma label é declarada colocando dois pontos (:)\
 Se você declara uma label usando constatantes `#0000:` o resultado é imprevisível (Pode ser que ela seja
 declarada mas ser impossível de se referir a ela, ou pode ser que a constante seja montada)\
 Você pode declara um label como `&#L$$A:`, mas eu recomendo fortemente usar apenas letras underlines e numeros de forma que o numero nao seja o primeiro caracter\
-Atenção: `x`, `b` e `o` são começo de constantes, então tome cuidado ao nomear labels como `o3:`, `x1` ou `b10`\
+Atenção: Valores como `124b` são considerados constanstes, pois não são um número\
 Existem algumas labels que são especias:
 
 | Label | Função                                                                                       |
