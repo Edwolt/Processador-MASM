@@ -71,14 +71,14 @@ O shift é feito usando 3 sinais para definir qual tipo de shift deve ser feito:
 - d: direção do shift, define se é um shift para direita ou para esquerda
 - b: define se deve preencher com 0 ou com 1
 
-| shift(tdb) rx ry  | opcode | t d b | x   | operando | valor do shift | ação                             |
-| ----------------- | ------ | ----- | --- | -------- | -------------- | -------------------------------- |
-| **shiftl0 rx ry** | 1011   | 000   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
-| **shiftr0 rx ry** | 1011   | 010   | x   | ry       | rx             | rx <- rx >> ry preenchendo com 0 |
-| **shiftl1 rx ry** | 1011   | 001   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
-| **shiftr1 rx ry** | 1011   | 011   | x   | ry       | rx             | rx <- rx >> ry preenchendo com 1 |
-| **rotl rx ry**    | 1011   | 10x   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0 |
-| **rotr rx ry**    | 1011   | 11x   | x   | ry       | rx             | rx <- rx >> ry preenchendo com 1 |
+| shift(tdb) rx ry  | opcode | t d b | x   | operando | valor do shift | ação                                                |
+| ----------------- | ------ | ----- | --- | -------- | -------------- | --------------------------------------------------- |
+| **shiftl0 rx ry** | 1011   | 000   | x   | ry       | rx             | rx <- rx << ry preenchendo com 0                    |
+| **shiftr0 rx ry** | 1011   | 010   | x   | ry       | rx             | rx <- rx >> ry preenchendo com 0                    |
+| **shiftl1 rx ry** | 1011   | 001   | x   | ry       | rx             | rx <- rx << ry preenchendo com 1                    |
+| **shiftr1 rx ry** | 1011   | 011   | x   | ry       | rx             | rx <- rx >> ry preenchendo com 1                    |
+| **rotl rx ry**    | 1011   | 10x   | x   | ry       | rx             | rx <- rx << ry preenchendo com os bits que "sairem" |
+| **rotr rx ry**    | 1011   | 11x   | x   | ry       | rx             | rx <- rx >> ry preenchendo com os bits que "sairem" |
 
 ---
 
@@ -182,7 +182,6 @@ Obs: in 111 causa sleep de ry ciclos de clocks
 - [ ] outseg2
 - [x] outpx
 - [ ] outmem
-
 
 ## Pseudo Instruções
 
