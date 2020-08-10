@@ -19,10 +19,8 @@ Um arquivo com um texto mais simples de entende o que foi gerado pelo assembler
 
 Montador para o processador
 
-## Instruções verdadeiras
-
-Possui todas as intruções verdadeiras do processador como esperado
-
+# [Instruções](../INSTRUCTIONS.md)
+[Clique aqui](../INSTRUCTIONS.md) para ver a lista com todas as instruções aceita pelo processador e pelo montador
 ## Constantes
 
 - Decimal: Salva na memória o valor decimal\
@@ -167,83 +165,3 @@ Existem algumas labels que são especias:
 | ----- | -------------------------------------------------------------------------------------------- |
 | @end  | Seu valor é a próxima posição depois da última posição usada damemória criada pelo assembler |
 | @here | Refere a posição de memória onde está                                                        |
-
-## Pseudo Instruções
-
-- push rx
-
-  ```
-  store rx
-  subi sp 1
-  ```
-
-- pop rx
-
-  ```
-  addi sp 1
-  load rx
-  ```
-
-- mod rx ry rz
-
-  ```
-  div rx ry rz
-  move rx aux
-  ```
-
-### Entrada e Saida
-
-- halt
-  ```
-  in aux aux 0
-  ```
-
-- inbutton rx
-  ```
-  in rx aux 1
-  ```
-
-- insw rx
-  ```
-  in rx aux 2
-  ```
-
-- inchar rx
-  ```
-  in rx aux 3
-  ```
-
-- inmem rx ry
-  ```
-  in rx ry 4
-  ```
-
-- sleep rx
-  ```
-  in aux rx 7
-  ```
-
-- outled rx
-  ```
-  out aux rx 0
-  ```
-
-- outseg1 rx
-  ```
-  out aux rx 1
-  ```
-
-- outseg2 rx
-  ```
-  out aux rx 2
-  ```
-
-- outpx rx ry
-  ```
-  out rx ry 3
-  ```
-
-- outmem rx ry
-  ```
-  out rx ry 4
-  ```
