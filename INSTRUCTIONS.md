@@ -1,6 +1,6 @@
 # Instruções
 
-O opcode de cada instrução será de 4 bits
+O opcode de cada instrução é de 4 bits
 
 | Opcode | Instrução        |
 | ------ | ---------------- |
